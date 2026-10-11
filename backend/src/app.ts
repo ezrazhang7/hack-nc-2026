@@ -108,7 +108,7 @@ export function createApi(dependencies: ApiDependencies): Hono {
     "/api",
     createResearchRouter({
       pool: dependencies.pool,
-      model: dependencies.researchModel ?? createGeminiResearchModel(dependencies.ai, dependencies.model),
+      model: dependencies.researchModel ?? createGeminiResearchModel(dependencies.ai, dependencies.model, { fetchPage: safeFetch }),
       fetchPage: safeFetch,
       collectGithub: (target, projectSiteKey) => collectGithub(target, projectSiteKey, { token: dependencies.githubToken }),
       requireProjectEditor: requireEditor,

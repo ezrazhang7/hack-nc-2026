@@ -59,3 +59,14 @@ describe("urls", () => {
     expect(isFounderControlled("https://dailytarheel.com/article/x", "mothlight.app")).toBe(false);
   });
 });
+
+import { isDirectoryListing, projectSiteKeyFor } from "../../src/evidence/research/urls.js";
+describe("directory listings as the website", () => {
+  it("are not the founder's own site", () => {
+    expect(isDirectoryListing("https://www.ycombinator.com/companies/quippy")).toBe(true);
+    expect(projectSiteKeyFor("https://www.ycombinator.com/companies/quippy")).toBeNull();
+    expect(projectSiteKeyFor("https://apps.apple.com/us/app/quippy/id1")).toBeNull();
+    expect(projectSiteKeyFor("https://mothlight.app/")).toBe("mothlight.app");
+    expect(projectSiteKeyFor(null)).toBeNull();
+  });
+});

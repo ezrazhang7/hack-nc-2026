@@ -20,7 +20,7 @@ import {
 import type { GithubCollection } from "./github.js";
 import { dbProfileSnapshotLookup, type ProfileSnapshotLookup } from "./profile-snapshots.js";
 import type { FetchResult, PageFetcher } from "./safe-fetch.js";
-import { classifyUrl, hostOf, isFounderControlled, normalizeUrl, siteKey } from "./urls.js";
+import { classifyUrl, hostOf, isFounderControlled, normalizeUrl, projectSiteKeyFor, siteKey } from "./urls.js";
 import { VERIFIER_VERSION, verifyResearch, type EvidenceProposal, type RejectedProposal, type SourceRecord } from "./verifier.js";
 
 export const PIPELINE_VERSION = [FOUNDER_PASS_VERSION, CORROBORATION_PASS_VERSION, VERIFIER_VERSION, METRIC_CATALOG_VERSION].join("+");
@@ -263,7 +263,7 @@ export async function executeResearchRun(deps: ResearchDependencies, runId: stri
 
   try {
     const project = await loadProject(deps.pool, projectId);
-    const projectSiteKey = input.website_url ? siteKey(hostOf(input.website_url)) : null;
+    const projectSiteKey = projectSiteKeyFor(input.website_url);
     const warnings: string[] = [];
     const sources = new Map<string, SourceRow>();
     const geminiUrls: string[] = [];

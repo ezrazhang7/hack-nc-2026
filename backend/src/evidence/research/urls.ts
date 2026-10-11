@@ -99,6 +99,25 @@ export function isSelfPublishedHost(host: string): boolean {
   return SELF_PUBLISHED_SUFFIXES.some((suffix) => hostMatchesSuffix(host, suffix));
 }
 
+/**
+ * Directory and store listings written up by a third party (an accelerator, a database, an app
+ * store). A founder may give one as their "website", but it is not the founder's own domain.
+ */
+const DIRECTORY_SITES = new Set([
+  "ycombinator.com", "crunchbase.com", "producthunt.com", "wellfound.com", "angel.co",
+  "apps.apple.com", "play.google.com", "devpost.com", "f6s.com",
+]);
+
+export function isDirectoryListing(url: string): boolean {
+  const host = hostOf(url);
+  return DIRECTORY_SITES.has(host) || DIRECTORY_SITES.has(siteKey(host));
+}
+
+/** The founder's own site key, or null when the "website" is a third-party directory listing. */
+export function projectSiteKeyFor(website: string | null): string | null {
+  return website && !isDirectoryListing(website) ? siteKey(hostOf(website)) : null;
+}
+
 export function isFounderControlled(url: string, projectSiteKey: string | null): boolean {
   const host = hostOf(url);
   if (projectSiteKey && siteKey(host) === projectSiteKey) return true;

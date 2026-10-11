@@ -14,6 +14,7 @@ Gemini **finds and quotes** evidence. Deterministic code **decides what it is wo
 | 2 | Founders may drop only their own `FOUNDER_ATTESTED` statements | Third-party, collector, AI, and contradicted claims are always persisted; founders can mark them `founder_disputed` for a reviewer |
 | 3 | Temperature stays at Gemini 3's default 1.0 | Google: "we strongly recommend keeping the temperature parameter at its default value of 1.0" for Gemini 3 ([docs](https://ai.google.dev/gemini-api/docs/gemini-3#temperature)); supersedes the earlier 0.2 |
 | 4 | No Gemini background mode | It needs stored interactions (Google-side retention); runs execute in-process with a DB lease instead |
+| 5 | Founder pass reads server-fetched page text; thinking `medium` for both passes (2026-10-11) | A YC company's facts were lost: the url_context tool hit Gemini's "too many tool calls" 400 in most runs, and `low` thinking skimmed team sections. Text mode succeeded 6/6 in ~3 s. `gemini-3.8-flash` was tried: 88 s and ~95k tokens per run, over the search cap, and it missed the launch, so the default stays `gemini-3.1-flash-lite` |
 
 ## 3. Pipeline
 
@@ -57,6 +58,12 @@ Code: `backend/src/evidence/` (`metrics.ts`, `decimal.ts`, `research/*`), `backe
 | `prior_venture_users` / `prior_venture_revenue_usd` (metrics-v3) | Must name the prior venture in `subject`, and the venture's name must appear in the checked source. From founder text or a LinkedIn snapshot | `FOUNDER_ATTESTED` |
 | Same, third-party page (search-found or founder-submitted) | Quote found, page names the venture **and** a founder (`project_members.display_name`), and is not the venture's own site (host label equals the venture name) | `PUBLIC_WEAK`; otherwise dropped (search) or `FOUNDER_ATTESTED` (founder link) |
 | Contradiction | Same metric/subject/period differs by >25%: weaker claims that disagree with the strongest tier, or the whole group if the strongest tier disagrees internally | `MISSING_OR_CONTRADICTED` |
+
+**verifier-v4 (2026-10-11).**
+- A search citation that redirects to a page the founder submitted no longer replaces it. This collision rejected every founder claim from a YC profile as `UNKNOWN_SOURCE`.
+- Directory listings given as the website (`ycombinator.com`, Crunchbase, Product Hunt, app stores, Wellfound, Devpost, F6S) are third-party, not founder-controlled.
+- With no domain of its own, a search page confirms the company by naming it plus a founder's full name.
+- A prior-venture quote that describes a job at that company ("Head of Product at X") is rejected as `EMPLOYMENT_NOT_VENTURE`.
 
 Gemini's grounding metadata (`url_context_result`, `url_citation`) is recorded (`grounding_seen`) but is not sufficient on its own; the server-side quote check is the gate. A page on the founder's own domain is never more than founder-attested, however official it looks.
 

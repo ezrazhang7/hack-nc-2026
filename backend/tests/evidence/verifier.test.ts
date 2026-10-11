@@ -251,3 +251,58 @@ describe("prior-venture claims", () => {
     expect(proposals[0].subject).toBeNull();
   });
 });
+
+describe("verifier-v4: a search redirect never replaces the founder's page (Quippy regression)", () => {
+  const YC = "https://www.ycombinator.com/companies/quippy";
+  const YC_TEXT = "Quippy is a mobile app that coaches social skills. Quippy is live on the App Store. We are 2 full-time founders. ".repeat(3);
+  it("keeps claims from a founder-submitted YC page when a grounding link resolves to the same URL", () => {
+    const { proposals, rejected } = verifyResearch({
+      ...base,
+      project: { name: "Quippy", siteKey: null },
+      sources: [
+        // Registered first, as in the runner: the founder's page...
+        source({ url: YC, founderControlled: false, text: YC_TEXT }),
+        // ...then the corroboration pass's Google redirect that lands on it.
+        source({ url: "https://vertexaisearch.cloud.google.com/grounding-api-redirect/abc", finalUrl: YC, origin: "SEARCH_CITATION", founderControlled: false, text: YC_TEXT, groundingSeen: true }),
+      ],
+      founderClaims: [
+        claim("product_status", "launched", YC, "Quippy is live on the App Store."),
+        claim("full_time_founders", "2", YC, "We are 2 full-time founders."),
+      ],
+    });
+    expect(rejected.filter((r) => r.reason === "UNKNOWN_SOURCE")).toEqual([]);
+    // A third-party directory page that names the company counts as public evidence, not founder-attested.
+    expect(proposals.map((p) => [p.metric_code, p.status])).toEqual(
+      expect.arrayContaining([["product_status", "PUBLIC_WEAK"], ["full_time_founders", "PUBLIC_WEAK"]]),
+    );
+  });
+});
+
+describe("verifier-v4: startups without their own domain", () => {
+  const STORE = "https://apps.apple.com/us/app/quippy-social-skills/id1";
+  const STORE_TEXT = "Quippy: Social Skills. Developer: Jonathan Li. Quippy has 4,000 active users practicing every week. ".repeat(3);
+  const input = (founderNames: string[]) => ({
+    ...base,
+    project: { name: "Quippy", siteKey: null, founderNames },
+    sources: [source({ url: STORE, origin: "SEARCH_CITATION" as const, founderControlled: false, text: STORE_TEXT, groundingSeen: true })],
+    corroborationClaims: [claim("active_users", "4000", STORE, "Quippy has 4,000 active users practicing every week.")],
+  });
+  it("accepts a search page that names the company and a founder's full name", () => {
+    expect(verifyResearch(input(["Jonathan Li"])).proposals.map((p) => [p.metric_code, p.status])).toEqual([["active_users", "PUBLIC_WEAK"]]);
+  });
+  it("still rejects it when the founder name is missing or a single word", () => {
+    expect(verifyResearch(input(["me"])).rejected.map((r) => r.reason)).toEqual(["ENTITY_UNCONFIRMED"]);
+    expect(verifyResearch(input([])).rejected.map((r) => r.reason)).toEqual(["ENTITY_UNCONFIRMED"]);
+  });
+});
+
+import { describesEmployment } from "../../src/evidence/research/verifier.js";
+describe("verifier-v4: jobs are not prior ventures", () => {
+  it("flags role-at-company quotes and leaves founder quotes alone", () => {
+    expect(describesEmployment("Most recently Head of Product at Luvu (a16z-backed), scaling from $0 to $1.5M ARR", "Luvu")).toBe(true);
+    expect(describesEmployment("Previously APM at Duolingo, delivering $50.4M in ARR growth", "Duolingo")).toBe(true);
+    expect(describesEmployment("Quillpad, which reached 300 users", "Quillpad")).toBe(false);
+    expect(describesEmployment("I founded Lanternly, which grew to 12,000 users", "Lanternly")).toBe(false);
+    expect(describesEmployment("Engineer at Acme? No: I co-founded Lanternly (12k users)", "Lanternly")).toBe(false);
+  });
+});

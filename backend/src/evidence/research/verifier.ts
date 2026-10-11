@@ -10,7 +10,7 @@ import type { CollectedClaim } from "./github.js";
 import type { FetchStatus } from "./safe-fetch.js";
 import { hostOf, normalizeUrl } from "./urls.js";
 
-export const VERIFIER_VERSION = "verifier-v3";
+export const VERIFIER_VERSION = "verifier-v4";
 
 export type EvidenceStatus =
   | "INDEPENDENTLY_VERIFIED"
@@ -140,7 +140,19 @@ function subjectOf(code: MetricCode, claim: ProposedClaim, sourceText: string | 
   const subject = claim.subject?.trim();
   if (!subject) return { reason: "SUBJECT_REQUIRED" };
   if (sourceText !== null && !mentions(sourceText, subject)) return { reason: "SUBJECT_NOT_IN_SOURCE" };
+  if (describesEmployment(claim.quote, subject)) return { reason: "EMPLOYMENT_NOT_VENTURE" };
   return subject;
+}
+
+const ROLE = "(?:head|director|vp|vice president|manager|engineer|intern|analyst|designer|lead|apm|pm|associate|consultant|scientist|developer|researcher|staff|member)";
+
+/**
+ * verifier-v4: a quote that describes a job at the "venture" ("Head of Product at Luvu", "APM at
+ * Duolingo") is employment, not a company the founder built; its users and revenue are not theirs.
+ */
+export function describesEmployment(quote: string, subject: string): boolean {
+  const name = subject.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`\\b${ROLE}\\b[^.;]{0,60}?\\b(?:at|@)\\s+${name}\\b`, "i").test(quote);
 }
 
 /** A page attributes a prior venture to this team only if it names the venture and a founder. */
@@ -176,9 +188,18 @@ export function verifyResearch(input: VerifyInput): VerifyResult {
   const rejected: RejectedProposal[] = [];
   const proposals: EvidenceProposal[] = [];
 
+  // verifier-v4: a page's own URL beats another source's redirect target, and a founder-submitted
+  // page beats a search citation that redirects to it (a Google grounding link resolving to the
+  // founder's YC page used to replace it, so every claim from that page was rejected as unknown).
   const byUrl = new Map<string, SourceRecord>();
-  for (const source of input.sources) {
-    for (const key of [source.url, source.finalUrl]) if (key) byUrl.set(key, source);
+  const rank = (s: SourceRecord) => (s.origin === "FOUNDER_SUBMITTED" ? 0 : 1);
+  for (const pass of ["url", "finalUrl"] as const) {
+    for (const source of input.sources) {
+      const key = source[pass];
+      if (!key) continue;
+      const held = byUrl.get(key);
+      if (!held || (pass === "finalUrl" && held.url !== key && rank(source) < rank(held))) byUrl.set(key, source);
+    }
   }
   const findSource = (raw: string): SourceRecord | null => {
     const normalized = normalizeUrl(raw);
@@ -310,7 +331,11 @@ export function verifyResearch(input: VerifyInput): VerifyResult {
       const text = source.text ?? "";
       const namesCompany = mentions(text, input.project.name);
       const namesDomain = input.project.siteKey !== null && mentions(text, input.project.siteKey);
-      if (!namesCompany || (source.origin === "SEARCH_CITATION" && !namesDomain)) {
+      // verifier-v4: a startup listed only in a directory (no domain of its own) is identified by a
+      // founder's full name instead. Single-word listing names ("me", "Ana") are too weak to count.
+      const namesFounder = input.project.siteKey === null
+        && (input.project.founderNames ?? []).some((name) => /\S+\s+\S+/.test(name.trim()) && mentions(text, name.trim()));
+      if (!namesCompany || (source.origin === "SEARCH_CITATION" && !namesDomain && !namesFounder)) {
         reject("ENTITY_UNCONFIRMED");
         continue;
       }

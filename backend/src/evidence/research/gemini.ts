@@ -6,10 +6,12 @@
 import type { GoogleGenAI } from "@google/genai";
 import { z } from "zod";
 
+import type { PageFetcher } from "./safe-fetch.js";
+
 import { ASSESSABLE_SUBFACTORS, METRICS, METRIC_CODES, SUBJECT_METRICS } from "../metrics.js";
 
-export const FOUNDER_PASS_VERSION = "research-founder-v2";
-export const CORROBORATION_PASS_VERSION = "research-corroboration-v3";
+export const FOUNDER_PASS_VERSION = "research-founder-v3";
+export const CORROBORATION_PASS_VERSION = "research-corroboration-v4";
 
 const QUOTE_MAX = 300;
 
@@ -118,7 +120,8 @@ const SHARED_RULES = `Rules:
 - value is a plain decimal string ("12000", "3.5"); for product_status use one of: idea, mockup, prototype, beta, launched.
 - Never report or use schools, universities, degrees, ages, gender, race, ethnicity, nationality, family background, or employer prestige.
 - Omit metrics that are not stated. Do not pad the list.
-- ${[...SUBJECT_METRICS].join(" and ")} describe a venture a founder built BEFORE this startup: set subject to that venture's name, and report one claim per venture. Set subject to null for every other metric.
+- ${[...SUBJECT_METRICS].join(" and ")} describe a company a founder FOUNDED or CO-FOUNDED before this startup: set subject to that company's name, and report one claim per company. A job at someone else's company (e.g. "Head of Product at X", "APM at Y") is NOT a prior venture: never report its users or revenue; report only relevant_experience_years or prior_shipped_products when the page states them. Set subject to null for every other metric.
+- A directory listing's company status ("Status: Active") or batch is not product_status; use product_status only when the page describes the product's own availability.
 
 Metrics (use these codes only):
 ${METRIC_GUIDE}`;
@@ -127,6 +130,11 @@ ${METRIC_GUIDE}`;
 export function founderSystem(readInstruction: string): string {
   return `You extract startup evidence for a transparent valuation model.
 ${readInstruction}
+Fetch each URL in <sources> exactly once and never open any other URL. Read everything on each fetched page, including team, about, and footer text. Be thorough: a missed fact counts as missing evidence.
+Look specifically for:
+- Launch status: an app-store or marketplace listing, "download", "available on", "now live", or a working sign-up means product_status "launched"; "beta" or "early access" means beta.
+- Traction stated as numbers: users, downloads described as users, waitlist, customers, revenue or MRR, growth rates, letters of intent.
+- Team: how many founders work full time, the functions they cover, years of relevant experience, products they shipped, and ventures they built before (with that venture's users or revenue).
 Add one warning per source you could not read.
 ${SHARED_RULES}`;
 }
@@ -155,7 +163,7 @@ ${SHARED_RULES}`;
 }
 
 export const CORROBORATION_SEARCH_TOPICS =
-  "press coverage, competition or accelerator results, app-store or marketplace listings, launch platforms, and reputable market research for its sector";
+  "press coverage, accelerator or competition pages (e.g. a Y Combinator company profile), app-store or marketplace listings with ratings and user counts, launch platforms such as Product Hunt, interviews or posts naming the founders, and reputable market research for its sector. Search by product name plus domain, and by founder names plus product name";
 
 const CORROBORATION_SYSTEM = corroborationSystem(`Use Google Search (at most 6 searches) for: ${CORROBORATION_SEARCH_TOPICS}.`);
 
@@ -257,30 +265,49 @@ function wrap(tag: string, body: string): string {
   return `<${tag}>\n${body.replaceAll(`</${tag}>`, "")}\n</${tag}>`;
 }
 
-export function createGeminiResearchModel(ai: GoogleGenAI, model: string): ResearchModel {
+const PAGE_TEXT_MAX = 30_000;
+const TEXT_FOUNDER_SYSTEM = founderSystem(
+  `Read the page text in each <source> inside <sources> (cite it with that source's url), plus <founder_text> if present (cite it as source_url "founder_text").`,
+);
+
+/**
+ * With `fetchPage`, the founder pass reads page text our server already fetched (as the OpenRouter
+ * adapter does) instead of the url_context tool: no "too many tool calls" 400s, and the model quotes
+ * the exact text verifier.ts checks (2026-10-11). Without it, Gemini fetches the URLs itself.
+ */
+export function createGeminiResearchModel(ai: GoogleGenAI, model: string, options: { fetchPage?: PageFetcher } = {}): ResearchModel {
   async function run<T>(
     systemInstruction: string,
     input: string,
     tools: { type: "url_context" | "google_search" }[],
     jsonSchema: object,
     schema: z.ZodType<T>,
+    thinkingLevel: "medium" | "high",
   ): Promise<PassResult<T>> {
     let interaction: InteractionLike;
-    try {
-      interaction = (await ai.interactions.create(
+    const call = (text: string) =>
+      ai.interactions.create(
         {
           model,
           store: false,
           system_instruction: systemInstruction,
-          input,
+          input: text,
           tools,
           // Gemini 3 guidance: keep temperature at its default 1.0 (ai.google.dev/gemini-api/docs/gemini-3#temperature).
-          // Thinking tokens bill as output; extraction with quotes needs little reasoning, so keep it low.
-          generation_config: { max_output_tokens: 8_192, thinking_level: "low" },
+          // Thinking tokens bill as output; raised from "low" after a YC company's facts were missed (2026-10-11).
+          generation_config: { max_output_tokens: 16_384, thinking_level: thinkingLevel },
           response_format: { type: "text", mime_type: "application/json", schema: jsonSchema },
         },
         { timeout: 90_000, maxRetries: 1 },
-      )) as InteractionLike;
+      ) as Promise<InteractionLike>;
+    try {
+      try {
+        interaction = await call(input);
+      } catch (error) {
+        // Gemini's own remedy for this 400: retry once with the error in the prompt.
+        if (!(error instanceof Error && /too many tool calls/i.test(error.message))) throw error;
+        interaction = await call(`${input}\n\nNote: the previous attempt failed with "${error.message.slice(0, 200)}". Use at most one tool call per source URL.`);
+      }
     } catch (error) {
       throw new ResearchModelError("AI_UNAVAILABLE", error instanceof Error ? error.message : "Gemini request failed");
     }
@@ -298,14 +325,30 @@ export function createGeminiResearchModel(ai: GoogleGenAI, model: string): Resea
 
   return {
     model,
-    founderPass({ project, urls, founderText }) {
+    async founderPass({ project, urls, founderText }) {
+      if (options.fetchPage) {
+        const pages = await Promise.all(urls.map((url) => options.fetchPage!(url)));
+        const sources = urls.map((url, i) => {
+          const page = pages[i];
+          const body = page.status === "OK" && page.text ? page.text.slice(0, PAGE_TEXT_MAX) : `(could not be read: ${page.status})`;
+          return `<source url="${url}">\n${body.replaceAll("</source>", "")}\n</source>`;
+        });
+        const textInput = [
+          `Startup: ${project.name}: ${project.oneLiner}`,
+          `Sector: ${project.sector ?? "unspecified"} · Stage claimed by founder: ${project.stage}`,
+          wrap("sources", sources.length ? sources.join("\n") : "(none)"),
+          founderText ? wrap("founder_text", founderText) : "",
+        ].join("\n\n");
+        return run(TEXT_FOUNDER_SYSTEM, textInput, [], founderPassJsonSchema, founderPassSchema, "medium");
+      }
       const input = [
         `Startup: ${project.name}: ${project.oneLiner}`,
         `Sector: ${project.sector ?? "unspecified"} · Stage claimed by founder: ${project.stage}`,
         wrap("sources", urls.length ? urls.join("\n") : "(none)"),
         founderText ? wrap("founder_text", founderText) : "",
       ].join("\n\n");
-      return run(FOUNDER_SYSTEM, input, urls.length ? [{ type: "url_context" }] : [], founderPassJsonSchema, founderPassSchema);
+      // Extraction from given pages: medium thinking reads team and traction sections more carefully.
+      return run(FOUNDER_SYSTEM, input, urls.length ? [{ type: "url_context" }] : [], founderPassJsonSchema, founderPassSchema, "medium");
     },
     corroborationPass(passInput) {
       const input = corroborationInput(passInput);
@@ -315,6 +358,8 @@ export function createGeminiResearchModel(ai: GoogleGenAI, model: string): Resea
         [{ type: "google_search" }, { type: "url_context" }],
         corroborationPassJsonSchema,
         corroborationPassSchema,
+        // Search planning and judgment; "high" exceeded the 90 s budget on gemini-3.8-flash (2026-10-11).
+        "medium",
       );
     },
   };
