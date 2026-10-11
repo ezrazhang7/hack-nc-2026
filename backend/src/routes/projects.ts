@@ -8,14 +8,14 @@ import { TICKER, availableTicker, tickerCandidates } from "../projects/ticker.js
 import type { TickerNamer } from "../projects/ticker-ai.js";
 import { STAGES } from "../valuation/quality-scores.js";
 import { ValuationServiceError, previewValuation } from "../valuation/service.js";
-import { rejectForeignOrigin } from "./guards.js";
+import { rejectForeignOrigin, type AllowedOrigins } from "./guards.js";
 import { onceForKey, requireIdempotencyKey } from "./idempotency.js";
 
 export interface ProjectsRouterDependencies {
   pool: Pool;
   /** Gemini ticker picks for new projects; omitted or failing → deterministic candidates. */
   nameTicker?: TickerNamer;
-  publicOrigin: string;
+  publicOrigin: AllowedOrigins;
   requireIdentity: (context: Context) => Promise<{ identityId: string }>;
   requireProjectEditor: (context: Context, projectId: string) => Promise<{ identityId: string }>;
 }
@@ -38,7 +38,8 @@ export const createProjectSchema = z
     formation_state: z.string().trim().toUpperCase().regex(/^[A-Z]{2}$/).nullable().optional(),
     website_url: z.string().trim().max(2048).nullable().optional(),
     sector_code: z.string().regex(/^[a-z0-9_]+$/).nullable().optional(),
-    publish_contact_email: z.boolean().default(true),
+    // Privacy-safe default: a contact address is never public unless a future UI explicitly opts in.
+    publish_contact_email: z.boolean().default(false),
     // Listing only; names and titles carry zero weight in scoring (M§2.3).
     founder: z.object({ display_name: z.string().trim().min(1).max(120), role_title: optionalText(80) }),
   })

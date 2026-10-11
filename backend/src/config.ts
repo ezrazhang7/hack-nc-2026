@@ -7,6 +7,25 @@ import type { OtpDeliveryConfig } from "./auth/otp-delivery.js";
 const envSchema = z.object({
   PORT: z.coerce.number().int().min(1).max(65_535).default(8787),
   PUBLIC_ORIGIN: z.string().url().default("http://localhost:8787"),
+  // Comma-separated extra browser origins accepted alongside PUBLIC_ORIGIN, e.g. the *.vercel.app
+  // fallback when PUBLIC_ORIGIN is a custom domain. Exact origins only; no wildcards.
+  TRUSTED_ORIGINS: z
+    .string()
+    .transform((value, context) => {
+      const origins: string[] = [];
+      for (const entry of value.split(",").map((part) => part.trim()).filter(Boolean)) {
+        try {
+          const url = new URL(entry);
+          if (url.origin === "null" || url.origin !== entry.replace(/\/$/, "")) throw new Error();
+          origins.push(url.origin);
+        } catch {
+          context.addIssue({ code: "custom", message: "each entry must be an origin like https://example.vercel.app" });
+          return z.NEVER;
+        }
+      }
+      return origins;
+    })
+    .optional(),
   DATABASE_URL: z
     .string()
     .regex(/^postgres(ql)?:\/\//, "must be a postgres:// connection string (Tiger console → service → Connect)"),

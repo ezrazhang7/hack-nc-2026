@@ -13,6 +13,8 @@ export interface AuthOptions {
   secret: string;
   /** PUBLIC_ORIGIN, e.g. http://localhost:8787; the only trusted origin (same-origin static export). */
   baseURL: string;
+  /** TRUSTED_ORIGINS: extra origins Better Auth accepts, e.g. the *.vercel.app fallback. */
+  trustedOrigins?: readonly string[];
   campusDomains: readonly string[];
   sendOtp: OtpSender;
   /** Defaults to true outside http://localhost. */
@@ -32,7 +34,7 @@ export function createAuth(options: AuthOptions) {
     secret: options.secret,
     baseURL: options.baseURL,
     basePath: "/api/auth",
-    trustedOrigins: [options.baseURL],
+    trustedOrigins: [options.baseURL, ...(options.trustedOrigins ?? [])],
     database: options.authPool,
     advanced: {
       // auth.* ids are uuid columns, and identities.auth_user_id references auth."user"(id).

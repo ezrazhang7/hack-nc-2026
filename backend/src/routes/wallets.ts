@@ -5,11 +5,11 @@ import type { Pool } from "pg";
 import { z } from "zod";
 
 import { challengeMessage, isSolanaAddress, verifyWalletSignature } from "../wallets/solana.js";
-import { rejectForeignOrigin } from "./guards.js";
+import { rejectForeignOrigin, type AllowedOrigins } from "./guards.js";
 
 export interface WalletsRouterDependencies {
   pool: Pool;
-  publicOrigin: string;
+  publicOrigin: AllowedOrigins;
   requireIdentity: (context: Context) => Promise<{ identityId: string }>;
 }
 

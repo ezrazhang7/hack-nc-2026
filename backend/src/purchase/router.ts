@@ -6,6 +6,7 @@ import type { Context } from 'hono';
 import { PublicKey, VersionedTransaction } from '@solana/web3.js';
 import bs58 from 'bs58';
 import { z, ZodError } from 'zod';
+import { isAllowedOrigin, type AllowedOrigins } from '../routes/guards.js';
 import { AppError } from './http/errors.js';
 import { allocation } from './rounds/allocation.js';
 import { publicKey } from './solana/addresses.js';
@@ -28,7 +29,7 @@ function signature(value: string) {
   catch { throw new AppError('INVALID_INPUT', 'Invalid transaction signature.'); }
   return value;
 }
-export function createPurchaseRouter(store: Store, chain: Chain, publicOrigin: string, purchases:PurchaseServices | undefined,
+export function createPurchaseRouter(store: Store, chain: Chain, publicOrigin: AllowedOrigins, purchases:PurchaseServices | undefined,
   requireIdentity:(context:Context)=>Promise<{identityId:string}>, schedule:(task:()=>Promise<void>)=>void = task => { void task().catch(()=>undefined); }) {
   const app = new Hono<{ Variables: Variables }>();
   const isPurchase=(path:string)=>/^\/(?:banking\/(?:account|activity)|funding(?:\/.*)?|wallet\/balance|portfolio|transactions(?:\/.*)?|rounds\/[^/]+\/(?:open\/prepare|subscribe\/prepare|subscriptions\/me|settlement\/prepare)|projects\/[^/]+\/tokenization(?:\/.*)?|tokenization\/allocation\/preview)$/.test(path.replace(/^\/api/,''));
@@ -45,7 +46,7 @@ export function createPurchaseRouter(store: Store, chain: Chain, publicOrigin: s
   app.use('*', async (context, next) => {
     if(!isPurchase(context.req.path)) {await next();return;}
     if (!['GET', 'HEAD'].includes(context.req.method)) {
-      if (context.req.header('Origin') !== publicOrigin) throw new AppError('FORBIDDEN', 'Request origin is not allowed.', 403);
+      if (!isAllowedOrigin(context.req.header('Origin'), publicOrigin)) throw new AppError('FORBIDDEN', 'Request origin is not allowed.', 403);
       if (!context.req.header('Content-Type')?.startsWith('application/json')) throw new AppError('INVALID_INPUT', 'Use application/json.');
       const key = context.req.header('Idempotency-Key');
       if (!key || !/^[\x21-\x7e]{8,128}$/.test(key)) throw new AppError('MISSING_IDEMPOTENCY_KEY', 'Provide an 8–128 character request key.');

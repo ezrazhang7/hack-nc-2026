@@ -110,7 +110,7 @@ describe("POST /projects", () => {
     expect(created).toMatchObject({ slug: "mothlight", status: "DRAFT" });
 
     const row = await db.query(`select tagline, stage::text, entity_type::text, website_url, publish_contact_email from projects where id = $1`, [created.id]);
-    expect(row.rows[0]).toEqual({ tagline: "Quiet study rooms at 2 a.m.", stage: "LAUNCHED", entity_type: "UNINCORPORATED", website_url: "https://mothlight.app/", publish_contact_email: true });
+    expect(row.rows[0]).toEqual({ tagline: "Quiet study rooms at 2 a.m.", stage: "LAUNCHED", entity_type: "UNINCORPORATED", website_url: "https://mothlight.app/", publish_contact_email: false });
     const member = await db.query(`select role::text, display_name, role_title from project_members where project_id = $1`, [created.id]);
     expect(member.rows).toEqual([{ role: "FOUNDER", display_name: "Ana Ruiz", role_title: "CEO" }]);
 
@@ -158,7 +158,7 @@ describe("POST /projects", () => {
 describe("public profile and valuation preview", () => {
   it("hides drafts from the public, shows them to editors, and publishes contact + latest valuation", async () => {
     const dee = await newIdentity("dee@unc.edu");
-    const created = await (await call(dee, "POST", "/projects", project({ name: "Tidewater", stage: "EARLY_REVENUE" }), { "idempotency-key": "tide-0001" })).json();
+    const created = await (await call(dee, "POST", "/projects", project({ name: "Tidewater", stage: "EARLY_REVENUE", publish_contact_email: true }), { "idempotency-key": "tide-0001" })).json();
     const id = created.project.id;
 
     expect((await call(null, "GET", "/projects/tidewater")).status).toBe(404);

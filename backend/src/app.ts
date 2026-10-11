@@ -32,6 +32,8 @@ export interface ApiDependencies {
   pool: Pool;
   /** PUBLIC_ORIGIN: non-GET requests must carry this Origin (BACKEND_STACK §7). */
   publicOrigin: string;
+  /** TRUSTED_ORIGINS: extra origins allowed alongside publicOrigin (e.g. the *.vercel.app fallback). */
+  trustedOrigins?: readonly string[];
   /** PROGRAM_ID of the deployed program; null until it exists. */
   programId?: string | null;
   /** DEMO_MODE only: rounds may cite the DRAFT model (its hash still pins the parameters). */
@@ -76,13 +78,14 @@ export function createApi(dependencies: ApiDependencies): Hono {
   app.get('/api/status',context=>context.json({...readiness(),backendConfigured:true,
     purchasesEnabled:Boolean(dependencies.purchases),nessieEnabled:dependencies.purchases?.funding.options.enabled ?? false,demoMode:dependencies.demoSignIn ?? false}));
   app.route("/api", createAuthRouter({ ...identityDependencies, demoSignIn: dependencies.demoSignIn }));
+  const allowedOrigins = [dependencies.publicOrigin, ...(dependencies.trustedOrigins ?? [])];
   const routeGuards = {
     pool: dependencies.pool,
-    publicOrigin: dependencies.publicOrigin,
+    publicOrigin: allowedOrigins,
     requireIdentity: (context: Context) => requireIdentity(context, identityDependencies),
   };
   app.route('/api',createPurchaseRouter(dependencies.purchases?.store ?? new PgStore(dependencies.pool),
-    dependencies.purchases?.chain ?? unavailableChain, dependencies.publicOrigin,dependencies.purchases,
+    dependencies.purchases?.chain ?? unavailableChain, allowedOrigins,dependencies.purchases,
     routeGuards.requireIdentity,dependencies.runInBackground));
   app.route(
     "/api",

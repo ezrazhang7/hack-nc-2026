@@ -41,3 +41,4 @@ test-ledger/
 
 # Operator-only bank manifests, tested profiles and deployment configuration
 private-configuration/
+.env*

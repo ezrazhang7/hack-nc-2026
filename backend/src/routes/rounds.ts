@@ -13,12 +13,12 @@ import {
   quoteRound,
 } from "../rounds/service.js";
 import { ValuationServiceError, previewValuation } from "../valuation/service.js";
-import { rejectForeignOrigin } from "./guards.js";
+import { rejectForeignOrigin, type AllowedOrigins } from "./guards.js";
 import { onceForKey, requireIdempotencyKey } from "./idempotency.js";
 
 export interface RoundsRouterDependencies {
   pool: Pool;
-  publicOrigin: string;
+  publicOrigin: AllowedOrigins;
   /** PROGRAM_ID, once the program is deployed; null keeps rounds at AWAITING_PROGRAM. */
   programId: string | null;
   /** DEMO_MODE only: rounds may cite the DRAFT model (its hash still pins the parameters). */
