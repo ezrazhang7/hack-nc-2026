@@ -45,6 +45,7 @@ interface Company {
 
 const FA = "FOUNDER_ATTESTED", PW = "PUBLIC_WEAK";
 const yc = (slug: string) => `https://www.ycombinator.com/companies/${slug}`;
+const TREASURY_APP_STORE = "https://apps.apple.com/us/app/treasury-ai-money-manager/id6756083347";
 const HEART_RELEASE = "https://www.heartaerospace.com/newsroom/heart-aerospace-raises-107-million-in-series-b-funding";
 
 const COMPANIES: Company[] = [
@@ -121,6 +122,16 @@ const COMPANIES: Company[] = [
     founders: [["Christopher Ruaño", "Founder/CEO"], ["Patryk Wekwejt", "Founder/COO"]],
     claims: [["product_status", "launched", PW, "LINK"], ["tam_usd", "1000000000000", PW, "LINK", undefined, yc("linklane")], ["team_functions_count", "4", PW, "LINK", undefined, yc("linklane")], ["full_time_founders", "2", FA, "LINK", undefined, yc("linklane")]],
     round: { committedPct: 76, openedDaysAgo: 7, closesInDays: 7 },
+  },
+  {
+    slug: "treasury", ticker: "TRSY", name: "Treasury", stage: "LAUNCHED",
+    tagline: "Ask your money, anything.",
+    description: "Treasury connects bank, card and investment accounts read-only and answers money questions with an AI advisor grounded in budgets, recurring bills and net worth.",
+    websiteUrl: "https://treasury.sh",
+    legalName: "Treasury Technologies, Inc.",
+    founders: [["Junead Khan", "Founder/CEO"]],
+    claims: [["product_status", "launched", PW, "LINK", undefined, TREASURY_APP_STORE], ["full_time_founders", "1", FA, "LINK", undefined, "https://treasury.sh/about"]],
+    round: { committedPct: 41, openedDaysAgo: 2, closesInDays: 12 },
   },
 ];
 
