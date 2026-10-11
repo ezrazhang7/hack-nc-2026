@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520" role="img" aria-labelledby="t d">
-  <title id="t">The Prospecto, HackNC 2026 edition</title>
-  <desc id="d">A newspaper masthead on black with a colored halftone field and a glowing sun: The Prospecto, all the companies too early to list. Evidence becomes a model value, a fixed unit price, a round and receipts.</desc>
+  <title id="t">Prospecto, HackNC 2026 edition</title>
+  <desc id="d">A newspaper masthead on black with a colored halftone field and a glowing sun: Prospecto, all the companies too early to list. Evidence becomes a model value, a fixed unit price, a round and receipts.</desc>
   <style>
     /* Every resting state is the finished frame, so renderers without animation still show the full masthead. */
     .sweep{animation:sweep 14s linear infinite}
@@ -76,7 +76,7 @@
       <stop offset="1" stop-color="#5BD06A" stop-opacity="0"/>
     </linearGradient>
     <clipPath id="title">
-      <text x="600" y="232" text-anchor="middle" font-family="Georgia, 'Times New Roman', Times, serif" font-size="112" font-weight="700" letter-spacing="-1">The Prospecto</text>
+      <text x="600" y="232" text-anchor="middle" font-family="Georgia, 'Times New Roman', Times, serif" font-size="112" font-weight="700" letter-spacing="-1">Prospecto</text>
     </clipPath>
     <clipPath id="tape"><rect x="61" y="393" width="1078" height="74" rx="6"/></clipPath>
   </defs>
@@ -108,7 +108,7 @@
   <rect x="60" y="86" width="1080" height="1" fill="#ECE5D3" opacity=".45"/>
 
   <!-- masthead with a passing shimmer clipped to the letterforms -->
-  <text x="600" y="232" text-anchor="middle" font-family="Georgia, 'Times New Roman', Times, serif" font-size="112" font-weight="700" fill="#ECE5D3" letter-spacing="-1">The Prospecto</text>
+  <text x="600" y="232" text-anchor="middle" font-family="Georgia, 'Times New Roman', Times, serif" font-size="112" font-weight="700" fill="#ECE5D3" letter-spacing="-1">Prospecto</text>
   <g clip-path="url(#title)">
     <rect class="shine" x="0" y="110" width="260" height="150" fill="url(#band)" transform="translate(-520 0)"/>
   </g>

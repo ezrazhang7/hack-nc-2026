@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./assets/readme/hero.svg" width="100%" alt="The Prospecto: all the companies too early to list. Evidence becomes a model value, a fixed unit price, a round and receipts.">
+  <img src="./assets/readme/hero.svg" width="100%" alt="Prospecto: all the companies too early to list. Evidence becomes a model value, a fixed unit price, a round and receipts.">
 </p>
 
 <p align="center">
@@ -18,6 +18,17 @@
 </p>
 
 ---
+
+## HackNC 2026 tracks
+
+| Track | Where Prospecto fits |
+| --- | --- |
+| 📱 **Best Use of Nessie** · Capital One | Nessie mock bank accounts fund each backer's demo wallet through a recoverable saga that never retries a bank write blindly |
+| ✨ **Best Use of Gemini API** · MLH | Gemini 3.1 Flash-Lite with Search grounding and URL context reads founder links and returns cited claims, which deterministic code then verifies |
+| 🐯 **Best Use of Tiger Data** · MLH | Tiger Postgres holds every profile, claim and round; valuation, score and traction history live in TimescaleDB hypertables; a real-time continuous aggregate (`project_metrics_1m`) feeds the metrics |
+| 👥 **Community** | Classmates back the people they already know, judged on evidence instead of pedigree or a warm VC intro |
+| 🌐 **Best .Tech Domain Name** · MLH | A static-export site that moves to a permanent `.tech` home with no server to migrate |
+| 🏆 **General** | A full primary market, from evidence to valuation to round to receipt, built in a weekend |
 
 ## The problem
 
