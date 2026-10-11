@@ -1,0 +1,22 @@
+{
+  "name": "prospecto-chain",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "devnet:setup": "tsx scripts/devnet-setup.ts"
+  },
+  "dependencies": {
+    "@solana-program/system": "0.15.0",
+    "@solana-program/token-2022": "0.19.0",
+    "@solana/kit": "8.3.0",
+    "@solana/kit-plugin-rpc": "0.19.0",
+    "@solana/kit-plugin-signer": "0.19.0"
+  },
+  "devDependencies": {
+    "tsx": "4.23.15"
+  }
+}

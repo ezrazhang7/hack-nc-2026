@@ -1,0 +1,22 @@
+skip_local_validator = true
+
+[toolchain]
+
+[features]
+resolution = true
+skip-lint = false
+
+[programs.devnet]
+prospecto = "DnofuRV6ipCbSsuH4nJx8AABfqziwfuihckoMLDNRJdY"
+
+[programs.localnet]
+prospecto = "DnofuRV6ipCbSsuH4nJx8AABfqziwfuihckoMLDNRJdY"
+
+[provider]
+cluster = "localnet"
+wallet = "~/.config/solana/id.json"
+
+[scripts]
+test = "cargo test"
+
+[hooks]

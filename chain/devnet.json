@@ -1,0 +1,9 @@
+{
+  "paymentMint": "7bZQT8TScZtiHU5i6ZJJRhCgC7nNfjb5vEphS6G5ExCf",
+  "cluster": "devnet",
+  "programId": "DnofuRV6ipCbSsuH4nJx8AABfqziwfuihckoMLDNRJdY",
+  "relayer": "Dtmsa7EQYrxRUrDknx5qi2yoLxYroPUfJaZY1exkWKTG",
+  "admin": "FsadR3syfFAmxBnk3USGfx9AogPAkq8ZWMZAWPwjnnf2",
+  "config": "9MbgydUUAV11eFxnJApN6znAYGmqXpuVXbDBwspuaPRo",
+  "protocolFeeVault": "FDzBPSzu8LB9s5ra1QTitysUPaDMSHAYgVMhP3smskmm"
+}
