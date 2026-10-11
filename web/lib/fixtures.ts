@@ -23,7 +23,7 @@ export type Round = {
 };
 
 export const ROUNDS: Round[] = [
-  { t: "QPY", n: "Quippy", s: "LAUNCHED", e: "Incorporated", city: "San Francisco", p: 0.652658, sub: 72, d: 10, h: "Daily practice for the conversations that matter most", dek: "Adaptive voice and text practice with line-by-line feedback.", b: 238 },
+  { t: "QPY", n: "Quippy", s: "LAUNCHED", e: "Incorporated", city: "San Francisco", p: 0.645982, sub: 72, d: 10, h: "Daily practice for the conversations that matter most", dek: "Adaptive voice and text practice with line-by-line feedback.", b: 238 },
   { t: "HEART", n: "Heart Aerospace", s: "PROTOTYPE", e: "Incorporated", city: "Los Angeles", p: 0.519676, sub: 96, d: 3, h: "Electrifying regional air travel", dek: "Hybrid-electric aircraft development backed by public prototype evidence.", b: 441 },
   { t: "ELMT", n: "Elimentary", s: "LAUNCHED", e: "Incorporated", city: "New York City", p: 0.670384, sub: 81, d: 8, h: "AI agents for private-capital operations", dek: "Loan tapes, covenants and waterfalls turned into decision-ready data.", b: 196 },
   { t: "SNTR", n: "Sinter", s: "PROTOTYPE", e: "Incorporated", city: "El Segundo", p: 0.559998, sub: 63, d: 9, h: "A faster plastics pipeline", dek: "Online quoting and an in-house path from prototype to production.", b: 154 },

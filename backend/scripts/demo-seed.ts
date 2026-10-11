@@ -55,7 +55,7 @@ const COMPANIES: Company[] = [
     websiteUrl: "https://quippyapp.com",
     legalName: "Quippy App, Inc.",
     founders: [["Jonathan Li", "Founder/CEO"]],
-    claims: [["product_status", "launched", PW, "LINK"], ["prior_shipped_products", "2", PW, "LINK", undefined, yc("quippy")], ["prior_venture_users", "280000", PW, "LINK", "Duolingo English course", yc("quippy")], ["prior_venture_revenue_usd", "1500000", PW, "LINK", "Luvu", yc("quippy")], ["team_functions_count", "3", FA, "LINK", undefined, yc("quippy")], ["full_time_founders", "1", FA, "LINK", undefined, yc("quippy")]],
+    claims: [["product_status", "launched", PW, "LINK"], ["prior_shipped_products", "2", PW, "LINK", undefined, yc("quippy")], ["team_functions_count", "3", FA, "LINK", undefined, yc("quippy")], ["full_time_founders", "1", FA, "LINK", undefined, yc("quippy")]],
     round: { committedPct: 72, openedDaysAgo: 4, closesInDays: 10 },
   },
   {
