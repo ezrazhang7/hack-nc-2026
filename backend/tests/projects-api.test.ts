@@ -51,6 +51,9 @@ async function newIdentity(email: string): Promise<string> {
   return identity.rows[0].id;
 }
 
+// Swappable Gemini stand-in for ticker naming; tests that care set it.
+let namer: (p: { name: string; tagline: string }) => Promise<string[]> = async () => [];
+
 const call = (identity: string | null, method: string, path: string, body?: unknown, headers: Record<string, string> = {}) =>
   app.request(`/api${path}`, {
     method,
@@ -89,7 +92,7 @@ beforeAll(async () => {
   );
   const guards = { pool, publicOrigin: ORIGIN, requireIdentity };
   app = new Hono();
-  app.route("/api", createProjectsRouter({ ...guards, requireProjectEditor }));
+  app.route("/api", createProjectsRouter({ ...guards, requireProjectEditor, nameTicker: (p) => namer(p) }));
   app.route("/api", createProfilesRouter(guards));
   app.onError((error, context) => (error instanceof HTTPException ? error.getResponse() : context.json({ error: { code: "INTERNAL", message: String(error) } }, 500)));
 });
@@ -282,5 +285,20 @@ describe("tickers", () => {
     const mine = await (await call(jo, "GET", "/me/projects")).json();
     expect(mine.projects.map((p: { ticker: string }) => p.ticker).sort()).toEqual(["MNL", "QPY"]);
     expect((await call(null, "GET", "/me/projects")).status).toBe(401);
+  });
+});
+
+describe("auto-assigned tickers (Gemini picks, stored once)", () => {
+  it("uses the model's first free pick, skips taken ones, and falls back when the model fails", async () => {
+    const mo = await newIdentity("mo@gmail.com");
+    namer = async () => ["LUNA", "MOON"];
+    const first = await (await call(mo, "POST", "/projects", project({ name: "Moonlight" }), { "idempotency-key": "auto-0001" })).json();
+    expect(first.project.ticker).toBe("LUNA");
+    const second = await (await call(mo, "POST", "/projects", project({ name: "Moonlight Two" }), { "idempotency-key": "auto-0002" })).json();
+    expect(second.project.ticker).toBe("MOON");
+    namer = async () => { throw new Error("timeout"); };
+    const third = await (await call(mo, "POST", "/projects", project({ name: "Quibble" }), { "idempotency-key": "auto-0003" })).json();
+    expect(third.project.ticker).toBe("QBL");
+    namer = async () => [];
   });
 });

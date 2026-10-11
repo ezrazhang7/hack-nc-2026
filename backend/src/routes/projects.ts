@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import { normalizeUrl } from "../evidence/research/urls.js";
 import { TICKER, availableTicker, tickerCandidates } from "../projects/ticker.js";
+import type { TickerNamer } from "../projects/ticker-ai.js";
 import { STAGES } from "../valuation/quality-scores.js";
 import { ValuationServiceError, previewValuation } from "../valuation/service.js";
 import { rejectForeignOrigin } from "./guards.js";
@@ -12,6 +13,8 @@ import { onceForKey, requireIdempotencyKey } from "./idempotency.js";
 
 export interface ProjectsRouterDependencies {
   pool: Pool;
+  /** Gemini ticker picks for new projects; omitted or failing → deterministic candidates. */
+  nameTicker?: TickerNamer;
   publicOrigin: string;
   requireIdentity: (context: Context) => Promise<{ identityId: string }>;
   requireProjectEditor: (context: Context, projectId: string) => Promise<{ identityId: string }>;
@@ -187,6 +190,11 @@ export function createProjectsRouter(deps: ProjectsRouterDependencies): Hono {
       if (!website) return context.json({ error: { code: "INVALID_INPUT", message: "website_url must be a public http(s) URL." } }, 400);
     }
 
+    // Outside the transaction so a slow model never holds a lock. A replayed key ignores the result.
+    const picks = !body.ticker && deps.nameTicker
+      ? await deps.nameTicker({ name: body.name, tagline: body.tagline }).catch(() => [] as string[])
+      : [];
+
     const client = await deps.pool.connect();
     try {
       await client.query("begin");
@@ -196,7 +204,7 @@ export function createProjectsRouter(deps: ProjectsRouterDependencies): Hono {
           throw fail(409, "PROJECT_LIMIT", `A founder can create at most ${MAX_PROJECTS_PER_FOUNDER} projects in the demo.`);
         }
         const slug = await freeSlug(client, slugBase(body.name));
-        const ticker = body.ticker ?? (await availableTicker(client, body.name));
+        const ticker = body.ticker ?? (await availableTicker(client, body.name, picks));
         const created = await client.query<{ id: string }>(
           `insert into projects
              (slug, name, tagline, stage, entity_type, legal_name, formation_state, website_url, sector_code, publish_contact_email, founder_identity_id, ticker)

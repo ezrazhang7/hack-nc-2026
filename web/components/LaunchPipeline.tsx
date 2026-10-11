@@ -17,13 +17,13 @@ import {
  */
 
 export type LaunchDraft = {
-  name: string; ticker: string; tagline: string; stage: Stage; entityType: "UNINCORPORATED" | "INCORPORATED";
+  name: string; tagline: string; stage: Stage; entityType: "UNINCORPORATED" | "INCORPORATED";
   legalName: string | null; formationState: string | null; website: string | null;
   founderName: string; founderRole: string | null; founderText: string | null; links: string[]; publishContact: boolean;
 };
 
 type Phase = "session" | "create" | "research" | "review" | "pricing" | "priced" | "publishing" | "published" | "failed";
-type Saved = { key: string; sig?: string; projectId?: string; slug?: string; runId?: string; confirmed?: boolean; published?: boolean };
+type Saved = { key: string; sig?: string; projectId?: string; slug?: string; ticker?: string; runId?: string; confirmed?: boolean; published?: boolean };
 
 const STORE = "prospecto:launch";
 const POLL_MS = 3000, POLL_LIMIT = 120; // about 6 minutes; the backend fails stale runs after 5
@@ -98,14 +98,14 @@ export default function LaunchPipeline({ draft, onEdit, onRetry }: { draft: Laun
       let { projectId, slug: s } = saved.current;
       if (!projectId) {
         setPhase("create");
-        const { project } = await post<{ project: { id: string; slug: string } }>("/projects", {
-          name: draft.name, ...(draft.ticker ? { ticker: draft.ticker } : {}), tagline: draft.tagline, stage: draft.stage, entity_type: draft.entityType,
+        const { project } = await post<{ project: { id: string; slug: string; ticker: string } }>("/projects", {
+          name: draft.name, tagline: draft.tagline, stage: draft.stage, entity_type: draft.entityType,
           legal_name: draft.legalName, formation_state: draft.formationState, website_url: draft.website,
           publish_contact_email: draft.publishContact,
           founder: { display_name: draft.founderName, role_title: draft.founderRole },
         }, saved.current.key);
         projectId = project.id; s = project.slug;
-        remember({ projectId, slug: s });
+        remember({ projectId, slug: s, ticker: project.ticker });
       }
       setSlug(s ?? null);
       if (saved.current.published) { setPhase("published"); return; }
@@ -220,6 +220,7 @@ export default function LaunchPipeline({ draft, onEdit, onRetry }: { draft: Laun
           <>
             <h2>{phase === "published" ? <>You’re <i>live.</i></> : <>Your <i>price.</i></>}</h2>
             <div className="stats">
+              {saved.current.ticker && <div><span>Ticker</span><b>{saved.current.ticker}</b></div>}
               <div><span>Unit price</span><b className="up">{formatUnitPrice(price.values.unitPriceMicroUsd)}</b></div>
               <div><span>Model value</span><b>${Math.round(Number(price.values.roundImplied)).toLocaleString("en-US")}</b></div>
               <div><span>Priced as</span><b>{STAGE_LABEL[price.stage.effective]}</b></div>

@@ -31,14 +31,20 @@ export function tickerCandidates(name: string): string[] {
   return [...out];
 }
 
-/** First candidate not already taken; falls back to the base plus a letter (QPYA, QPYB, …). */
-export async function availableTicker(db: Pool | PoolClient, name: string): Promise<string> {
-  const candidates = tickerCandidates(name);
+/** Auto-assigned symbols are 2–4 letters; the column also accepts 5 for older rows. */
+const AUTO = /^[A-Z]{2,4}$/;
+
+/**
+ * First free symbol: `preferred` (e.g. Gemini's picks) first, then the deterministic candidates,
+ * then the base plus a letter (QPA, QPB, …). Always 2–4 letters.
+ */
+export async function availableTicker(db: Pool | PoolClient, name: string, preferred: string[] = []): Promise<string> {
+  const candidates = [...new Set([...preferred, ...tickerCandidates(name)])].filter((c) => AUTO.test(c));
   const taken = new Set(
     (await db.query<{ ticker: string }>(`select ticker from projects where ticker is not null`)).rows.map((r) => r.ticker),
   );
   for (const c of candidates) if (!taken.has(c)) return c;
-  const base = candidates[0].slice(0, 4);
+  const base = (candidates[0] ?? "CO").slice(0, 3);
   for (const extra of "ABCDEFGHIJKLMNOPQRSTUVWXYZ") if (!taken.has(base + extra)) return base + extra;
   throw new Error("no ticker available");
 }

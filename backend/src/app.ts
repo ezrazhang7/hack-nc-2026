@@ -13,6 +13,7 @@ import { createAuthRouter } from "./routes/auth.js";
 import { createEvidenceIntakeRouter } from "./routes/evidence-intake.js";
 import { createProfilesRouter } from "./routes/profiles.js";
 import { createProjectsRouter } from "./routes/projects.js";
+import { createGeminiTickerNamer, type TickerNamer } from "./projects/ticker-ai.js";
 import { createRoundsRouter } from "./routes/rounds.js";
 import { createWalletsRouter } from "./routes/wallets.js";
 import { createResearchRouter } from "./routes/research.js";
@@ -37,6 +38,8 @@ export interface ApiDependencies {
   allowDraftModel?: boolean;
   ai: GoogleGenAI;
   model: string;
+  /** Overrides the Gemini ticker namer (tests). */
+  nameTicker?: TickerNamer;
   /** Optional; raises GitHub's unauthenticated limit of 60 requests/hour. */
   githubToken?: string;
   auth: ProspectoAuth;
@@ -81,7 +84,14 @@ export function createApi(dependencies: ApiDependencies): Hono {
   app.route('/api',createPurchaseRouter(dependencies.purchases?.store ?? new PgStore(dependencies.pool),
     dependencies.purchases?.chain ?? unavailableChain, dependencies.publicOrigin,dependencies.purchases,
     routeGuards.requireIdentity,dependencies.runInBackground));
-  app.route("/api", createProjectsRouter({ ...routeGuards, requireProjectEditor: requireEditor }));
+  app.route(
+    "/api",
+    createProjectsRouter({
+      ...routeGuards,
+      requireProjectEditor: requireEditor,
+      nameTicker: dependencies.nameTicker ?? createGeminiTickerNamer(dependencies.ai, dependencies.model),
+    }),
+  );
   app.route("/api", createProfilesRouter(routeGuards));
   app.route("/api", createWalletsRouter(routeGuards));
   app.route(
