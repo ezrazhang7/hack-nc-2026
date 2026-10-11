@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520" role="img" aria-labelledby="t d">
+  <title id="t">The Prospecto, HackNC 2026 edition</title>
+  <desc id="d">A newspaper masthead on black: The Prospecto, all the companies too early to list. Evidence becomes a model value, a fixed unit price and a simulated primary round on Solana Devnet.</desc>
+  <defs>
+    <pattern id="dots" width="12" height="12" patternUnits="userSpaceOnUse">
+      <circle cx="6" cy="6" r="2.1" fill="#ECE5D3"/>
+    </pattern>
+    <radialGradient id="sun" cx="0.9" cy="0.4" r="0.75">
+      <stop offset="0" stop-color="#fff" stop-opacity=".55"/>
+      <stop offset=".45" stop-color="#fff" stop-opacity=".16"/>
+      <stop offset="1" stop-color="#fff" stop-opacity=".03"/>
+    </radialGradient>
+    <mask id="fade"><rect width="1200" height="520" fill="url(#sun)"/></mask>
+  </defs>
+
+  <rect width="1200" height="520" rx="18" fill="#0A0A09"/>
+  <rect width="1200" height="520" rx="18" fill="url(#dots)" mask="url(#fade)"/>
+  <circle cx="1084" cy="150" r="30" fill="#ECE5D3" opacity=".9"/>
+
+  <!-- dateline -->
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" letter-spacing="2.4" fill="#ECE5D3" opacity=".72">
+    <text x="60" y="62">HACKNC 2026 · CHAPEL HILL</text>
+    <text x="1140" y="62" text-anchor="end">SIMULATED EDITION · DEVNET</text>
+  </g>
+  <rect x="60" y="80" width="1080" height="2" fill="#ECE5D3" opacity=".8"/>
+  <rect x="60" y="86" width="1080" height="1" fill="#ECE5D3" opacity=".45"/>
+
+  <!-- masthead -->
+  <text x="600" y="232" text-anchor="middle" font-family="Georgia, 'Times New Roman', Times, serif" font-size="112" font-weight="700" fill="#ECE5D3" letter-spacing="-1">The Prospecto</text>
+  <rect x="60" y="300" width="1080" height="1" fill="#ECE5D3" opacity=".45"/>
+  <rect x="60" y="305" width="1080" height="2" fill="#ECE5D3" opacity=".8"/>
+  <text x="600" y="350" text-anchor="middle" font-family="Georgia, 'Times New Roman', Times, serif" font-style="italic" font-size="30" fill="#ECE5D3">All the companies too early to list.</text>
+
+  <!-- ticker -->
+  <rect x="60" y="392" width="1080" height="76" rx="6" fill="#0A0A09" stroke="#ECE5D3" stroke-opacity=".28"/>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20" fill="#ECE5D3">
+    <text x="156" y="438">EVIDENCE</text>
+    <text x="298" y="438" fill="#5BD06A">→</text>
+    <text x="334" y="438">MODEL VALUE</text>
+    <text x="511" y="438" fill="#5BD06A">→</text>
+    <text x="547" y="438">FIXED UNIT PRICE</text>
+    <text x="778" y="438" fill="#5BD06A">→</text>
+    <text x="814" y="438">ROUND</text>
+    <text x="904" y="438" fill="#5BD06A">→</text>
+    <text x="940" y="438">RECEIPTS</text>
+  </g>
+</svg>
