@@ -1,47 +1,135 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520" role="img" aria-labelledby="t d">
   <title id="t">The Prospecto, HackNC 2026 edition</title>
-  <desc id="d">A newspaper masthead on black: The Prospecto, all the companies too early to list. Evidence becomes a model value, a fixed unit price and a simulated primary round on Solana Devnet.</desc>
+  <desc id="d">A newspaper masthead on black with a colored halftone field and a glowing sun: The Prospecto, all the companies too early to list. Evidence becomes a model value, a fixed unit price, a round and receipts.</desc>
+  <style>
+    /* Every resting state is the finished frame, so renderers without animation still show the full masthead. */
+    .sweep{animation:sweep 14s linear infinite}
+    @keyframes sweep{to{transform:translateX(-1200px)}}
+    .drift{animation:drift 16s ease-in-out infinite alternate}
+    @keyframes drift{0%{transform:translate(0,0)}50%{transform:translate(-8px,70px)}100%{transform:translate(12px,118px)}}
+    .ring{transform-box:fill-box;transform-origin:center;animation:ring 4.8s cubic-bezier(.2,.7,.3,1) infinite}
+    .r2{animation-delay:1.6s}.r3{animation-delay:3.2s}
+    @keyframes ring{0%{transform:scale(1);opacity:.85}100%{transform:scale(4.2);opacity:0}}
+    .core{transform-box:fill-box;transform-origin:center;animation:core 4.8s ease-in-out infinite}
+    @keyframes core{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+    .shine{animation:shine 7s cubic-bezier(.45,0,.2,1) infinite}
+    @keyframes shine{0%,35%{transform:translateX(-520px)}75%,100%{transform:translateX(1400px)}}
+    .scan{animation:scan 6s ease-in-out infinite}
+    @keyframes scan{0%{transform:translateX(-260px)}100%{transform:translateX(1180px)}}
+    .tk{animation:tk 6s ease-in-out infinite}
+    @keyframes tk{0%,30%,100%{opacity:.4}8%,20%{opacity:1}}
+    .ar{animation:ar 6s ease-in-out infinite}
+    @keyframes ar{0%,30%,100%{opacity:.35;transform:none}8%,20%{opacity:1;transform:translateX(5px)}}
+    .d1{animation-delay:.3s}.d2{animation-delay:.9s}.d3{animation-delay:1.5s}.d4{animation-delay:2.1s}.d5{animation-delay:2.7s}
+    .d6{animation-delay:3.3s}.d7{animation-delay:3.9s}.d8{animation-delay:4.5s}.d9{animation-delay:5.1s}
+    @media (prefers-reduced-motion: reduce){*{animation:none!important}}
+  </style>
   <defs>
     <pattern id="dots" width="12" height="12" patternUnits="userSpaceOnUse">
-      <circle cx="6" cy="6" r="2.1" fill="#ECE5D3"/>
+      <circle cx="6" cy="6" r="2.2" fill="#fff"/>
     </pattern>
-    <radialGradient id="sun" cx="0.9" cy="0.4" r="0.75">
-      <stop offset="0" stop-color="#fff" stop-opacity=".55"/>
-      <stop offset=".45" stop-color="#fff" stop-opacity=".16"/>
-      <stop offset="1" stop-color="#fff" stop-opacity=".03"/>
+    <!-- Site accent tokens: green, system blue, chain violet, heat, gold. Repeats every 1200 units so the sweep loops seamlessly. -->
+    <linearGradient id="spectrum" x1="0" y1="0" x2="2400" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5BD06A"/>
+      <stop offset=".1" stop-color="#7FA7C9"/>
+      <stop offset=".2" stop-color="#9C8CF2"/>
+      <stop offset=".3" stop-color="#E39A4B"/>
+      <stop offset=".4" stop-color="#D9B45A"/>
+      <stop offset=".5" stop-color="#5BD06A"/>
+      <stop offset=".6" stop-color="#7FA7C9"/>
+      <stop offset=".7" stop-color="#9C8CF2"/>
+      <stop offset=".8" stop-color="#E39A4B"/>
+      <stop offset=".9" stop-color="#D9B45A"/>
+      <stop offset="1" stop-color="#5BD06A"/>
+    </linearGradient>
+    <radialGradient id="light" cx="0.88" cy="0.36" r="0.8">
+      <stop offset="0" stop-color="#fff" stop-opacity=".95"/>
+      <stop offset=".35" stop-color="#fff" stop-opacity=".55"/>
+      <stop offset=".75" stop-color="#fff" stop-opacity=".22"/>
+      <stop offset="1" stop-color="#fff" stop-opacity=".1"/>
     </radialGradient>
-    <mask id="fade"><rect width="1200" height="520" fill="url(#sun)"/></mask>
+    <mask id="field">
+      <rect width="1200" height="520" fill="url(#light)"/>
+    </mask>
+    <mask id="grid">
+      <rect width="1200" height="520" fill="url(#dots)"/>
+    </mask>
+    <radialGradient id="sunfill" cx=".38" cy=".34" r=".75">
+      <stop offset="0" stop-color="#FFF4D6"/>
+      <stop offset=".55" stop-color="#D9B45A"/>
+      <stop offset="1" stop-color="#E39A4B"/>
+    </radialGradient>
+    <radialGradient id="bloom">
+      <stop offset="0" stop-color="#E39A4B" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#E39A4B" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="band" x1="0" x2="1">
+      <stop offset="0" stop-color="#9C8CF2" stop-opacity="0"/>
+      <stop offset=".35" stop-color="#9C8CF2" stop-opacity=".9"/>
+      <stop offset=".5" stop-color="#FFF4D6"/>
+      <stop offset=".65" stop-color="#D9B45A" stop-opacity=".9"/>
+      <stop offset="1" stop-color="#D9B45A" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="beam" x1="0" x2="1">
+      <stop offset="0" stop-color="#5BD06A" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#5BD06A" stop-opacity=".22"/>
+      <stop offset="1" stop-color="#5BD06A" stop-opacity="0"/>
+    </linearGradient>
+    <clipPath id="title">
+      <text x="600" y="232" text-anchor="middle" font-family="Georgia, 'Times New Roman', Times, serif" font-size="112" font-weight="700" letter-spacing="-1">The Prospecto</text>
+    </clipPath>
+    <clipPath id="tape"><rect x="61" y="393" width="1078" height="74" rx="6"/></clipPath>
   </defs>
 
   <rect width="1200" height="520" rx="18" fill="#0A0A09"/>
-  <rect width="1200" height="520" rx="18" fill="url(#dots)" mask="url(#fade)"/>
-  <circle cx="1084" cy="150" r="30" fill="#ECE5D3" opacity=".9"/>
+
+  <!-- colored halftone: a sliding spectrum seen through a fixed dot grid, brightest near the sun -->
+  <g mask="url(#field)">
+    <g mask="url(#grid)">
+      <rect class="sweep" width="2400" height="520" fill="url(#spectrum)"/>
+    </g>
+  </g>
+
+  <!-- sun -->
+  <g class="drift">
+    <circle cx="1104" cy="140" r="120" fill="url(#bloom)"/>
+    <circle class="ring" cx="1104" cy="140" r="30" fill="none" stroke="#D9B45A" stroke-width="2"/>
+    <circle class="ring r2" cx="1104" cy="140" r="30" fill="none" stroke="#E39A4B" stroke-width="2"/>
+    <circle class="ring r3" cx="1104" cy="140" r="30" fill="none" stroke="#9C8CF2" stroke-width="2"/>
+    <circle class="core" cx="1104" cy="140" r="30" fill="url(#sunfill)"/>
+  </g>
 
   <!-- dateline -->
-  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" letter-spacing="2.4" fill="#ECE5D3" opacity=".72">
-    <text x="60" y="62">HACKNC 2026 · CHAPEL HILL</text>
-    <text x="1140" y="62" text-anchor="end">SIMULATED EDITION · DEVNET</text>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="17" letter-spacing="2.4" opacity=".85">
+    <text x="60" y="62" fill="#ECE5D3">HACKNC 2026 <tspan fill="#5BD06A">·</tspan> CHAPEL HILL</text>
+    <text x="1140" y="62" text-anchor="end" fill="#ECE5D3">SIMULATED EDITION <tspan fill="#9C8CF2">·</tspan> DEVNET</text>
   </g>
   <rect x="60" y="80" width="1080" height="2" fill="#ECE5D3" opacity=".8"/>
   <rect x="60" y="86" width="1080" height="1" fill="#ECE5D3" opacity=".45"/>
 
-  <!-- masthead -->
+  <!-- masthead with a passing shimmer clipped to the letterforms -->
   <text x="600" y="232" text-anchor="middle" font-family="Georgia, 'Times New Roman', Times, serif" font-size="112" font-weight="700" fill="#ECE5D3" letter-spacing="-1">The Prospecto</text>
+  <g clip-path="url(#title)">
+    <rect class="shine" x="0" y="110" width="260" height="150" fill="url(#band)" transform="translate(-520 0)"/>
+  </g>
   <rect x="60" y="300" width="1080" height="1" fill="#ECE5D3" opacity=".45"/>
   <rect x="60" y="305" width="1080" height="2" fill="#ECE5D3" opacity=".8"/>
   <text x="600" y="350" text-anchor="middle" font-family="Georgia, 'Times New Roman', Times, serif" font-style="italic" font-size="30" fill="#ECE5D3">All the companies too early to list.</text>
 
   <!-- ticker -->
   <rect x="60" y="392" width="1080" height="76" rx="6" fill="#0A0A09" stroke="#ECE5D3" stroke-opacity=".28"/>
-  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20" fill="#ECE5D3">
-    <text x="156" y="438">EVIDENCE</text>
-    <text x="298" y="438" fill="#5BD06A">→</text>
-    <text x="334" y="438">MODEL VALUE</text>
-    <text x="511" y="438" fill="#5BD06A">→</text>
-    <text x="547" y="438">FIXED UNIT PRICE</text>
-    <text x="778" y="438" fill="#5BD06A">→</text>
-    <text x="814" y="438">ROUND</text>
-    <text x="904" y="438" fill="#5BD06A">→</text>
-    <text x="940" y="438">RECEIPTS</text>
+  <g clip-path="url(#tape)">
+    <rect class="scan" x="0" y="392" width="260" height="76" fill="url(#beam)" transform="translate(-260 0)"/>
+  </g>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20">
+    <text x="156" y="438" class="tk d1" fill="#5BD06A">EVIDENCE</text>
+    <text x="298" y="438" class="ar d2" fill="#ECE5D3">→</text>
+    <text x="334" y="438" class="tk d3" fill="#7FA7C9">MODEL VALUE</text>
+    <text x="511" y="438" class="ar d4" fill="#ECE5D3">→</text>
+    <text x="547" y="438" class="tk d5" fill="#D9B45A">FIXED UNIT PRICE</text>
+    <text x="778" y="438" class="ar d6" fill="#ECE5D3">→</text>
+    <text x="814" y="438" class="tk d7" fill="#E39A4B">ROUND</text>
+    <text x="904" y="438" class="ar d8" fill="#ECE5D3">→</text>
+    <text x="940" y="438" class="tk d9" fill="#9C8CF2">RECEIPTS</text>
   </g>
 </svg>

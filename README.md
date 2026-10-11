@@ -63,6 +63,22 @@ A founder pastes links: a website, a GitHub repo, a short pitch. Prospecto resea
 | Money | Integer micro-USD end to end (`BigInt` in TS, `NUMERIC` in SQL); the UI formats prices but never computes them |
 | Hosting | One Vercel project with two services, the static site and the API as Vercel Functions, with `/api/*` rewritten to the API |
 
+## Built with AI tools
+
+<p>
+  <img alt="Claude Code" src="https://img.shields.io/badge/Claude_Code-Anthropic-D97757?style=flat-square&labelColor=0A0A09">
+  <img alt="Codex" src="https://img.shields.io/badge/Codex-OpenAI-ECE5D3?style=flat-square&labelColor=0A0A09">
+</p>
+
+We built Prospecto with two AI coding agents, **Claude Code** (Anthropic) and **Codex** (OpenAI), working in the same repository. Both read one shared rulebook, [`AGENTS.md`](AGENTS.md), which sets out what they may and may not do:
+
+- financial formulas follow the docs exactly, and money is integer micro-USD, never floating point;
+- every change gets type, lint and test checks before it counts as done;
+- commits use the `<type>(<scope>): <description>` format;
+- product copy never calls receipts equity or shares.
+
+AI also runs inside the product: **Gemini** researches founder evidence. The two roles stay separate. The coding agents built the software, and inside it Gemini's output is advisory only, so deterministic code sets every score and price.
+
 ## Under the hood
 
 ```text
