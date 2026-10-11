@@ -259,3 +259,28 @@ describe("profile snapshots", () => {
     expect(row.rows[0]).toEqual({ text: null, content_hash: null });
   });
 });
+
+describe("tickers", () => {
+  it("suggests from the name, accepts a founder pick, rejects duplicates, and lists the caller's projects", async () => {
+    const jo = await newIdentity("jo@gmail.com");
+    const suggest = await (await call(null, "GET", "/tickers/suggest?name=Quippy&ticker=qpy")).json();
+    expect(suggest).toMatchObject({ suggestion: "QPY", ticker: "QPY", available: true });
+
+    const picked = await call(jo, "POST", "/projects", project({ name: "Quippy", ticker: "qpy" }), { "idempotency-key": "ticker-0001" });
+    expect(picked.status).toBe(201);
+    expect((await picked.json()).project.ticker).toBe("QPY");
+    expect((await (await call(null, "GET", "/tickers/suggest?name=Quippy&ticker=QPY")).json())).toMatchObject({ available: false, suggestion: "QUIP" });
+
+    const taken = await call(jo, "POST", "/projects", project({ name: "Quippy Two", ticker: "QPY" }), { "idempotency-key": "ticker-0002" });
+    expect(taken.status).toBe(409);
+    expect((await taken.json()).error.code).toBe("TICKER_TAKEN");
+
+    const auto = await call(jo, "POST", "/projects", project({ name: "Moonlight" }), { "idempotency-key": "ticker-0003" });
+    expect((await auto.json()).project.ticker).toBe("MNL");
+    expect((await call(jo, "POST", "/projects", project({ name: "x", ticker: "TOOLONG" }), { "idempotency-key": "ticker-0004" })).status).toBe(400);
+
+    const mine = await (await call(jo, "GET", "/me/projects")).json();
+    expect(mine.projects.map((p: { ticker: string }) => p.ticker).sort()).toEqual(["MNL", "QPY"]);
+    expect((await call(null, "GET", "/me/projects")).status).toBe(401);
+  });
+});

@@ -4,6 +4,7 @@ import type { Pool, PoolClient } from "pg";
 import { z } from "zod";
 
 import { normalizeUrl } from "../evidence/research/urls.js";
+import { TICKER, availableTicker, tickerCandidates } from "../projects/ticker.js";
 import { STAGES } from "../valuation/quality-scores.js";
 import { ValuationServiceError, previewValuation } from "../valuation/service.js";
 import { rejectForeignOrigin } from "./guards.js";
@@ -25,6 +26,8 @@ const optionalText = (max: number) => z.string().trim().min(1).max(max).nullable
 export const createProjectSchema = z
   .object({
     name: z.string().trim().min(1).max(120),
+    // Market symbol (QPY); omitted → the first free suggestion for the name.
+    ticker: z.string().trim().toUpperCase().regex(TICKER, "ticker must be 2–5 letters").optional(),
     tagline: z.string().trim().max(140).default(""),
     stage: z.enum(STAGES),
     entity_type: z.enum(["UNINCORPORATED", "INCORPORATED"]).default("UNINCORPORATED"),
@@ -97,6 +100,7 @@ const EXPLANATION_SQL = `(select json_build_object(
 interface PublicProjectRow {
   id: string;
   slug: string;
+  ticker: string | null;
   name: string;
   tagline: string;
   description: string;
@@ -116,7 +120,7 @@ interface PublicProjectRow {
 /** Public profile: listing fields, founders, published contact, latest valuation. Never private evidence. */
 async function loadPublicProject(pool: Pool, where: "slug" | "id", value: string): Promise<PublicProjectRow | null> {
   const { rows } = await pool.query<PublicProjectRow>(
-    `select p.id, p.slug, p.name, p.tagline, p.description, p.stage::text as stage, p.status::text as status, p.entity_type::text as entity_type,
+    `select p.id, p.slug, p.ticker, p.name, p.tagline, p.description, p.stage::text as stage, p.status::text as status, p.entity_type::text as entity_type,
             p.legal_name, p.formation_state, p.website_url, p.sector_code,
             case when p.publish_contact_email and u.email not like '%@guest.prospecto.invalid' then u.email end as contact_email,
             coalesce((select json_agg(json_build_object('display_name', m.display_name, 'role_title', m.role_title, 'role', m.role)
@@ -147,7 +151,7 @@ async function loadPublicProject(pool: Pool, where: "slug" | "id", value: string
 /** Feed cards: published projects with their latest price and current round, open rounds first. */
 async function listPublishedProjects(pool: Pool) {
   const { rows } = await pool.query(
-    `select p.slug, p.name, p.tagline, p.description, p.stage::text as stage, p.entity_type::text as entity_type,
+    `select p.slug, p.ticker, p.name, p.tagline, p.description, p.stage::text as stage, p.entity_type::text as entity_type,
             (select json_build_object('effective_stage', v.effective_stage, 'unit_price_micro_usd', v.unit_price_micro_usd::text,
                                       'model_version_id', v.model_version_id, 'calculated_at', v.calculated_at)
                from valuation_snapshots v where v.project_id = p.id order by v.calculated_at desc limit 1) as valuation,
@@ -192,25 +196,29 @@ export function createProjectsRouter(deps: ProjectsRouterDependencies): Hono {
           throw fail(409, "PROJECT_LIMIT", `A founder can create at most ${MAX_PROJECTS_PER_FOUNDER} projects in the demo.`);
         }
         const slug = await freeSlug(client, slugBase(body.name));
+        const ticker = body.ticker ?? (await availableTicker(client, body.name));
         const created = await client.query<{ id: string }>(
           `insert into projects
-             (slug, name, tagline, stage, entity_type, legal_name, formation_state, website_url, sector_code, publish_contact_email, founder_identity_id)
-           values ($1, $2, $3, $4::project_stage, $5::entity_type, $6, $7, $8, $9, $10, $11)
+             (slug, name, tagline, stage, entity_type, legal_name, formation_state, website_url, sector_code, publish_contact_email, founder_identity_id, ticker)
+           values ($1, $2, $3, $4::project_stage, $5::entity_type, $6, $7, $8, $9, $10, $11, $12)
            returning id`,
-          [slug, body.name, body.tagline, body.stage, body.entity_type, body.legal_name ?? null, body.formation_state ?? null, website, body.sector_code ?? null, body.publish_contact_email, identityId],
+          [slug, body.name, body.tagline, body.stage, body.entity_type, body.legal_name ?? null, body.formation_state ?? null, website, body.sector_code ?? null, body.publish_contact_email, identityId, ticker],
         );
         const projectId = created.rows[0].id;
         await client.query(
           `insert into project_members (project_id, identity_id, role, display_name, role_title) values ($1, $2, 'FOUNDER', $3, $4)`,
           [projectId, identityId, body.founder.display_name, body.founder.role_title ?? null],
         );
-        return { status: 201, body: { project: { id: projectId, slug, status: "DRAFT" } } };
+        return { status: 201, body: { project: { id: projectId, slug, ticker, status: "DRAFT" } } };
       });
       await client.query("commit");
       return context.json(result.body, result.status);
     } catch (error) {
       await client.query("rollback").catch(() => undefined);
       if ((error as { code?: string }).code === "23503") throw fail(400, "UNKNOWN_SECTOR", "sector_code is not a known sector.");
+      if ((error as { code?: string; constraint?: string }).constraint === "projects_ticker_unique") {
+        throw fail(409, "TICKER_TAKEN", "That ticker is taken. Try another.");
+      }
       throw error;
     } finally {
       client.release();
@@ -246,6 +254,33 @@ export function createProjectsRouter(deps: ProjectsRouterDependencies): Hono {
   });
 
   router.get("/projects", async (context) => context.json({ projects: await listPublishedProjects(deps.pool) }));
+
+  // Intake helper: a free symbol for a name, and whether a typed one is still available.
+  router.get("/tickers/suggest", async (context) => {
+    const name = (context.req.query("name") ?? "").slice(0, 120);
+    const typed = (context.req.query("ticker") ?? "").trim().toUpperCase();
+    const suggestion = name.trim() ? await availableTicker(deps.pool, name) : null;
+    let available: boolean | null = null;
+    if (typed) {
+      if (!TICKER.test(typed)) available = false;
+      else available = !(await deps.pool.query(`select 1 from projects where ticker = $1`, [typed])).rowCount;
+    }
+    return context.json({ suggestion, candidates: name.trim() ? tickerCandidates(name).slice(0, 4) : [], ticker: typed || null, available });
+  });
+
+  // The caller's own projects (founder or member), so founder tools never ask for an id.
+  router.get("/me/projects", async (context) => {
+    const { identityId } = await deps.requireIdentity(context);
+    const { rows } = await deps.pool.query(
+      `select p.id, p.slug, p.ticker, p.name, p.status::text as status, p.solana_project_pda, p.receipt_mint, ${CURRENT_ROUND_SQL} as round
+         from projects p
+        where p.founder_identity_id = $1
+           or exists (select 1 from project_members m where m.project_id = p.id and m.identity_id = $1)
+        order by p.created_at desc`,
+      [identityId],
+    );
+    return context.json({ projects: rows });
+  });
 
   // Public profile by slug. Drafts are visible only to their editors (by id or slug).
   router.get("/projects/:slugOrId", async (context) => {

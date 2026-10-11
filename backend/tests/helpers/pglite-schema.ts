@@ -25,7 +25,7 @@ export function coreSchemaSql(): string {
     throw new Error("0001 layout changed; update tests/helpers/pglite-schema.ts");
   }
   const rounds = m0001.slice(roundsStart, roundsEnd);
-  return `${core}\n${idempotency}\n${rounds}\n${subscriptions}\ncreate role prospecto_app;\n${read("0002_evidence_research.sql")}`;
+  return `${core}\n${idempotency}\n${rounds}\n${subscriptions}\ncreate role prospecto_app;\n${read("0002_evidence_research.sql")}\n${read("0005_project_tickers.sql")}`;
 }
 
 /** A pg Pool look-alike over one PGlite connection (transactions run on that connection). */

@@ -28,6 +28,8 @@ type Claim = [metric: string, value: string, status: ClaimStatus, source: Source
 
 interface Company {
   slug: string;
+  /** Curated market symbol; matches migration 0005's backfill. */
+  ticker: string;
   name: string;
   stage: Stage;
   tagline: string;
@@ -44,7 +46,7 @@ const FA = "FOUNDER_ATTESTED", IV = "INDEPENDENTLY_VERIFIED", PW = "PUBLIC_WEAK"
 
 const COMPANIES: Company[] = [
   {
-    slug: "mothlight", name: "Mothlight", stage: "IDEA",
+    slug: "mothlight", ticker: "MOTH", name: "Mothlight", stage: "IDEA",
     tagline: "Mothlight wants to find you a quiet room at 2 a.m.",
     description: "Two sophomores, a napkin sketch and a waitlist of 40. No code yet.",
     founders: [["Jonah Mercer", "Co-founder · product"], ["Tess Okafor", "Co-founder · research"]],
@@ -52,7 +54,7 @@ const COMPANIES: Company[] = [
     round: { committedPct: 38, openedDaysAgo: 5, closesInDays: 9 },
   },
   {
-    slug: "fernhill-robotics", name: "Fernhill Robotics", stage: "EARLY_REVENUE",
+    slug: "fernhill-robotics", ticker: "FERN", name: "Fernhill Robotics", stage: "EARLY_REVENUE",
     tagline: "The $900 robot weeding 31 small farms",
     description: "Started as an NC State senior design project. Farms pay a monthly service fee per robot.",
     legalName: "Fernhill Robotics, Inc.", formationState: "NC",
@@ -61,7 +63,7 @@ const COMPANIES: Company[] = [
     round: { committedPct: 61, openedDaysAgo: 2, closesInDays: 12 },
   },
   {
-    slug: "quillnote", name: "Quillnote", stage: "LAUNCHED",
+    slug: "quillnote", ticker: "QUIL", name: "Quillnote", stage: "LAUNCHED",
     tagline: "Quillnote’s notes app reaches four campuses",
     description: "1,200 weekly users. Closing Friday.",
     legalName: "Quillnote LLC", formationState: "NC",
@@ -70,7 +72,7 @@ const COMPANIES: Company[] = [
     round: { committedPct: 91, openedDaysAgo: 12, closesInDays: 2 },
   },
   {
-    slug: "tidewater-sensors", name: "Tidewater Sensors", stage: "PROTOTYPE",
+    slug: "tidewater-sensors", ticker: "TIDE", name: "Tidewater Sensors", stage: "PROTOTYPE",
     tagline: "Soil sensors, tested on three farms",
     description: "A working prototype and an honest label.",
     founders: [["Samuel Brooks", "Founder"], ["Ivy Chen", "Hardware"]],
@@ -78,7 +80,7 @@ const COMPANIES: Company[] = [
     round: { committedPct: 54, openedDaysAgo: 6, closesInDays: 15 },
   },
   {
-    slug: "dormfold", name: "Dormfold", stage: "IDEA",
+    slug: "dormfold", ticker: "DORM", name: "Dormfold", stage: "IDEA",
     tagline: "Your laundry, folded by Tuesday",
     description: "Just opened. Looking for its first 50 backers.",
     founders: [["Malik Grant", "Founder"]],
@@ -86,7 +88,7 @@ const COMPANIES: Company[] = [
     round: { committedPct: 12, openedDaysAgo: 1, closesInDays: 20 },
   },
   {
-    slug: "bracket-bio", name: "Bracket Bio", stage: "PROTOTYPE",
+    slug: "bracket-bio", ticker: "BRKT", name: "Bracket Bio", stage: "PROTOTYPE",
     tagline: "A $40 test strip for lab benches",
     description: "Two grad students, one bench prototype.",
     legalName: "Bracket Bio, Inc.", formationState: "DE",
@@ -95,7 +97,7 @@ const COMPANIES: Company[] = [
     round: { committedPct: 27, openedDaysAgo: 3, closesInDays: 18 },
   },
   {
-    slug: "orchard-os", name: "Orchard OS", stage: "LAUNCHED",
+    slug: "orchard-os", ticker: "ORCH", name: "Orchard OS", stage: "LAUNCHED",
     tagline: "Scheduling software for small orchards",
     description: "Live with nine growers this season.",
     legalName: "Orchard OS, Inc.", formationState: "NC",
@@ -104,7 +106,7 @@ const COMPANIES: Company[] = [
     round: { committedPct: 66, openedDaysAgo: 7, closesInDays: 7 },
   },
   {
-    slug: "kiln-labs", name: "Kiln Labs", stage: "REPEATABLE_REVENUE",
+    slug: "kiln-labs", ticker: "KILN", name: "Kiln Labs", stage: "REPEATABLE_REVENUE",
     tagline: "Shift scheduling for campus employers",
     description: "Kiln Labs’ round is full. Follow for the next one.",
     legalName: "Kiln Labs, Inc.", formationState: "DE",
@@ -169,9 +171,9 @@ async function seed() {
         project = (
           await pool.query<{ id: string }>(
             `insert into projects (slug, name, tagline, description, stage, status, entity_type, legal_name, formation_state,
-                                   publish_contact_email, founder_identity_id)
-             values ($1, $2, $3, $4, $5::project_stage, 'PUBLISHED', $6::entity_type, $7, $8, false, $9) returning id`,
-            [c.slug, c.name, c.tagline, c.description, c.stage, c.legalName ? "INCORPORATED" : "UNINCORPORATED", c.legalName ?? null, c.formationState ?? null, identityIds[0]],
+                                   publish_contact_email, founder_identity_id, ticker)
+             values ($1, $2, $3, $4, $5::project_stage, 'PUBLISHED', $6::entity_type, $7, $8, false, $9, $10) returning id`,
+            [c.slug, c.name, c.tagline, c.description, c.stage, c.legalName ? "INCORPORATED" : "UNINCORPORATED", c.legalName ?? null, c.formationState ?? null, identityIds[0], c.ticker],
           )
         ).rows[0];
         for (const [i, [name, title]] of c.founders.entries()) {
