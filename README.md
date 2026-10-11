@@ -8,6 +8,11 @@
 </p>
 
 <p align="center">
+  <a href="https://prospectofunds.tech/"><img alt="Live demo: prospectofunds.tech" src="https://img.shields.io/badge/Live_demo-prospectofunds.tech-5BD06A?style=for-the-badge&labelColor=0A0A09"></a><br>
+  <b>Try it live at <a href="https://prospectofunds.tech/">https://prospectofunds.tech/</a></b>
+</p>
+
+<p align="center">
   <img alt="HackNC 2026" src="https://img.shields.io/badge/HackNC-2026-5BD06A?style=flat-square&labelColor=0A0A09">
   <img alt="Next.js 15" src="https://img.shields.io/badge/Next.js-15-ECE5D3?style=flat-square&labelColor=0A0A09">
   <img alt="Hono API" src="https://img.shields.io/badge/Hono-API-ECE5D3?style=flat-square&labelColor=0A0A09">
@@ -15,6 +20,11 @@
   <img alt="Gemini 3.1 Flash-Lite" src="https://img.shields.io/badge/Gemini-3.1_Flash--Lite-ECE5D3?style=flat-square&labelColor=0A0A09">
   <img alt="Solana Devnet" src="https://img.shields.io/badge/Solana-Devnet-ECE5D3?style=flat-square&labelColor=0A0A09">
   <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-ECE5D3?style=flat-square&labelColor=0A0A09">
+</p>
+
+<p align="center">
+  <a href="./assets/readme/prospecto-demo.mp4"><img src="./assets/readme/prospecto-demo-poster.jpg" width="100%" alt="Prospecto in two minutes: the problem, the founder listing flow for Quippy and Treasury, exploring and backing companies, and the news desk"></a><br>
+  <b>▶ <a href="./assets/readme/prospecto-demo.mp4">Watch Prospecto in two minutes</a></b>
 </p>
 
 ---
@@ -27,7 +37,7 @@
 | ✨ **Best Use of Gemini API** · MLH | Gemini 3.1 Flash-Lite with Search grounding and URL context reads founder links and returns cited claims, which deterministic code then verifies |
 | 🐯 **Best Use of Tiger Data** · MLH | Tiger Postgres holds every profile, claim and round; valuation, score and traction history live in TimescaleDB hypertables; a real-time continuous aggregate (`project_metrics_1m`) feeds the metrics |
 | 👥 **Community** | Classmates back the people they already know, judged on evidence instead of pedigree or a warm VC intro |
-| 🌐 **Best .Tech Domain Name** · MLH | A static-export site that moves to a permanent `.tech` home with no server to migrate |
+| 🌐 **Best .Tech Domain Name** · MLH | Live at [prospectofunds.tech](https://prospectofunds.tech/), a static-export site on a permanent `.tech` home with no server to migrate |
 | 🏆 **General** | A full primary market, from evidence to valuation to round to receipt, built in a weekend |
 
 ## The problem
@@ -49,6 +59,13 @@ A founder pastes links: a website, a GitHub repo, a short pitch. Prospecto resea
 
 ## Demo walkthrough
 
+<p align="center">
+  <img src="./assets/readme/walkthrough.svg" width="100%" alt="Demo walkthrough in eight stops: the front page, the founder interview, the Estimate Desk, company discovery, one company view, the portfolio, the wallet and founder controls">
+</p>
+
+<details>
+<summary><b>The same walkthrough as text</b></summary>
+
 | Step | Page | What to look at |
 | --- | --- | --- |
 | 1 | `/` | The front page. Move your cursor over the halftone hero to move the sun |
@@ -59,6 +76,8 @@ A founder pastes links: a website, a GitHub repo, a short pitch. Prospecto resea
 | 6 | `/portfolio/` | Play-credit holdings, P&L and simulated fills kept in this browser |
 | 7 | `/wallet/` | Real-layer demo participation: prove a Phantom wallet, fund it through Nessie, sign a primary commitment and track allocation |
 | 8 | `/manage/` | Founder publication, receipt-token and primary-issuance controls |
+
+</details>
 
 ## Built with
 
