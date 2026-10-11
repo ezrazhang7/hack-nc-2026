@@ -24,7 +24,7 @@
 
 <p align="center">
   <a href="./assets/readme/prospecto-demo.mp4"><img src="./assets/readme/prospecto-demo-poster.jpg" width="100%" alt="Prospecto in two minutes: the problem, the founder listing flow for Quippy and Treasury, exploring and backing companies, and the news desk"></a><br>
-  <b>▶ <a href="./assets/readme/prospecto-demo.mp4">Watch Prospecto in two minutes</a></b>
+  <b>▶ <a href="https://youtu.be/OiRmPhqSWXI">Watch Prospecto in two minutes</a></b>
 </p>
 
 ---
