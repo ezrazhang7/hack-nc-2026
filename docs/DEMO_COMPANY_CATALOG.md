@@ -32,3 +32,11 @@ The preset supplies:
 - evidence narrative and the three Quippy links above
 
 No email field is part of the intake. New projects keep the account email private unless a future explicit opt-in is added.
+
+## On-chain issuances (Devnet)
+
+Approved 2026-10-11 as a one-time demo operation: `QPY`, `TRSY` and `HEART` are on Solana Devnet via `backend/scripts/open-seed-rounds.ts`, so the wallet's **Commit** flow works for them. The other seeded companies stay off-chain (their Commit stays disabled).
+
+- **Founder custody is a demo shortcut.** Seeded founders never signed in, so each company's founder signature comes from an operator-held Devnet key in `chain/.keys/seed-founder-<slug>.json` (gitignored, mode 600). Keep these files: founder-only actions such as settlement need them. Production replaces this with the real founder's wallet.
+- **Round windows were refreshed once.** Opening on chain needs a DRAFT round that closes in the future, so each of the three rounds (no subscriptions) went back to DRAFT and got a new 14-day window before opening. Price, units, caps, fees and the valuation snapshot did not change; the projector re-checked every term against the chain.
+- **Demand shown on rounds is simulated per browser session** (`web/lib/demand.ts`, replay with `?demand=<seed>`); stored totals hold only real commitments.
