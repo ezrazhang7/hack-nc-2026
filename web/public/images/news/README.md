@@ -13,4 +13,4 @@ These files are served locally so the news page does not depend on a third-party
 
 The five Unsplash images are free photographs under the [Unsplash License](https://unsplash.com/license), not Unsplash+ assets. They illustrate the stories' subjects and do not depict the named companies or their founders; the visible credits label them as illustrative. Heart X1 is an actual company photograph sourced from Heart Aerospace's public newsroom media release and credited to the company. It illustrates the aircraft, not the simulated round's funding progress.
 
-Retrieved October 11, 2026. Unsplash JPEGs are sized to 960 × 640; the newsroom JPEG is 1080 pixels wide. The layout reserves a 3:2 thumbnail area, uses lazy loading after the lead story, and shows a text fallback if a photo cannot load.
+Retrieved October 11, 2026. Unsplash JPEGs are sized to 960 × 640; the newsroom JPEG is 1080 pixels wide. The editorial layout reserves widescreen photo areas, uses lazy loading after the lead story, and shows a text fallback if a photo cannot load.
