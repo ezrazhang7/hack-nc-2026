@@ -5,10 +5,13 @@ import { randomUUID } from "node:crypto";
 
 import { demoSignInEmail, isCampusEmail } from "../auth/campus-email.js";
 import { requireIdentity, type IdentityDependencies } from "../auth/identity.js";
+import { isAllowedOrigin } from "./guards.js";
 
 export interface AuthRouterDependencies extends IdentityDependencies {
   /** DEMO_MODE only; see POST /api/demo/sign-in below. */
   demoSignIn?: boolean;
+  /** TRUSTED_ORIGINS: extra exact origins accepted besides Better Auth's baseURL. */
+  trustedOrigins?: readonly string[];
 }
 
 const demoSignInSchema = z.object({ email: z.string().max(254).optional() });
@@ -33,7 +36,8 @@ export function createAuthRouter(dependencies: AuthRouterDependencies): Hono {
   if (dependencies.demoSignIn) {
     router.post("/demo/sign-in", async (context) => {
       // Same-origin only, like Better Auth's own endpoints (blocks login CSRF from other sites).
-      if (context.req.header("origin") !== new URL(dependencies.auth.options.baseURL ?? "").origin) {
+      const allowed = [dependencies.auth.options.baseURL ?? "", ...(dependencies.trustedOrigins ?? [])].filter(Boolean);
+      if (!isAllowedOrigin(context.req.header("origin"), allowed)) {
         return context.json({ error: { code: "INVALID_ORIGIN" } }, 403);
       }
       const body = demoSignInSchema.safeParse(await context.req.json().catch(() => ({})));

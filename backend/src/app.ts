@@ -77,7 +77,7 @@ export function createApi(dependencies: ApiDependencies): Hono {
   app.get("/api/health", (context) => context.json({ status: "ok" }));
   app.get('/api/status',context=>context.json({...readiness(),backendConfigured:true,
     purchasesEnabled:Boolean(dependencies.purchases),nessieEnabled:dependencies.purchases?.funding.options.enabled ?? false,demoMode:dependencies.demoSignIn ?? false}));
-  app.route("/api", createAuthRouter({ ...identityDependencies, demoSignIn: dependencies.demoSignIn }));
+  app.route("/api", createAuthRouter({ ...identityDependencies, demoSignIn: dependencies.demoSignIn, trustedOrigins: dependencies.trustedOrigins }));
   const allowedOrigins = [dependencies.publicOrigin, ...(dependencies.trustedOrigins ?? [])];
   const routeGuards = {
     pool: dependencies.pool,
