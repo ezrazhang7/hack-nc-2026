@@ -1,5 +1,5 @@
 {
-  "address": "Fg6PaFpoGXkYsidMpWxTWqkZxFghwR1wQzKwZP9Dz9A1",
+  "address": "GRpwgGnAZkiynrTYyYPSfFUhYVUjtFg3Ad8KVdLrTe6S",
   "metadata": {
     "name": "prospecto",
     "version": "0.1.0",
@@ -543,7 +543,7 @@
         },
         {
           "name": "program",
-          "address": "Fg6PaFpoGXkYsidMpWxTWqkZxFghwR1wQzKwZP9Dz9A1"
+          "address": "GRpwgGnAZkiynrTYyYPSfFUhYVUjtFg3Ad8KVdLrTe6S"
         },
         {
           "name": "program_data"

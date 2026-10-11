@@ -3,8 +3,8 @@ use anchor_lang::solana_program::{program::{invoke, invoke_signed}, system_instr
 use anchor_spl::{associated_token::AssociatedToken, token_2022::{self, Token2022}, token_interface::{Mint, TokenAccount}};
 use anchor_spl::token_2022::spl_token_2022::{extension::ExtensionType, state::Mint as SplMint, instruction as token_ix};
 
-// Local build address; deployment must synchronize the IDL and declared address before enabling purchases.
-declare_id!("Fg6PaFpoGXkYsidMpWxTWqkZxFghwR1wQzKwZP9Dz9A1");
+// Devnet deployment (upgrade authority FsadR3sy…). Redeploying elsewhere must resync Anchor.toml and backend/idl/prospecto.json.
+declare_id!("GRpwgGnAZkiynrTYyYPSfFUhYVUjtFg3Ad8KVdLrTe6S");
 const MAX_FUNDING: u64 = 1_000_000_000;
 const MAX_UNITS: u64 = 200_000;
 
