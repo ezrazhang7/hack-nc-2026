@@ -81,10 +81,14 @@ export default function LaunchPipeline({ draft, onEdit, onRetry }: { draft: Laun
       try {
         await api<Me>("/me");
       } catch (e) {
-        if (e instanceof ApiError && (e.status === 401 || e.status === 403)) {
-          setError("Sign in with your campus email to publish."); setPhase("failed"); return;
+        if (!(e instanceof ApiError && (e.status === 401 || e.status === 403))) throw e;
+        // No account yet: start a guest session (DEMO_MODE) so the report runs without signing up.
+        try {
+          await post("/demo/sign-in", {});
+          await api<Me>("/me");
+        } catch {
+          setError("Sign in on the Participate page to publish."); setPhase("failed"); return;
         }
-        throw e;
       }
       const prior = load();
       if (prior?.projectId && prior.sig === sig) saved.current = prior;

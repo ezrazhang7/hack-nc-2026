@@ -118,7 +118,7 @@ async function loadPublicProject(pool: Pool, where: "slug" | "id", value: string
   const { rows } = await pool.query<PublicProjectRow>(
     `select p.id, p.slug, p.name, p.tagline, p.description, p.stage::text as stage, p.status::text as status, p.entity_type::text as entity_type,
             p.legal_name, p.formation_state, p.website_url, p.sector_code,
-            case when p.publish_contact_email then u.email end as contact_email,
+            case when p.publish_contact_email and u.email not like '%@guest.prospecto.invalid' then u.email end as contact_email,
             coalesce((select json_agg(json_build_object('display_name', m.display_name, 'role_title', m.role_title, 'role', m.role)
                                       order by m.joined_at, m.display_name)
                         from project_members m where m.project_id = p.id and m.display_name is not null), '[]'::json) as founders,

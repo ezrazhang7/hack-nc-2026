@@ -17,7 +17,7 @@ const STEPS: Step[] = [
   { k: "site", sec: "Web", q: ["Where can backers", "see it?"], fields: [{ k: "site", ph: "https://mothlight.app", type: "url" }], hint: "No site? A Notion, Figma or demo link works." },
   { k: "founder", sec: "Founders", q: ["Who’s", "building it?"], fields: [{ k: "fname", l: "Name", ph: "Ana Ruiz" }, { k: "role", l: "Role", ph: "CEO" }], req: true },
   { k: "proof", sec: "Evidence", q: ["What have you", "shown so far?"], fields: [{ k: "proof", l: "In your own words", ph: "40 student interviews, 120 on the waitlist, beta live since May…", area: true }, { k: "links", l: "Links · one per line", ph: "https://github.com/…", area: true }], hint: "Numbers help. We check what we can against public sources." },
-  { k: "contact", sec: "Contact", q: ["Show your campus email", "on the profile?"], opts: ["Publish it", "Keep it private"], req: true },
+  { k: "contact", sec: "Contact", q: ["Show your email", "on the profile?"], opts: ["Publish it", "Keep it private"], req: true },
 ];
 
 type Data = Record<string, string>;

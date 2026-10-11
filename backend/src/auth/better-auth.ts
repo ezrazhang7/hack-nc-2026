@@ -46,7 +46,7 @@ export function createAuth(options: AuthOptions) {
         if (!EMAIL_PATHS.has(ctx.path)) return;
         const body = (ctx.body ?? {}) as { email?: unknown; type?: unknown };
         if (typeof body.email !== "string" || !isCampusEmail(body.email, options.campusDomains)) {
-          throw new APIError("BAD_REQUEST", { message: "Use your campus email address." });
+          throw new APIError("BAD_REQUEST", { message: "Use an email address this server accepts." });
         }
         if (ctx.path === "/email-otp/send-verification-otp" && body.type !== "sign-in") {
           throw new APIError("BAD_REQUEST", { message: "Only sign-in codes are supported." });
