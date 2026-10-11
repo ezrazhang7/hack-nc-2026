@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 import { PHASE_DEVELOPMENT_SERVER } from "next/constants";
 
 // Production: `next build` writes the static export to web/out/, which Vercel serves;
-// web/vercel.json forwards /api/* to the Railway backend (see docs/BACKEND_STACK.md).
+// root vercel.json routes /api/* to the Hono API service.
 // Development: `next dev` on :3000 proxies /api/* to the local backend so the browser
 // sees one origin, matching production. Rewrites are unsupported with output: "export",
 // so the two settings are applied in mutually exclusive phases.

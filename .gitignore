@@ -37,3 +37,6 @@ target/
 test-ledger/
 .surfpool/
 .vercel
+
+# Operator-only bank manifests, tested profiles and deployment configuration
+private-configuration/

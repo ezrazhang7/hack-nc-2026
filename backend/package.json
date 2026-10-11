@@ -16,13 +16,19 @@
     "db:migrate": "dbmate --env-file ../.env.local --env MIGRATION_DATABASE_URL --migrations-dir ../db/migrations --no-dump-schema migrate",
     "db:model-sql": "tsx scripts/model-sql.ts",
     "db:seed": "tsx --env-file-if-exists=../.env.local scripts/demo-seed.ts",
-    "db:new": "dbmate --env-file ../.env.local --env MIGRATION_DATABASE_URL --migrations-dir ../db/migrations --no-dump-schema new"
+    "db:new": "dbmate --env-file ../.env.local --env MIGRATION_DATABASE_URL --migrations-dir ../db/migrations --no-dump-schema new",
+    "register:bank-fixtures": "tsx --env-file-if-exists=../.env.local scripts/register-bank-fixtures.ts",
+    "nessie:probe": "tsx --env-file-if-exists=../.env.local scripts/nessie-probe.ts"
   },
   "dependencies": {
+    "@coral-xyz/anchor": "0.32.1",
     "@google/genai": "2.28.0",
     "@hono/node-server": "2.1.4",
+    "@solana/spl-token": "0.4.14",
+    "@solana/web3.js": "1.98.4",
     "@vercel/functions": "3.9.11",
     "better-auth": "1.7.7",
+    "bs58": "6.0.0",
     "hono": "4.13.13",
     "pg": "8.23.1",
     "zod": "4.6.5"
@@ -32,8 +38,14 @@
     "@types/node": "26.6.5",
     "@types/pg": "8.23.1",
     "dbmate": "2.36.0",
+    "litesvm": "0.8.0",
     "tsx": "4.23.15",
-    "typescript": "7.0.2",
+    "typescript": "5.9.3",
     "vitest": "5.0.2"
+  },
+  "overrides": {
+    "rpc-websockets": {
+      "uuid": "11.1.1"
+    }
   }
 }

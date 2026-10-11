@@ -17,7 +17,17 @@ import { createRoundsRouter } from "./routes/rounds.js";
 import { createWalletsRouter } from "./routes/wallets.js";
 import { createResearchRouter } from "./routes/research.js";
 
+import { PgStore } from './purchase/db/store.js';
+import type { Chain } from './purchase/tokenization/types.js';
+import { AppError } from './purchase/http/errors.js';
+const unavailableChain = new Proxy({} as Chain, {get:()=>async()=>{throw new AppError('CHAIN_UNAVAILABLE','Devnet purchases are not configured.',503);}});
+
+import { createPurchaseRouter } from './purchase/router.js';
+import type { PurchaseServices } from './purchase/runtime.js';
+import { readiness } from './readiness.js';
+
 export interface ApiDependencies {
+  purchases?: PurchaseServices;
   pool: Pool;
   /** PUBLIC_ORIGIN: non-GET requests must carry this Origin (BACKEND_STACK §7). */
   publicOrigin: string;
@@ -60,12 +70,17 @@ export function createApi(dependencies: ApiDependencies): Hono {
     requireProjectEditor(context, projectId, identityDependencies);
 
   app.get("/api/health", (context) => context.json({ status: "ok" }));
+  app.get('/api/status',context=>context.json({...readiness(),backendConfigured:true,
+    purchasesEnabled:Boolean(dependencies.purchases),nessieEnabled:dependencies.purchases?.funding.options.enabled ?? false,demoMode:dependencies.demoSignIn ?? false}));
   app.route("/api", createAuthRouter({ ...identityDependencies, demoSignIn: dependencies.demoSignIn }));
   const routeGuards = {
     pool: dependencies.pool,
     publicOrigin: dependencies.publicOrigin,
     requireIdentity: (context: Context) => requireIdentity(context, identityDependencies),
   };
+  app.route('/api',createPurchaseRouter(dependencies.purchases?.store ?? new PgStore(dependencies.pool),
+    dependencies.purchases?.chain ?? unavailableChain, dependencies.publicOrigin,dependencies.purchases,
+    routeGuards.requireIdentity,dependencies.runInBackground));
   app.route("/api", createProjectsRouter({ ...routeGuards, requireProjectEditor: requireEditor }));
   app.route("/api", createProfilesRouter(routeGuards));
   app.route("/api", createWalletsRouter(routeGuards));

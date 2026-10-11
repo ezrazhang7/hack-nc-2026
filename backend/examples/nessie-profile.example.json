@@ -1,0 +1,15 @@
+{
+  "id": "replace-with-versioned-sandbox-profile",
+  "baseUrl": "https://prod-api.nessieisreal.com",
+  "capabilitiesVerified": false,
+  "verificationReference": "replace-with-redacted-sandbox-evidence-reference",
+  "verifiedAt": "2026-10-10T00:00:00.000Z",
+  "createEnvelope": "objectCreated",
+  "readEnvelope": "direct",
+  "historyEnvelope": "array",
+  "historyPagination": "none",
+  "successStatuses": ["replace_with_observed_success"],
+  "pendingStatuses": ["replace_with_observed_pending"],
+  "rejectedStatuses": ["replace_with_observed_rejection"],
+  "definitiveNoEffectHttpStatuses": []
+}

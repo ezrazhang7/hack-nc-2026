@@ -236,7 +236,7 @@ export default function LaunchPipeline({ draft, onEdit, onRetry }: { draft: Laun
             <div className="row"><Link className="btn go" href={`/project/?slug=${slug}`}>See your profile →</Link><button className="btn ghost" type="button" onClick={startOver}>List another</button></div>
           </>
         )}
-        {phase === "published" && <p className="note">Rounds open once your wallet is connected.</p>}
+        {phase === "published" && <p className="note"><Link href={`/participate/?project=${saved.current.projectId}`}>Connect your wallet, create receipts, and open your round →</Link></p>}
       </div>
     </section>
   );

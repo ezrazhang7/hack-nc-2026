@@ -141,7 +141,7 @@ export default function ProjectView() {
                 <span>{formatMicroUsd(r.total_committed_micro_usd, 0)} of {formatMicroUsd(r.target_amount_micro_usd, 0)}</span>
                 <span>{sub >= 100 ? <b className="dn">Full</b> : `${sub}%`}{left > 0 && ` · ${left}d left`}</span>
               </div>
-              <Link className="btn go" href={`/round/?slug=${p.slug}`}>{open && sub < 100 ? `Back ${p.name}` : "See the round"} →</Link>
+              <Link className="btn go" href={`/participate/?round=${r.id}`}>{open && sub < 100 ? `Back ${p.name}` : "See the round"} →</Link>
             </>
           ) : <p className="none">No round open yet.</p>}
         </aside>

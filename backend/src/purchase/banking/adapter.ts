@@ -1,0 +1,152 @@
+import { z } from 'zod';
+import { AppError } from '../http/errors.js';
+
+const providerId = z.string().regex(/^[A-Za-z0-9_-]{1,128}$/);
+export const profileSchema = z.object({
+  id: z.string().min(1), baseUrl: z.url(), capabilitiesVerified: z.literal(true),
+  verificationReference: z.string().min(1), verifiedAt: z.iso.datetime(),
+  createEnvelope: z.enum(['direct', 'objectCreated']), readEnvelope: z.enum(['direct', 'objectCreated']),
+  historyEnvelope: z.enum(['array', 'data']), historyPagination: z.enum(['none', 'next', 'link']),
+  successStatuses: z.array(z.string().min(1)).min(1), pendingStatuses: z.array(z.string().min(1)),
+  rejectedStatuses: z.array(z.string().min(1)), definitiveNoEffectHttpStatuses: z.array(z.number().int().min(400).max(499)),
+}).strict().superRefine((value, context) => {
+  const url = new URL(value.baseUrl);
+  if (url.protocol !== 'https:' || url.username || url.password || url.search || url.hash || url.pathname !== '/') {
+    context.addIssue({ code: 'custom', message: 'Profile base URL must be a trusted HTTPS origin.' });
+  }
+  const statuses = [...value.successStatuses, ...value.pendingStatuses, ...value.rejectedStatuses];
+  if (new Set(statuses).size !== statuses.length) context.addIssue({ code: 'custom', message: 'Provider status classes must not overlap.' });
+});
+export type NessieProfile = z.infer<typeof profileSchema>;
+export interface BankTransfer {
+  id: string; payerId: string; payeeId: string; dollars: number; tag: string; providerStatus: string;
+  state: 'pending' | 'success' | 'rejected' | 'unknown';
+}
+export interface BankAccount { id: string; customerId: string; nickname: string; dollars: number }
+export interface Bank {
+  account(id: string): Promise<BankAccount>;
+  createTransfer(payerId: string, payeeId: string, dollars: number, tag: string): Promise<string>;
+  transfer(id: string): Promise<BankTransfer>;
+  history(accountId: string): Promise<BankTransfer[]>;
+}
+export class BankError extends AppError {
+  constructor(readonly outcome: 'uncertain' | 'no-effect' | 'invalid', code = 'BANK_UNAVAILABLE') {
+    super(code, outcome === 'invalid' ? 'Bank response requires operator review.' : 'The demo bank is unavailable. Accepted funding will be reconciled.', 503);
+  }
+}
+const accountSchema = z.object({ _id: providerId, customer_id: providerId, nickname: z.string().max(200), balance: z.number().int().safe().nonnegative() });
+const transferSchema = z.object({
+  _id: providerId, payer_id: providerId, payee_id: providerId,
+  amount: z.number().int().safe().nonnegative(), description: z.string().max(300), status: z.string().min(1),
+});
+
+export class NessieBank implements Bank {
+  readonly profile: NessieProfile;
+  constructor(profile: NessieProfile, private readonly apiKey: string, private readonly transport: typeof fetch = fetch) {
+    this.profile = profileSchema.parse(profile);
+  }
+  private async request(path: string, method: 'GET' | 'POST' = 'GET', body?: unknown): Promise<{ body: unknown; headers: Headers }> {
+    const origin = new URL(this.profile.baseUrl).origin;
+    const url = new URL(path, origin);
+    if (url.origin !== origin || url.username || url.password || url.hash) throw new BankError('invalid');
+    url.searchParams.set('key', this.apiKey);
+    try {
+      const response = await this.transport(url, {
+        method, redirect: 'error', signal: AbortSignal.timeout(10_000),
+        ...(body === undefined ? {} : { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
+      });
+      if (!response.ok) {
+        const conclusive = method === 'POST' && this.profile.definitiveNoEffectHttpStatuses.includes(response.status);
+        throw new BankError(conclusive ? 'no-effect' : 'uncertain');
+      }
+      const reader = response.body?.getReader();
+      if (!reader) throw new BankError('invalid');
+      let length = 0; const chunks: Uint8Array[] = [];
+      while (true) {
+        const chunk = await reader.read(); if (chunk.done) break;
+        length += chunk.value.length;
+        if (length > 1_000_000) { await reader.cancel(); throw new BankError('invalid'); }
+        chunks.push(chunk.value);
+      }
+      return { body: JSON.parse(Buffer.concat(chunks).toString('utf8')) as unknown, headers: response.headers };
+    } catch (error) {
+      if (error instanceof BankError) throw error;
+      // Never attach fetch errors, response bodies, or authenticated URLs.
+      throw new BankError('uncertain');
+    }
+  }
+  private unwrap(value: unknown, envelope: 'direct' | 'objectCreated'): unknown {
+    if (envelope === 'direct') return value;
+    return z.object({ objectCreated: z.unknown() }).parse(value).objectCreated;
+  }
+  private parsedTransfer(value: unknown): BankTransfer {
+    const result = transferSchema.safeParse(value);
+    if (!result.success) throw new BankError('invalid');
+    const row = result.data;
+    const state = this.profile.successStatuses.includes(row.status) ? 'success'
+      : this.profile.pendingStatuses.includes(row.status) ? 'pending'
+      : this.profile.rejectedStatuses.includes(row.status) ? 'rejected' : 'unknown';
+    return { id: row._id, payerId: row.payer_id, payeeId: row.payee_id, dollars: row.amount, tag: row.description, providerStatus: row.status, state };
+  }
+  async account(id: string): Promise<BankAccount> {
+    providerId.parse(id);
+    const { body } = await this.request(`/accounts/${id}`);
+    const result = accountSchema.safeParse(body);
+    if (!result.success || result.data._id !== id) throw new BankError('invalid');
+    return { id, customerId: result.data.customer_id, nickname: result.data.nickname, dollars: result.data.balance };
+  }
+  async createTransfer(payerId: string, payeeId: string, dollars: number, tag: string): Promise<string> {
+    providerId.parse(payerId); providerId.parse(payeeId);
+    if (!Number.isSafeInteger(dollars) || dollars < 1 || dollars > 1000) throw new AppError('INVALID_INPUT', 'Invalid mock bank amount.');
+    const { body } = await this.request(`/accounts/${payerId}/transfers`, 'POST', {
+      medium: 'balance', payee_id: payeeId, amount: dollars,
+      transaction_date: new Date().toISOString().slice(0, 10), description: tag,
+    });
+    try { return z.object({ _id: providerId }).parse(this.unwrap(body, this.profile.createEnvelope))._id; }
+    catch { throw new BankError('uncertain'); }
+  }
+  async transfer(id: string): Promise<BankTransfer> {
+    providerId.parse(id);
+    const { body } = await this.request(`/transfers/${id}`);
+    let transfer: BankTransfer;
+    try { transfer = this.parsedTransfer(this.unwrap(body, this.profile.readEnvelope)); }
+    catch { throw new BankError('invalid'); }
+    if (transfer.id !== id) throw new BankError('invalid');
+    return transfer;
+  }
+  async history(accountId: string): Promise<BankTransfer[]> {
+    providerId.parse(accountId);
+    let path: string | null = `/accounts/${accountId}/transfers`;
+    const visited = new Set<string>(); const transfers = new Map<string, BankTransfer>();
+    for (let page = 0; path && page < 20; page++) {
+      if (visited.has(path)) throw new BankError('invalid'); visited.add(path);
+      const { body, headers } = await this.request(path);
+      let rows: unknown; let next: string | null = null;
+      if (this.profile.historyEnvelope === 'array') rows = body;
+      else {
+        const envelope = z.object({ data: z.array(z.unknown()), next: z.string().nullable().optional() }).safeParse(body);
+        if (!envelope.success) throw new BankError('invalid');
+        rows = envelope.data.data;
+        if (this.profile.historyPagination === 'next') next = envelope.data.next ?? null;
+      }
+      if (this.profile.historyPagination === 'link') {
+        next = /<([^>]+)>;\s*rel="next"/.exec(headers.get('link') ?? '')?.[1] ?? null;
+      }
+      if (!Array.isArray(rows)) throw new BankError('invalid');
+      for (const raw of rows) {
+        const transfer = this.parsedTransfer(raw);
+        const previous = transfers.get(transfer.id);
+        if (previous && JSON.stringify(previous) !== JSON.stringify(transfer)) throw new BankError('invalid');
+        transfers.set(transfer.id, transfer);
+      }
+      if (next) {
+        const url = new URL(next, this.profile.baseUrl);
+        if (url.origin !== new URL(this.profile.baseUrl).origin || url.pathname !== `/accounts/${accountId}/transfers`
+          || url.username || url.password || url.hash) throw new BankError('invalid');
+        url.searchParams.delete('key'); path = url.pathname + url.search;
+      } else path = null;
+    }
+    if (path) throw new BankError('invalid');
+    return [...transfers.values()];
+  }
+}

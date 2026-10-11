@@ -250,7 +250,10 @@ export default function RoundTerminal({ co, preview = false, live: simulate = tr
       };
       chips.addEventListener("click", onChip);
       const onBuy = () => {
-        if (full || preview || real) return;
+        if (preview) return;
+        // Real rounds with an on-chain id hand off to the Devnet checkout.
+        if (real && co.roundId) { window.location.assign(`/participate/?round=${encodeURIComponent(co.roundId)}`); return; }
+        if (full || real) return;
         buy.textContent = "Illustration only"; later(() => (buy.textContent = label(+qn.textContent!.replace(/,/g, ""))), 1400);
       };
       buy.addEventListener("click", onBuy);
@@ -348,11 +351,11 @@ export default function RoundTerminal({ co, preview = false, live: simulate = tr
               <div><span>Fee</span><b>{co.feeBps != null ? `${co.feeBps / 100}% of accepted` : "1% of accepted"}</b></div>
               <div className="tot"><span>Total</span><b id="qt">{formatMicroUsd(String(BigInt(qty) * priceMicro), 2)}</b></div>
             </div>
-            <button type="button" className="buy t-in" id="buy" disabled={full || preview || real}>
-              {full ? (real && realPct < 100 ? "Round closed" : "Round full") : preview ? "Opens after publishing" : real ? "Checkout opens soon" : `Commit · ${qty.toLocaleString("en-US")} units`}
+            <button type="button" className="buy t-in" id="buy" disabled={preview || (real ? !co.roundId : full)}>
+              {real && co.roundId && !preview ? "Review Devnet commitment" : full ? (real && realPct < 100 ? "Round closed" : "Round full") : preview ? "Opens after publishing" : real ? "Checkout opens soon" : `Commit · ${qty.toLocaleString("en-US")} units`}
             </button>
             <p className="fine t-in">{real
-              ? "Wallet checkout opens with the Devnet program. Units are participation receipts: not equity, never transferable."
+              ? `${co.roundId ? "Commit mock USDC from your Devnet wallet." : "Wallet checkout opens with the Devnet program."} Units are participation receipts: not equity, never transferable.`
               : `Illustration with demo credits. Units come straight from ${co.n} and can’t be resold.`}</p>
             <div className="closes t-in"><span>Round closes</span><b id="cd">{full ? "Closed" : real ? "—" : `${co.d}d 04:11:09`}</b></div>
           </div>

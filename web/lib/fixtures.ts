@@ -9,6 +9,7 @@ export type Founder = { n: string; r: string; s?: string; asks?: string[]; li?: 
 
 /** What the round terminal and feed cards render, built from a fixture or from API data (lib/api.ts toRound). */
 export type Round = {
+  roundId?: string;
   t: string; n: string; s: Stage; e: "Unincorporated" | "Incorporated"; city?: string;
   /** Display price only. Real amounts arrive as integer micro-USD strings from the API. */
   p: number; sub: number; d: number; h: string; dek: string;

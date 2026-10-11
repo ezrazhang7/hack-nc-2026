@@ -122,7 +122,7 @@ export function toRound(p: ProjectCard | ProjectProfile): Round {
   const r = p.round;
   const price = r?.unit_price_micro_usd ?? p.valuation?.unit_price_micro_usd ?? "0";
   return {
-    t: tickerOf(p.name), n: p.name, slug: p.slug,
+    t: tickerOf(p.name), n: p.name, slug: p.slug, roundId:r?.id,
     s: p.valuation?.effective_stage ?? p.stage,
     e: p.entity_type === "INCORPORATED" ? "Incorporated" : "Unincorporated",
     p: microToNumber(price), pMicro: price, h: p.tagline || p.name, dek: p.description,

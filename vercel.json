@@ -7,7 +7,7 @@
     "api": {
       "root": "backend/",
       "entrypoint": "server.ts",
-      "installCommand": "npm ci --omit=dev"
+      "installCommand": "npm ci --include=dev"
     }
   },
   "rewrites": [

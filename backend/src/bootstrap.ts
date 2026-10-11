@@ -2,6 +2,7 @@ import { GoogleGenAI } from "@google/genai";
 import type { Hono } from "hono";
 import { Pool } from "pg";
 
+import { loadPurchaseServices } from './purchase/runtime.js';
 import { createApi } from "./app.js";
 import { createAuth, createAuthPool } from "./auth/better-auth.js";
 import { createOtpSender } from "./auth/otp-delivery.js";
@@ -53,6 +54,7 @@ export async function bootstrap(options: BootstrapOptions = {}): Promise<Bootstr
 
   const app = createApi({
     pool,
+    purchases:await loadPurchaseServices(pool,config),
     publicOrigin: config.PUBLIC_ORIGIN,
     programId: config.PROGRAM_ID ?? null,
     allowDraftModel: config.DEMO_MODE,

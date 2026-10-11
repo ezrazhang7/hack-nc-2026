@@ -9,6 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@solana/web3.js": "1.98.4",
+    "bs58": "6.0.0",
+    "buffer": "6.0.3",
     "gsap": "^3.12.5",
     "next": "15.5.27",
     "react": "19.1.0",
@@ -22,5 +25,11 @@
     "eslint": "^9",
     "eslint-config-next": "15.5.27",
     "typescript": "^5"
+  },
+  "overrides": {
+    "postcss": "8.5.29",
+    "rpc-websockets": {
+      "uuid": "11.1.1"
+    }
   }
 }

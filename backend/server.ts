@@ -2,15 +2,17 @@
 // Local development uses src/index.ts instead.
 import { attachDatabasePool, waitUntil } from "@vercel/functions";
 
-import { bootstrap } from "./src/bootstrap.js";
+import { readiness, unconfiguredApi } from './src/readiness.js';
 
-const { app, pool, authPool } = await bootstrap({
+const initialized = readiness().backendConfigured ? await (await import("./src/bootstrap.js")).bootstrap({
   // Each Fluid compute instance holds its own small pool; idle clients close before suspension.
   poolOptions: { max: 5, idleTimeoutMillis: 5_000 },
   // Research runs continue after the 202 response, up to the function's max duration.
   runInBackground: (task) => waitUntil(task()),
-});
-attachDatabasePool(pool);
-attachDatabasePool(authPool);
+}) : null;
+if(initialized) {
+  attachDatabasePool(initialized.pool);
+  attachDatabasePool(initialized.authPool);
+}
 
-export default app;
+export default initialized?.app ?? unconfiguredApi();

@@ -32,6 +32,16 @@ const envSchema = z.object({
   GITHUB_TOKEN: z.string().min(1).optional(),
   // Deployed Anchor program (BACKEND_STACK §12). Unset: rounds stop at AWAITING_PROGRAM.
   PROGRAM_ID: z.string().regex(/^[1-9A-HJ-NP-Za-km-z]{32,44}$/, "must be a base58 Solana address").optional(),
+  PURCHASES_ENABLED: z.enum(['true','false']).default('false').transform(value=>value==='true'),
+  SOLANA_RPC_URL: z.url().default('https://api.devnet.solana.com'),
+  PAYMENT_MINT: z.string().optional(),
+  RELAYER_SECRET_KEY: z.string().optional(),
+  PROGRAM_IDL_PATH: z.string().optional(),
+  NESSIE_ENABLED: z.enum(['true','false']).default('false').transform(value=>value==='true'),
+  FUNDING_PAUSED: z.enum(['true','false']).default('false').transform(value=>value==='true'),
+  NESSIE_API_KEY: z.string().optional(), NESSIE_BASE_URL: z.url().optional(),
+  NESSIE_PROFILE: z.string().optional(), NESSIE_PROFILE_PATH: z.string().optional(), NESSIE_TREASURY_ACCOUNT_ID: z.string().optional(),
+  DEMO_GENERATION_ID: z.string().min(1).max(100).default('demo-v1'),
   // Comma-separated founder-provided LinkedIn snapshot files (MARKET ARCHITECTURE §6.5),
   // e.g. ../db/fixtures/demo-linkedin-snapshot.json. Unset: LinkedIn links stay unreadable.
   PROFILE_SNAPSHOT_FILES: z

@@ -1,0 +1,19 @@
+{
+  "generation": "demo-v1",
+  "accounts": [
+    {
+      "role": "TREASURY",
+      "identityId": null,
+      "providerAccountId": "replace-with-synthetic-treasury-account-id",
+      "providerCustomerId": "replace-with-synthetic-treasury-customer-id",
+      "nickname": "Prospecto Demo Treasury"
+    },
+    {
+      "role": "PARTICIPANT",
+      "identityId": "00000000-0000-4000-8000-000000000001",
+      "providerAccountId": "replace-with-synthetic-participant-account-id",
+      "providerCustomerId": "replace-with-synthetic-participant-customer-id",
+      "nickname": "Prospecto Demo Checking"
+    }
+  ]
+}

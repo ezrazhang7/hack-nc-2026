@@ -15,6 +15,7 @@ export default function RoundsPage() {
       <main className="page">
         <div className="head">
           <HeroText text="Back them" em="early." />
+          <Link className="bal" href="/participate/">Connect your demo wallet →</Link>
         </div>
         <RoundsFeed />
         <p className="note">Units are simulated participation receipts, not equity.</p>

@@ -343,7 +343,9 @@ export interface RoundOpenedEvent {
  * every on-chain term equals the Tiger row; a mismatch is refused (and should alert), never adopted.
  */
 export async function recordRoundOpened(pool: Pool, roundId: string, event: RoundOpenedEvent): Promise<string> {
-  return inTransaction(pool, async (client) => {
+  return inTransaction(pool,client=>recordRoundOpenedWithClient(client,roundId,event));
+}
+export async function recordRoundOpenedWithClient(client:PoolClient,roundId:string,event:RoundOpenedEvent):Promise<string> {
     const round = await client.query<RoundRow & { project_pda: string | null; receipt_mint: string | null }>(
       `select r.*, p.solana_project_pda as project_pda, p.receipt_mint
          from (select ${ROUND_COLUMNS} from rounds where id = $1 for update) r
@@ -384,5 +386,4 @@ export async function recordRoundOpened(pool: Pool, roundId: string, event: Roun
       [roundId, status, event.roundPda],
     );
     return status;
-  });
 }
