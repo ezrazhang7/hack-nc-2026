@@ -436,7 +436,7 @@ RESEARCH_PROVIDER=gemini       # gemini (direct) or openrouter (Gemini via OpenR
 OPENROUTER_API_KEY=            # required when RESEARCH_PROVIDER=openrouter
 OPENROUTER_MODEL=google/gemini-2.5-flash
 GITHUB_TOKEN=                  # optional; read-only public scope, lifts GitHub's 60 req/h unauthenticated limit
-PROFILE_SNAPSHOT_FILES=        # optional, comma-separated founder-provided LinkedIn snapshots (M§6.5), e.g. ../db/fixtures/demo-linkedin-snapshot.json
+PROFILE_SNAPSHOT_FILES=        # optional, comma-separated founder-provided LinkedIn snapshots (M§6.5), relative to backend/, e.g. fixtures/demo-linkedin-snapshot.json
 WORKER_IN_PROCESS=false
 ```
 
@@ -462,7 +462,7 @@ Production: `https://hack-nc-2026.vercel.app` (project `hack-nc-2026`, deployed 
 - Background research runs use `waitUntil` (`server.ts`), so they share the function's 300 s limit (Hobby default and maximum). The two Gemini passes run in parallel (90 s timeout, one retry each), which fits. If an instance is stopped mid-run, the 5-minute lease expires and `recoverStaleRuns` marks the run `FAILED` the next time runs are started or read.
 - Each instance keeps a small pg pool (`max: 5`) and `attachDatabasePool` closes idle clients before suspension. Prefer Tiger's connection pooler URL if connection counts climb.
 - Better Auth's rate limiter keeps counts in instance memory, so limits are per instance. Acceptable for the demo.
-- Files outside `backend/` are not deployed with the `api` service; `PROFILE_SNAPSHOT_FILES` must point at files inside `backend/` to work on Vercel.
+- Files outside `backend/` are not deployed with the `api` service, and files that are only read at runtime are not traced. `PROFILE_SNAPSHOT_FILES` paths resolve against `backend/` and must sit under `backend/fixtures/`, which `vercel.json` ships via `includeFiles`.
 - Cold starts add latency to the first request after idle; open the site before presenting.
 
 **Demo sign-in (DEMO_MODE=true only):** `POST /api/demo/sign-in { email? }` signs in without sending a code (Better Auth `createVerificationOTP` + `signInEmailOTP` server-side, same-origin only). Any input works: a well-formed email is used as typed, other text maps to a stable guest address under `guest.prospecto.invalid` (same text, same account), and blank input creates a new guest. The launch flow starts a guest session automatically, so founders get the researched report without signing up. Guest addresses are never published as a project contact. `CAMPUS_EMAIL_DOMAINS=*` (the demo setting) accepts any email domain; a domain list restores campus-only sign-in. The identity is still recorded as `VERIFIED`, which under `DEMO_MODE` means only "signed in"; `/api/me` returns `demoMode: true` so the UI can say so. Production replacement: the emailed-code flow with `DEMO_MODE=false` and a campus domain list.

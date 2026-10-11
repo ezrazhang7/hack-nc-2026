@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
 
 import { linkedinProfileKey, loadProfileSnapshots } from "../../src/evidence/research/profile-snapshots.js";
 
-const demoFixture = fileURLToPath(new URL("../../../db/fixtures/demo-linkedin-snapshot.json", import.meta.url));
+const demoFixture = fileURLToPath(new URL("../../fixtures/demo-linkedin-snapshot.json", import.meta.url));
 
 describe("profile snapshots", () => {
   it("matches every common variant of one LinkedIn profile URL", () => {

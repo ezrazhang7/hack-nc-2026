@@ -7,7 +7,12 @@
     "api": {
       "root": "backend/",
       "entrypoint": "server.ts",
-      "installCommand": "npm ci --include=dev"
+      "installCommand": "npm ci --include=dev",
+      "functions": {
+        "server.ts": {
+          "includeFiles": "fixtures/**"
+        }
+      }
     }
   },
   "rewrites": [

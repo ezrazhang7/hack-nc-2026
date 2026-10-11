@@ -717,7 +717,7 @@ The founder flow is **paste two links (startup website and LinkedIn), and the sy
 - The snapshot holds only evidence-bearing facts. Location, connection and follower counts, interests, and other people's names are not stored.
 - Every claim from it is `FOUNDER_ATTESTED` (the founder-attested multiplier, §4.5), exactly like pasted founder text.
 - The UI labels it "LinkedIn details provided by the founder", never "scraped" or "verified".
-- The demo snapshot is `db/fixtures/demo-linkedin-snapshot.json`, loaded through `PROFILE_SNAPSHOT_FILES` and matched on the `/in/<handle>` path, so URL variants match. Delete it when the founder asks.
+- The demo snapshot is `backend/fixtures/demo-linkedin-snapshot.json`, loaded through `PROFILE_SNAPSHOT_FILES` and matched on the `/in/<handle>` path, so URL variants match. Delete it when the founder asks.
 - The snapshot is quote-checked as a complete source: a quote missing from it is dropped, and it is stored with fetch status `FOUNDER_PROVIDED`.
 
 **What a profile can contribute.** Under the closed metric vocabulary (`metrics-v2`) and §2.3, profile fields are treated as follows:

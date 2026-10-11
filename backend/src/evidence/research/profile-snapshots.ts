@@ -2,6 +2,8 @@
 // login and must never be scraped, so a founder can supply their profile text instead. The runner
 // treats it as founder-provided text: every claim from it stays FOUNDER_ATTESTED.
 import { readFile } from "node:fs/promises";
+import { isAbsolute } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { z } from "zod";
 
@@ -39,11 +41,19 @@ export function linkedinProfileKey(url: string): string | null {
   }
 }
 
-/** Loads snapshot JSON files (e.g. db/fixtures/demo-linkedin-snapshot.json). Throws on any invalid file. */
+// Relative paths resolve against backend/, not the process cwd: the cwd differs between local runs
+// and Vercel, and only files under backend/ (listed in vercel.json includeFiles) are deployed.
+const BACKEND_ROOT = new URL("../../../", import.meta.url);
+
+function resolveSnapshotPath(path: string): string {
+  return isAbsolute(path) ? path : fileURLToPath(new URL(path, BACKEND_ROOT));
+}
+
+/** Loads snapshot JSON files (e.g. fixtures/demo-linkedin-snapshot.json). Throws on any invalid file. */
 export async function loadProfileSnapshots(paths: readonly string[]): Promise<ProfileSnapshotLookup> {
   const byKey = new Map<string, ProfileSnapshot>();
   for (const path of paths) {
-    const parsed = snapshotFileSchema.parse(JSON.parse(await readFile(path, "utf8")));
+    const parsed = snapshotFileSchema.parse(JSON.parse(await readFile(resolveSnapshotPath(path), "utf8")));
     const key = linkedinProfileKey(parsed.profile_url);
     if (!key) throw new Error(`${path}: profile_url must be a LinkedIn /in/ profile URL`);
     byKey.set(key, { profileUrl: parsed.profile_url, capturedAt: parsed.captured_at, text: parsed.text });

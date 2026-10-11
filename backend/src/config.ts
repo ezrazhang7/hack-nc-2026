@@ -43,7 +43,7 @@ const envSchema = z.object({
   NESSIE_PROFILE: z.string().optional(), NESSIE_PROFILE_PATH: z.string().optional(), NESSIE_TREASURY_ACCOUNT_ID: z.string().optional(),
   DEMO_GENERATION_ID: z.string().min(1).max(100).default('demo-v1'),
   // Comma-separated founder-provided LinkedIn snapshot files (MARKET ARCHITECTURE §6.5),
-  // e.g. ../db/fixtures/demo-linkedin-snapshot.json. Unset: LinkedIn links stay unreadable.
+  // e.g. fixtures/demo-linkedin-snapshot.json, relative to backend/. Unset: LinkedIn links stay unreadable.
   PROFILE_SNAPSHOT_FILES: z
     .string()
     .transform((value) => value.split(",").map((path) => path.trim()).filter((path) => path.length > 0))
