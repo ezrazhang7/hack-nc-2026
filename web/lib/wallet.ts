@@ -43,3 +43,11 @@ export async function signPrepared(transaction:string,address:string) {
   if(!Buffer.from(signed.message.serialize()).equals(Buffer.from(tx.message.serialize())))throw new Error('Wallet changed the prepared transaction.');
   return Buffer.from(signed.serialize()).toString('base64');
 }
+// Display name for a wallet so the page never shows the address: stable per address, not secret
+// (anyone holding the address can recompute it), so it is only ever a label.
+const ADJECTIVES=['Amber','Brisk','Cedar','Copper','Coral','Dusky','Ember','Fable','Golden','Hazel','Indigo','Juniper','Lunar','Maple','Misty','Nimble','Olive','Quiet','Rustic','Saffron','Silver','Solar','Tidal','Velvet'];
+const NOUNS=['Badger','Crane','Falcon','Finch','Fox','Hare','Heron','Kestrel','Lark','Lynx','Marten','Moth','Otter','Owl','Plover','Raven','Robin','Sparrow','Stoat','Swift','Tern','Vole','Wren','Yak'];
+export function walletName(address:string){
+  let hash=2166136261;for(const char of address){hash^=char.charCodeAt(0);hash=Math.imul(hash,16777619)>>>0;}
+  return `${ADJECTIVES[hash%ADJECTIVES.length]} ${NOUNS[Math.floor(hash/ADJECTIVES.length)%NOUNS.length]}`;
+}

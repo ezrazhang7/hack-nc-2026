@@ -1,7 +1,7 @@
 'use client';
 import {useCallback,useEffect,useState} from 'react';
 import {api,actionKey,dollarsToMicro,money} from '@/lib/purchase-api';
-import {connectWallet,signProof,signPrepared} from '@/lib/wallet';
+import {connectWallet,signProof,signPrepared,walletName} from '@/lib/wallet';
 import {investSlugHref,routes} from '@/lib/routes';
 type Status={backendConfigured:boolean;purchasesEnabled:boolean;nessieEnabled:boolean;demoMode:boolean};
 type Me={identityId:string};
@@ -54,7 +54,7 @@ export default function Participation({mode='wallet'}:{mode?:'wallet'|'manage'})
     {!status?error?<button className="w-btn" disabled={busy} onClick={()=>run(async()=>setStatus(await api('/status')))}>Reconnect</button>:<p className="w-dim">Connecting…</p>:!status.backendConfigured?<p className="w-dim">Accounts are temporarily unavailable.</p>:<>
     <section className="w-card"><header><h3>Account</h3>{me&&<button className="w-link" disabled={busy} onClick={signOut}>Sign out</button>}</header>
       {me?<div className="w-grid">
-        <div><span className="w-k">Wallet</span><b className="mono">{wallet?short(wallet):'Not connected'}</b></div>
+        <div><span className="w-k">Wallet</span><b>{wallet?walletName(wallet):'Not connected'}</b></div>
         {mode==='wallet'&&<div><span className="w-k">Cash</span><b className="mono">{balance===null?'—':money(balance)}</b></div>}
         <div className="w-act"><button className="w-btn" disabled={busy} onClick={()=>run(bind)}>{wallet?'Reconnect wallet':'Connect wallet'}</button>{mode==='wallet'&&wallet&&status.purchasesEnabled&&<button className="w-btn ghost" disabled={busy} onClick={()=>run(()=>refresh(wallet))}>Refresh</button>}</div>
       </div>:<div className="w-form">
