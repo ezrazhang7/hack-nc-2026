@@ -165,8 +165,8 @@ export async function startResearchRun(
     const cached = await deps.pool.query<{ id: string; status: string }>(
       `select id, status from research_runs
         where project_id = $1 and input_hash = $2 and pipeline_version = $3 and model = $4
-          and status in ('SUCCEEDED', 'PARTIAL') and created_at > now() - make_interval(secs => $5)
-        order by created_at desc limit 1`,
+          and status in ('SUCCEEDED', 'PARTIAL') and (pinned or created_at > now() - make_interval(secs => $5))
+        order by pinned desc, created_at desc limit 1`,
       [params.projectId, hash, PIPELINE_VERSION, deps.model.model, CACHE_TTL_MS / 1000],
     );
     if (cached.rows[0]) return { runId: cached.rows[0].id, status: cached.rows[0].status, cached: true };

@@ -51,6 +51,7 @@ create role prospecto_app;
 
 const migration = readFileSync(new URL("../../../db/migrations/0002_evidence_research.sql", import.meta.url), "utf8");
 const [up, down] = migration.split("-- migrate:down");
+const pinned = readFileSync(new URL("../../../db/migrations/0007_pinned_research_runs.sql", import.meta.url), "utf8").split("-- migrate:down")[0];
 
 let db: PGlite;
 let pool: Pool;
@@ -130,6 +131,7 @@ beforeAll(async () => {
   db = new PGlite();
   await db.exec(STUB_0001);
   await db.exec(up);
+  await db.exec(pinned);
   pool = asPool(db);
 });
 
@@ -310,6 +312,19 @@ describe("research runner + confirm (PostgreSQL)", () => {
     await startResearchRun({ ...deps(model, tasks), fetchPage: withSummary }, { projectId, identityId, request: { website_url: SITE, urls: [] } });
     await Promise.all(tasks.map((task) => task()));
     expect(seen).toMatchObject({ siteSummary: "Mothlight — Quiet study rooms at 2 a.m.", project: { website: SITE } });
+  });
+
+  it("serves a pinned run from cache past the 24-hour TTL, and only a pinned one", async () => {
+    const tasks: (() => Promise<void>)[] = [];
+    const first = await startResearchRun(deps(workingModel, tasks), { projectId, identityId, request });
+    await Promise.all(tasks.splice(0).map((task) => task()));
+    await db.query("update research_runs set created_at = now() - interval '3 days' where id = $1", [first.runId]);
+    const expired = await startResearchRun(deps(workingModel, tasks), { projectId, identityId, request });
+    expect(expired.cached).toBe(false);
+    await Promise.all(tasks.splice(0).map((task) => task()));
+    await db.query("update research_runs set created_at = now() - interval '3 days', pinned = true where id = $1", [first.runId]);
+    await db.query("update research_runs set created_at = now() - interval '3 days' where id <> $1", [first.runId]);
+    expect(await startResearchRun(deps(workingModel, tasks), { projectId, identityId, request })).toEqual({ runId: first.runId, status: "PARTIAL", cached: true });
   });
 
   it("serves identical input from cache and enforces the hourly limit", async () => {
