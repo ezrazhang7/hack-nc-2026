@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, type CSSProperties } from "react";
 import { POSTS, type Post } from "@/lib/fixtures";
 
@@ -11,6 +12,19 @@ const SECS: { key: "All" | Post["sec"]; label: string }[] = [
   { key: "Guide", label: "Guides" },
   { key: "Dispatch", label: "Dispatches" },
 ];
+
+function NewsPhoto({ photo, priority }: { photo: Post["photo"]; priority: boolean }) {
+  const [failed, setFailed] = useState(false);
+  return (
+    <span className="news-photo">
+      {failed ? <span className="photo-fallback">Prospecto<br />News desk</span> : (
+        <Image src={photo.src} alt={photo.alt} width={960} height={640}
+          sizes="(max-width: 760px) calc(100vw - 32px), (max-width: 1000px) 180px, 240px"
+          priority={priority} onError={() => setFailed(true)} />
+      )}
+    </span>
+  );
+}
 
 export default function NewsIndex() {
   const [active, setActive] = useState<(typeof SECS)[number]["key"]>("All");
@@ -27,10 +41,14 @@ export default function NewsIndex() {
         {list.map((p, i) => (
           <article key={p.h} className={`row enter${open === i ? " open" : ""}`} style={{ "--n": i } as CSSProperties}>
             <button type="button" aria-expanded={open === i} onClick={() => setOpen(open === i ? null : i)}>
-              <span className="sec">{p.sec}</span>
-              <span><span className="h2">{p.h}</span><span className="dek">{p.dek}</span></span>
+              <NewsPhoto photo={p.photo} priority={active === "All" && i === 0} />
+              <span className="story"><span className="sec">{p.sec}</span><span className="h2">{p.h}</span><span className="dek">{p.dek}</span></span>
               <span className="meta"><span>{p.date} · {p.min} min</span><span className="read">Read <span>→</span></span></span>
             </button>
+            <div className="photo-credit">
+              {p.photo.illustrative ? "Illustrative photo · " : "Photo · "}
+              <a href={p.photo.source} target="_blank" rel="noopener noreferrer">{p.photo.credit}</a>
+            </div>
             <div className="body"><div><div className="in">
               <p>{p.body}</p>
               <Link className="cta" href={p.co[1]}>{p.co[1] === "/invest/" ? p.co[0] : `See ${p.co[0]}`} →</Link>
