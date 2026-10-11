@@ -300,7 +300,7 @@ Sizes: S is up to 2 h, M is up to 5 h, L is more than 5 h. The AGENTS.md verific
 | **F2** FX kit (M) | `fx/Flaps.tsx` (extracted from LandingFX `flapGroup`, which then imports it), `Flash`, `Packet`, `Ring`, `Pulse`, `SimStamp`, the tokens | split-flap board, GSAP | the landing board is identical before and after (screenshot diff) |
 | **F3** sim engine (L) | `lib/sim/{rng,curve,ledger,agents,script,views,params}.ts` and Vitest specs | — | §9 sim tests pass; a 120-trader session runs at ≤ 1 ms per tick |
 | **F4** evidence chamber (M) | `live/EvidenceChamber.tsx`; also mounted in LaunchInterview's "Web" step | LaunchInterview | a real run renders; PARTIAL and FAILED states are designed |
-| **F5** valuation reactor (L) | `live/ValuationReactor.tsx`; also on `/round/` and `/desk/` | EstimateDesk layout | every number traces to a response field; the waterfall sums exactly |
+| **F5** valuation reactor (L) | `live/ValuationReactor.tsx`; also on `/invest/?ticker=…` and `/desk/` | EstimateDesk layout | every number traces to a response field; the waterfall sums exactly |
 | **F6** trading floor (L) | Upgrade `RoundTerminal.tsx` in place, keeping ids and the B1 scroll contract:<br>**left** — tabs for the curve-depth book and the tape;<br>**center** — ticker, canvas candles with the model band and markers, attention strip, model-vs-market field;<br>**right** — tabs for "Trade · simulated" (buy/sell in ◇, curve quote, slippage) and "Commit · real" (server `/quote`, fee/reward/proceeds split bar, pro-rata disclosure), plus the portfolio;<br>**top** — the real settlement strip and slot heartbeat.<br>Canvas for chart and book (capped at 60 fps, DPR ≤ 2); the DOM tape keeps at most 40 rows. | RoundTerminal, landing B1 | fixture mode on the landing page is unchanged; live mode runs a full session at 60 fps on a 2020 MacBook Air |
 | **F7** ceremonies (M) | `OpeningBell`, `RoundLock`, `EvidenceShock`, `WhaleCue`, `ClosingBell`: GSAP timelines, skippable, with reduced-motion end frames | Fraktur type, B1 wake-up | each is ≤ 3 s, and real-layer ceremonies fire only on real state changes |
 | **F8** proofs and Round 2 (M) | Founder rejection, receipt snap-back on a real B6 error, Round 2 waterfall | — | each proof shows a server-originated error |
@@ -316,7 +316,7 @@ None of these changes a formula, weight or price. All are deterministic and test
 | B1 | `GET /api/models/current`: weights, confidence multipliers, demand bounds, hash, status | chips, gauges | S |
 | B2 | `valuation/attribution.ts` (`explain-v1`): fixed-order category waterfall (exact sum), confidence cost, demand split in log space. `demandScore` also returns its components, and a test proves the score is unchanged. | reactor, Round 2 | M |
 | B3 | `POST /api/rounds/:id/eligibility`: `SELF_SUBSCRIPTION_FORBIDDEN`, `OVER_IDENTITY_CAP`, `ROUND_NOT_OPEN` | founder proof | S |
-| B4 | `subscriberCount` on rounds; `GET /api/projects` | real board, `/rounds/` | S |
+| B4 | `subscriberCount` on rounds; `GET /api/projects` | real board, `/invest/` | S |
 | B5 | DEMO_MODE `OFF_CHAIN` real round: open, commit and settle in Tiger via the existing `settleRound()`, with `mode` in every response | fallback if the program is late | M |
 | B6 | `POST /api/receipts/transfer-check`: simulates a Token-2022 transfer and returns the error and logs; nothing is signed | `NonTransferable` proof | S |
 | B7 | `POST /api/valuation/what-if`: subfactor levels → value; never snapshotted | `/desk/` | S |

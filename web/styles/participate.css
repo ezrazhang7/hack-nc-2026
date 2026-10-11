@@ -1,1 +1,40 @@
-.participation{margin:32px 0 80px;display:grid;gap:24px;max-width:960px}.participation section{border:1px solid var(--rule);padding:24px;background:var(--ground-3);color:var(--ink)}.participation h2{margin:0 0 16px;font-size:26px}.participation label{display:grid;gap:6px;margin:12px 0}.participation input,.participation select{padding:12px;font:inherit;border:1px solid #aaa;background:white;color:#171713;width:100%;box-sizing:border-box}.participation button{font:inherit;padding:10px 18px;margin:6px 8px 6px 0;border:1px solid #222;background:#22372b;color:white;cursor:pointer}.participation button:disabled{opacity:.45;cursor:default}.participation pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px}.participation .notice{padding:18px;background:#18231a;color:var(--ink);overflow-wrap:anywhere}.participation .error{color:#ffb3a5;background:#271914}.participation .address{overflow-wrap:anywhere;font-size:14px}.participation a{text-decoration:underline}.participation dl{display:grid;grid-template-columns:1fr 1fr;gap:10px}.participation dd{margin:0;overflow-wrap:anywhere}@media(max-width:600px){.participation section{padding:16px}.participation dl{grid-template-columns:1fr}}
+/* Investor wallet and founder-management workspaces (components/Participation.tsx). */
+.wallet{display:grid;gap:14px;margin:20px 0 80px}
+.w-card{border:1px solid var(--rule);background:var(--ground-3);padding:18px 20px}
+.w-card.focus{border-color:var(--green)}
+.w-card header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.w-card h3{margin:0;font-size:20px;font-weight:500}
+.w-k{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--carbon);margin-bottom:4px}
+.w-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px 20px;margin-bottom:14px}
+.w-grid b{font-weight:500;font-size:16px}
+.w-act{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
+.w-form{display:grid;gap:12px;max-width:440px}
+.w-form.row{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px;max-width:none;margin-bottom:12px}
+.w-form label{display:block}
+.w-form input,.w-card select{font-family:var(--mono);font-size:14px;background:var(--ground);border:1px solid var(--rule);color:var(--ink);padding:10px 12px;width:100%;min-width:140px}
+.w-card select{width:auto}
+.w-form input:focus,.w-card select:focus{outline:none;border-color:var(--green)}
+.wallet .w-btn{display:inline-block;border:0;font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;padding:11px 18px;background:var(--green);color:#0A0A09;text-align:center;transition:filter .2s,transform .08s,opacity .2s}
+.wallet .w-btn.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1px var(--rule)}
+.wallet .w-btn:hover:not(:disabled){filter:brightness(1.08)}
+.wallet .w-btn.ghost:hover:not(:disabled){box-shadow:inset 0 0 0 1px var(--ink)}
+.wallet .w-btn:active:not(:disabled){transform:translateY(1px)}
+.wallet .w-btn:disabled{opacity:.35;cursor:not-allowed}
+.wallet .w-link{font-family:var(--mono);font-size:12px;color:var(--green)}
+.wallet .w-link:disabled{opacity:.4;cursor:not-allowed}
+.w-dim{color:var(--carbon);font-size:14px;margin:0}
+.w-dim a{color:var(--green)}
+.w-msg{margin:0;padding:12px 14px;border-left:2px solid var(--green);background:rgba(91,208,106,.08);font-family:var(--mono);font-size:13px}
+.w-msg.err,.w-status .err{border-color:var(--red);background:rgba(239,90,67,.08);color:#ffb3a5}
+.w-status{display:flex;flex-wrap:wrap;gap:14px;align-items:center;font-size:14px}
+.w-status b{text-transform:capitalize;font-weight:500}
+.w-pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.wallet .w-pills button{display:inline-flex;gap:8px;align-items:center;padding:8px 12px;border:1px solid var(--rule);background:transparent;font-size:14px;color:var(--ink-2);transition:border-color .2s}
+.wallet .w-pills button b{font-family:var(--mono);font-size:12px;color:var(--ink)}
+.wallet .w-pills button:hover{border-color:var(--carbon)}
+.wallet .w-pills button.on{border-color:var(--green);color:var(--ink)}
+.w-steps{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule);counter-reset:s}
+.w-steps li{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--rule);counter-increment:s}
+.w-steps li span::before{content:counter(s) ". ";font-family:var(--mono);color:var(--carbon)}
+.w-steps li.done span{color:var(--carbon);text-decoration:line-through}
+.w-row{display:flex;flex-wrap:wrap;gap:18px;padding:10px 0;border-bottom:1px solid var(--rule);font-size:14px}

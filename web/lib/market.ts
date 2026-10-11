@@ -11,7 +11,7 @@ export type Quote = Listing & {
   change: number; changePct: number; volume: number;
   /** 5-minute closes over the past 24 hours, ending at the live price. */
   series: number[];
-  /** Time of series[0], ms since epoch; every quote at the same moment shares it. */
+  /** Time of series[0], ms since epoch; quotes sampled together use the same timestamp. */
   t0: number;
 };
 
@@ -97,9 +97,10 @@ export function quote(l: Listing, now = Date.now()): Quote {
 
 export const TICK_INTERVAL_MS = TICK_MS;
 
-export const usd = (n: number, digits?: number) => {
+/** Formats browser-local play credits. Never use this for real funding or settlement amounts. */
+export const credits = (n: number, digits?: number) => {
   const d = digits ?? (Math.abs(n) < 10 ? 4 : 2);
-  return `${n < 0 ? "−" : ""}$${Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d })}`;
+  return `${n < 0 ? "−" : ""}◇${Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d })}`;
 };
 export const pct = (n: number) => `${n >= 0 ? "+" : "−"}${Math.abs(n).toFixed(2)}%`;
-export const signedUsd = (n: number, digits = 2) => `${n >= 0 ? "+" : "−"}${usd(Math.abs(n), digits)}`;
+export const signedCredits = (n: number, digits = 2) => `${n >= 0 ? "+" : "−"}${credits(Math.abs(n), digits)}`;

@@ -10,7 +10,7 @@ const unifraktur = UnifrakturMaguntia({ subsets: ["latin"], weight: "400", varia
 
 export const metadata: Metadata = {
   title: "The Prospecto",
-  description: "Founders at any stage publish a transparent estimate, open a fixed-price round and share one “Invest in us” link.",
+  description: "Founders publish an evidence-backed listing; supporters explore its model price, simulated market and primary issuance in one place.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

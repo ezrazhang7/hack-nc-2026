@@ -8,6 +8,7 @@ import RoundTerminal from "@/components/RoundTerminal";
 import FounderCards from "@/components/FounderCards";
 import { getProject, STAGE_LABEL, toRound } from "@/lib/api";
 import type { Round } from "@/lib/fixtures";
+import { investSlugHref, routes } from "@/lib/routes";
 
 export default function RoundView() {
   const params = useSearchParams();
@@ -30,7 +31,7 @@ export default function RoundView() {
       <div className="head">
         <HeroText text="No round" em="here." />
         {error && <span className="kicker">{error}</span>}
-        <Link className="btn" href={slug ? `/project/?slug=${slug}` : "/rounds/"}>{slug ? "See the profile →" : "Back a startup →"}</Link>
+        <Link className="btn" href={slug ? investSlugHref(slug) : routes.invest}>{slug ? "See the company →" : "Explore companies →"}</Link>
       </div>
     );
   }
@@ -44,7 +45,7 @@ export default function RoundView() {
         <RoundTerminal key={co.slug ?? co.t} co={co} live={false} />
       </div>
       <FounderCards company={co.n} founders={co.f ?? []} demo={false} />
-      <div className="foot"><Link href="/rounds/">← Back a startup</Link><Link href={`/project/?slug=${co.slug}`}>Why this price? →</Link></div>
+      <div className="foot"><Link href={routes.invest}>← Explore companies</Link><Link href={investSlugHref(co.slug)}>Why this price? →</Link></div>
     </>
   );
 }

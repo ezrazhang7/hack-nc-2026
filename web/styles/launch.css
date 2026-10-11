@@ -1,4 +1,4 @@
-/* /launch/ page styles, scoped under .S-launch. */
+/* /list/ page styles, scoped under .S-launch. */
 .S-launch .desk{display:grid;grid-template-columns:260px 1fr;border:1px solid var(--rule);min-height:520px;margin-top:6px}
 .S-launch .nb{border-right:1px solid var(--rule);padding:20px;background:#0d0d0b}
 .S-launch .nb .kicker{display:block;margin-bottom:10px}

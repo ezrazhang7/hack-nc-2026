@@ -9,6 +9,7 @@ import {
   committedPct, daysLeft, formatMicroUsd, formatUnitPrice, formatUsdCompact, getProject, STAGE_LABEL,
   type Explanation, type ProjectProfile,
 } from "@/lib/api";
+import { routes, walletHref } from "@/lib/routes";
 
 /*
  * Startup profile (MARKET ARCHITECTURE §1) with the price explanation §10.4 requires: stage and
@@ -34,7 +35,7 @@ function PriceChain({ v, x }: { v: NonNullable<ProjectProfile["valuation"]>; x: 
       <li><span>Blend</span><b>{pct(x.alpha)} / {pct(1 - x.alpha)}</b><em>{pct(x.alpha)} operating value, {pct(1 - x.alpha)} scenario value at this stage</em></li>
       <li><span>Model value</span><b>{formatUsdCompact(v.model_reference_value)}</b><em>The blend of the two values above</em></li>
       <li><span>Demand adjustment</span><b>× {x.demand.multiplier.toFixed(2)}</b>
-        <em>{x.demand.score === null ? "No finished round yet, so demand is neutral" : `From the last round’s demand score ${x.demand.score.toFixed(2)}${x.demand.clamped ? ", capped" : ""}`}</em></li>
+        <em>{x.demand.score === null ? "No finished issuance yet, so demand is neutral" : `From the last issuance’s demand score ${x.demand.score.toFixed(2)}${x.demand.clamped ? ", capped" : ""}`}</em></li>
       <li className="tot"><span>Unit price</span><b>{formatMicroUsd(v.unit_price_micro_usd, 6)}</b>
         <em>{formatUsdCompact(v.round_implied_value)} ÷ {Number(v.reference_units).toLocaleString("en-US")} reference units, rounded down</em></li>
     </ol>
@@ -87,8 +88,7 @@ function Scenarios({ x }: { x: Explanation }) {
   );
 }
 
-export default function ProjectView() {
-  const slug = useSearchParams().get("slug") ?? "";
+export function CompanyProfile({ slug, embedded = false }: { slug: string; embedded?: boolean }) {
   const [p, setP] = useState<ProjectProfile | null | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
@@ -103,7 +103,7 @@ export default function ProjectView() {
       <div className="head">
         <HeroText text="No company" em="here." />
         {error && <span className="kicker">{error}</span>}
-        <Link className="btn" href="/rounds/">Back a startup →</Link>
+        <Link className="btn" href={routes.invest}>Explore companies →</Link>
       </div>
     );
   }
@@ -114,14 +114,15 @@ export default function ProjectView() {
   const sub = r ? committedPct(r) : 0, left = r ? daysLeft(r) : 0;
   return (
     <>
-      <div className="head">
+      {!embedded && <div className="head">
         <HeroText key={p.slug} text={p.name} />
         <span className="kicker">{STAGE_LABEL[p.stage]} · {p.entity_type === "INCORPORATED" ? "Incorporated" : "Unincorporated"}</span>
-      </div>
+      </div>}
 
       <section className="lede">
         <div>
-          <h2>{p.tagline || p.name}</h2>
+          <h2>{embedded ? `About ${p.name}` : p.tagline || p.name}</h2>
+          {embedded && p.tagline && <p><b>{p.tagline}</b></p>}
           {p.description && <p>{p.description}</p>}
           <dl className="facts">
             {p.legal_name && <div><dt>Legal name</dt><dd>{p.legal_name}{p.formation_state ? ` · ${p.formation_state}` : ""}</dd></div>}
@@ -141,9 +142,9 @@ export default function ProjectView() {
                 <span>{formatMicroUsd(r.total_committed_micro_usd, 0)} of {formatMicroUsd(r.target_amount_micro_usd, 0)}</span>
                 <span>{sub >= 100 ? <b className="dn">Full</b> : `${sub}%`}{left > 0 && ` · ${left}d left`}</span>
               </div>
-              <Link className="btn go" href={`/participate/?round=${r.id}`}>{open && sub < 100 ? `Back ${p.name}` : "See the round"} →</Link>
+              <Link className="btn go" href={walletHref(r.id)}>{open && sub < 100 ? `Commit to ${p.name}` : "See the issuance"} →</Link>
             </>
-          ) : <p className="none">No round open yet.</p>}
+          ) : <p className="none">No primary issuance open yet.</p>}
         </aside>
       </section>
 
@@ -164,7 +165,12 @@ export default function ProjectView() {
       {p.founders.length > 0 && (
         <FounderCards company={p.name} founders={p.founders.map((f) => ({ n: f.display_name, r: f.role_title ?? "Founder" }))} demo={false} />
       )}
-      <div className="foot"><Link href="/rounds/">← Back a startup</Link><Link href="/how/">How pricing works →</Link></div>
+      {!embedded && <div className="foot"><Link href={routes.invest}>← Explore companies</Link><Link href={routes.how}>How pricing works →</Link></div>}
     </>
   );
+}
+
+export default function ProjectView() {
+  const slug = useSearchParams().get("slug") ?? "";
+  return <CompanyProfile slug={slug} />;
 }

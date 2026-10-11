@@ -5,6 +5,7 @@ import HeroText from "@/components/HeroText";
 import SubHeader from "@/components/SubHeader";
 import "@/styles/sub.css";
 import "@/styles/desk.css";
+import { routes } from "@/lib/routes";
 
 export const metadata: Metadata = { title: "Estimate Desk · Prospecto" };
 
@@ -18,7 +19,7 @@ export default function DeskPage() {
           <span className="kicker">Try it with your own idea</span>
         </div>
         <EstimateDesk />
-        <div className="foot"><Link href="/how/">← How it works</Link><Link href="/launch/">List your company →</Link></div>
+        <div className="foot"><Link href={routes.how}>← How it works</Link><Link href={routes.list}>List your company →</Link></div>
       </main>
     </div>
   );

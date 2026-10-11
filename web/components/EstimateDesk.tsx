@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { investHref } from "@/lib/routes";
 import { useEffect } from "react";
 
 /*
@@ -113,7 +114,7 @@ export default function EstimateDesk() {
           <span className="kicker">Advertisement · for your website</span>
           <h3>Paste one line.<br />Meet your first backers.</h3>
           <code>&lt;a href=<span className="t">&quot;https://prospecto.finance/i/mothlight&quot;</span>&gt;Invest in us &rarr;&lt;/a&gt;</code>
-          <Link className="invest-link" href="/project/?slug=mothlight">Invest in Mothlight <b>&rarr;</b></Link>
+          <Link className="invest-link" href={investHref("MOTH")}>Invest in Mothlight <b>&rarr;</b></Link>
         </div>
       </div>
     </section>

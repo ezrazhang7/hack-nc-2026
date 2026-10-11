@@ -8,7 +8,7 @@ import type { Round } from "@/lib/fixtures";
 /*
  * One company's round terminal: commitments, history chart and the commit quote.
  * Landing page (B1): a labeled illustration from a fixture, with an invented history and live fills.
- * /round/?slug= (API round): only real numbers. Exact micro-USD amounts and the close time come from
+ * The real primary-issuance panel: exact micro-USD amounts and the close time come from
  * the API; there is no per-commitment feed yet, so no history is drawn rather than inventing one.
  * 1,000,000 is the model's reference unit count. Ids are the contract with the landing page's B1
  * scroll timeline (#term, #fills, #chart .base …).
@@ -252,7 +252,7 @@ export default function RoundTerminal({ co, preview = false, live: simulate = tr
       const onBuy = () => {
         if (preview) return;
         // Real rounds with an on-chain id hand off to the Devnet checkout.
-        if (real && co.roundId) { window.location.assign(`/participate/?round=${encodeURIComponent(co.roundId)}`); return; }
+        if (real && co.roundId) { window.location.assign(`/wallet/?round=${encodeURIComponent(co.roundId)}`); return; }
         if (full || real) return;
         buy.textContent = "Illustration only"; later(() => (buy.textContent = label(+qn.textContent!.replace(/,/g, ""))), 1400);
       };

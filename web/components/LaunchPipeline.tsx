@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { investSlugHref, manageHref } from "@/lib/routes";
 import { useEffect, useRef, useState } from "react";
 import {
   api, ApiError, formatUnitPrice, post, STAGE_LABEL,
@@ -230,17 +231,17 @@ export default function LaunchPipeline({ draft, onEdit, onRetry }: { draft: Laun
             <div className="row">
               {phase === "priced"
                 ? <button className="btn go" type="button" onClick={publish}>Publish →</button>
-                : <>{slug && <Link className="btn go" href={`/project/?slug=${slug}`}>See your profile →</Link>}<button className="btn ghost" type="button" onClick={startOver}>List another</button></>}
+                : <>{slug && <Link className="btn go" href={investSlugHref(slug)}>See your listing →</Link>}<button className="btn ghost" type="button" onClick={startOver}>List another</button></>}
             </div>
           </>
         )}
         {phase === "published" && !price && slug && (
           <>
             <h2>You’re <i>live.</i></h2>
-            <div className="row"><Link className="btn go" href={`/project/?slug=${slug}`}>See your profile →</Link><button className="btn ghost" type="button" onClick={startOver}>List another</button></div>
+            <div className="row"><Link className="btn go" href={investSlugHref(slug)}>See your listing →</Link><button className="btn ghost" type="button" onClick={startOver}>List another</button></div>
           </>
         )}
-        {phase === "published" && <p className="note"><Link href={`/participate/?project=${saved.current.projectId}`}>Connect your wallet, create receipts, and open your round →</Link></p>}
+        {phase === "published" && <p className="note"><Link href={manageHref(saved.current.projectId)}>Manage your listing and primary issuance →</Link></p>}
       </div>
     </section>
   );

@@ -31,14 +31,14 @@ export default function LandingMarkup() {
   </div>
   <div className="motto">All the companies too early to list.</div>
   <div className="btns hero-btns">
-    <a className="btn go" href="/launch/">List your company &rarr;</a>
-    <a className="btn" href="/rounds/">Back a startup</a>
+    <a className="btn go" href="/list/">List your company &rarr;</a>
+    <a className="btn" href="/invest/">Explore companies</a>
   </div>
   <nav className="sections" aria-label="Sections">
     <a href="/how/">How It Works</a>
     <a href="/desk/">Estimate Desk</a>
     <a href="/news/">News</a>
-    <a href="/launch/">List Your Company</a>
+    <a href="/list/">List Your Company</a>
     <button type="button" className="protocol-nav" data-protocol-open aria-haspopup="dialog">Protocol</button>
   </nav>
   <div className="hero-hint"><span>Move your cursor to change the light.</span><span>Scroll for today’s issue &darr;</span></div>
@@ -119,7 +119,7 @@ export default function LandingMarkup() {
   <div className="colophon" data-scroll-reveal="single">
     <span className="mark">The Prospecto</span>
     <p>Printed on black at prospecto.finance. Built at HackNC 2026.</p>
-    <nav><a href="/rounds/">Back a startup</a><a href="/launch/">List</a><a href="/news/">News</a><a href="https://github.com/ezrazhang7/hack-nc-2026">GitHub</a></nav>
+    <nav><a href="/invest/">Invest</a><a href="/list/">List</a><a href="/news/">News</a><a href="https://github.com/ezrazhang7/hack-nc-2026">GitHub</a></nav>
   </div>
 </footer>
 

@@ -6,7 +6,7 @@ Prospecto is **“the only platform where you can invest in your friend's startu
 
 The demo is not a stock exchange or a real securities offering. It uses simulated funds and non-transferable participation receipts on Solana Devnet. Never describe demo assets as equity, shares, guaranteed returns, or legally enforceable investments.
 
-The canonical product and architecture specification is [`MARKET_ARCHITECTURE.md`](./MARKET_ARCHITECTURE.md). Treat files under `sources/` as read-only reference material; never edit, rename, move, or delete them.
+The canonical product and architecture specification is [`MARKET_ARCHITECTURE.md`](./MARKET_ARCHITECTURE.md). The public route and persona boundaries are defined in [`docs/INFORMATION_ARCHITECTURE.md`](./docs/INFORMATION_ARCHITECTURE.md). Treat files under `sources/` as read-only reference material; never edit, rename, move, or delete them.
 
 ## Intended stack
 

@@ -1,19 +1,22 @@
 import Link from "next/link";
+import { routes } from "@/lib/routes";
 
 const TABS = [
-  { href: "/how/", label: "How" },
-  { href: "/desk/", label: "Desk" },
-  { href: "/rounds/", label: "Back a startup" },
-  { href: "/launch/", label: "List" },
-  { href: "/news/", label: "News" },
-  { href: "/participate/", label: "Invest" },
+  { href: routes.how, label: "How" },
+  { href: routes.desk, label: "Desk" },
+  { href: routes.invest, label: "Invest" },
+  { href: routes.portfolio, label: "Portfolio" },
+  { href: routes.wallet, label: "Wallet" },
+  { href: routes.list, label: "List" },
+  { href: routes.manage, label: "Manage" },
+  { href: routes.news, label: "News" },
 ] as const;
 
-export default function SubHeader({ current }: { current: (typeof TABS)[number]["href"] }) {
+export default function SubHeader({ current }: { current: string }) {
   return (
     <header className="page top">
-      <Link className="back" href="/"><span>←</span> Front page</Link>
-      <Link className="mark" href="/">The Prospecto</Link>
+      <Link className="back" href={routes.home}><span>←</span> Front page</Link>
+      <Link className="mark" href={routes.home}>The Prospecto</Link>
       <nav className="tabs">
         {TABS.map((t) => (
           <Link key={t.href} href={t.href} aria-current={t.href === current ? "page" : undefined}>{t.label}</Link>

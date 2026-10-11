@@ -1,21 +1,5 @@
-import type { Metadata } from "next";
-import { Suspense } from "react";
-import RoundView from "@/components/RoundView";
-import SubHeader from "@/components/SubHeader";
-import "@/styles/sub.css";
-import "@/styles/landing.css";
-import "@/styles/founders.css";
+import LegacyRouteRedirect from "@/components/LegacyRouteRedirect";
 
-export const metadata: Metadata = { title: "Round · Prospecto" };
-
-// Static export has no per-company routes, so the project comes from ?slug= (read on the client).
 export default function RoundPage() {
-  return (
-    <div className="S S-round">
-      <SubHeader current="/rounds/" />
-      <main className="page">
-        <Suspense fallback={null}><RoundView /></Suspense>
-      </main>
-    </div>
-  );
+  return <LegacyRouteRedirect kind="round" />;
 }

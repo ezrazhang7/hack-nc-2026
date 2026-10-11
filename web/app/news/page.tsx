@@ -5,6 +5,7 @@ import NewsIndex from "@/components/NewsIndex";
 import SubHeader from "@/components/SubHeader";
 import "@/styles/sub.css";
 import "@/styles/news.css";
+import { routes } from "@/lib/routes";
 
 export const metadata: Metadata = { title: "News · Prospecto" };
 
@@ -18,7 +19,7 @@ export default function NewsPage() {
           <span className="kicker">Explainers · round reports · dispatches</span>
         </div>
         <NewsIndex />
-        <div className="foot"><Link href="/rounds/">← Back a startup</Link><Link href="/launch/">List your company →</Link></div>
+        <div className="foot"><Link href={routes.invest}>← Explore companies</Link><Link href={routes.list}>List your company →</Link></div>
       </main>
     </div>
   );

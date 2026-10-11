@@ -33,7 +33,7 @@ export default function NewsIndex() {
             </button>
             <div className="body"><div><div className="in">
               <p>{p.body}</p>
-              <Link className="cta" href={p.co[1]}>{p.co[1] === "/rounds/" ? p.co[0] : `See ${p.co[0]}`} →</Link>
+              <Link className="cta" href={p.co[1]}>{p.co[1] === "/invest/" ? p.co[0] : `See ${p.co[0]}`} →</Link>
             </div></div></div>
           </article>
         ))}

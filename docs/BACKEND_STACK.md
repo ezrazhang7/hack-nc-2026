@@ -90,7 +90,7 @@ pnpm-workspace.yaml
 
 Backend and chain contributors MUST NOT edit `web/` or `landing/`. The frontend calls the API in §7 over `fetch` and never imports server code; shared types, if wanted, are copied or generated, not imported across packages.
 
-Static-export constraints the API must respect: `trailingSlash: true` means pages live at `/rounds/`, `/launch/`, `/news/`; there is no Next.js server, so dynamic pages such as a single project read their id from the query string or hash and fetch `/api/...` client-side. Vercel serves `web/out/` and forwards `/api/*` to the backend; locally, `next dev` on :3000 proxies `/api/*` to the backend on :8787 (`web/next.config.ts`). Next.js redirects `/x` to `/x/`, so the API also accepts a trailing slash on `/api/*` paths.
+Static-export constraints the API must respect: `trailingSlash: true` means pages live at `/invest/`, `/list/`, `/wallet/`, `/manage/` and `/news/`; there is no Next.js server, so a company is selected with `/invest/?ticker=...` and fetched from `/api/...` client-side. Vercel serves `web/out/` and forwards `/api/*` to the backend; locally, `next dev` on :3000 proxies `/api/*` to the backend on :8787 (`web/next.config.ts`). Next.js redirects `/x` to `/x/`, so the API also accepts a trailing slash on `/api/*` paths. See [INFORMATION_ARCHITECTURE.md](INFORMATION_ARCHITECTURE.md).
 
 ---
 

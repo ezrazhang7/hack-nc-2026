@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { usd, type Quote } from "@/lib/market";
+import { credits, type Quote } from "@/lib/market";
 import { fill, OrderError, type Book } from "@/lib/portfolio";
 
 const qtyFmt = (n: number) => n.toLocaleString("en-US", { maximumFractionDigits: 4 });
 
-/** Market order ticket: buy or sell by dollars or shares, filled at the live quote. */
+/** Browser-local simulated order ticket, filled at the displayed quote. */
 export default function OrderTicket({ q, book, onBook }: { q: Quote; book: Book; onBook: (b: Book) => void }) {
   const [side, setSide] = useState<"BUY" | "SELL">("BUY");
   const [mode, setMode] = useState<"USD" | "QTY">("USD");
@@ -23,7 +23,7 @@ export default function OrderTicket({ q, book, onBook }: { q: Quote; book: Book;
     try {
       const next = fill(book, q.ticker, side, qty, q.price);
       onBook(next);
-      setDone(`${side === "BUY" ? "Bought" : "Sold"} ${qtyFmt(qty)} ${q.ticker} at ${usd(q.price)}`);
+      setDone(`${side === "BUY" ? "Bought" : "Sold"} ${qtyFmt(qty)} ${q.ticker} units at ${credits(q.price)}`);
       setRaw("");
     } catch (e) {
       setErr(e instanceof OrderError ? e.message : "Order failed. Try again.");
@@ -48,25 +48,25 @@ export default function OrderTicket({ q, book, onBook }: { q: Quote; book: Book;
       <div className="row">
         <span>{side === "BUY" ? "Buy in" : "Sell in"}</span>
         <span className="toggle">
-          <button type="button" className={mode === "USD" ? "on" : ""} onClick={() => setMode("USD")}>Dollars</button>
-          <button type="button" className={mode === "QTY" ? "on" : ""} onClick={() => setMode("QTY")}>Shares</button>
+          <button type="button" className={mode === "USD" ? "on" : ""} onClick={() => setMode("USD")}>Credits</button>
+          <button type="button" className={mode === "QTY" ? "on" : ""} onClick={() => setMode("QTY")}>Units</button>
         </span>
       </div>
       <label className="amt">
-        <span>{mode === "USD" ? "Amount" : "Shares"}</span>
-        <input inputMode="decimal" placeholder={mode === "USD" ? "$0.00" : "0"} value={raw}
-          onChange={(e) => { setRaw(e.target.value.replace(/[^0-9.$,]/g, "")); setErr(""); setDone(""); }} aria-label={mode === "USD" ? "Amount in dollars" : "Number of shares"} />
+        <span>{mode === "USD" ? "Play credits" : "Sim units"}</span>
+        <input inputMode="decimal" placeholder={mode === "USD" ? "◇0.00" : "0"} value={raw}
+          onChange={(e) => { setRaw(e.target.value.replace(/[^0-9.,]/g, "")); setErr(""); setDone(""); }} aria-label={mode === "USD" ? "Amount in play credits" : "Number of simulated units"} />
       </label>
-      <div className="row"><span>Market price</span><b className="mono">{usd(q.price)}</b></div>
-      <div className="row est"><span>{mode === "USD" ? "Est. shares" : side === "BUY" ? "Est. cost" : "Est. credit"}</span>
-        <b className="mono">{mode === "USD" ? qtyFmt(qty) : usd(notional, 2)}</b></div>
+      <div className="row"><span>Sim price</span><b className="mono">{credits(q.price)}</b></div>
+      <div className="row est"><span>{mode === "USD" ? "Est. units" : side === "BUY" ? "Est. cost" : "Est. credit"}</span>
+        <b className="mono">{mode === "USD" ? qtyFmt(qty) : credits(notional, 2)}</b></div>
       <button className={`go ${side.toLowerCase()}`} type="submit" disabled={!(qty > 0)}>
         {side === "BUY" ? "Buy" : "Sell"} {q.ticker}
       </button>
       <p className="err" role="alert">{err}</p>
       {done && <p className="ok" role="status">{done}</p>}
       <div className="foot">
-        <span>{side === "BUY" ? `${usd(book.cash, 2)} buying power` : `${qtyFmt(held)} shares available`}</span>
+        <span>{side === "BUY" ? `${credits(book.cash, 2)} play credits` : `${qtyFmt(held)} sim units available`}</span>
         <button type="button" className="max" onClick={max} disabled={side === "SELL" && !held}>Max</button>
       </div>
     </form>

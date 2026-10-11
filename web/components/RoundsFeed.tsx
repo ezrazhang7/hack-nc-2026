@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState, type CSSProperties } from "react";
 import { formatUnitPrice, listProjects, STAGE_LABEL, toRound } from "@/lib/api";
 import type { Round } from "@/lib/fixtures";
+import { investHref } from "@/lib/routes";
 
 const FILTERS = ["All", "Idea", "Prototype", "Launched", "Revenue", "Growth", "Closing soon"] as const;
 type Filter = (typeof FILTERS)[number];
@@ -35,7 +36,7 @@ export default function RoundsFeed() {
           const full = c.sub >= 100, lead = i === 0 && list.length > 2;
           return (
             <article key={c.slug ?? c.t} className={`card enter${lead ? " lead" : ""}`} style={{ "--n": i } as CSSProperties}>
-              <Link className="cover" href={`/project/?slug=${c.slug}`} aria-label={`${c.n}: profile and round`} />
+              <Link className="cover" href={investHref(c.t)} aria-label={`${c.n}: company and price`} />
               <span className="k"><b>{STAGE_LABEL[c.s]}</b> · {c.e}</span>
               {lead && <div className="plate"><div className="ridge" /><div className="sun" /></div>}
               <h2>{c.h}</h2>

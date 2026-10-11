@@ -25,7 +25,7 @@ export class OrderError extends Error {}
 
 const round6 = (n: number) => Math.round(n * 1e6) / 1e6;
 
-/** Fills a market order at `price`. Quantities may be fractional (6 dp), like fractional shares. */
+/** Fills a simulated order at `price`. Play-unit quantities may be fractional to 6 dp. */
 export function fill(book: Book, ticker: string, side: "BUY" | "SELL", qty: number, price: number, now = Date.now()): Book {
   qty = round6(qty);
   if (!(qty > 0) || !(price > 0)) throw new OrderError("Enter an amount.");
