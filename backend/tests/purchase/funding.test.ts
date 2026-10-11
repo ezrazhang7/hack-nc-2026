@@ -132,7 +132,7 @@ describe('Nessie funding persistence and recovery',()=>{
     const json=await accepted.json();expect(JSON.stringify(json)).not.toContain('source01');expect(JSON.stringify(json)).not.toContain('treasury01');
     expect((await fixture.app.request('/api/funding',{method:'POST',headers,body:JSON.stringify({...body,payerId:'attacker'})})).status).toBe(400);
     const other=await fixture.app.request('/api/funding/00000000-0000-4000-8000-000000000005',{headers});expect(other.status).toBe(404);
-    const balance=await fixture.app.request('/api/banking/account',{headers});expect(await balance.json()).toMatchObject({balanceMicroUsd:'1000000000',simulation:true});
+    const balance=await fixture.app.request('/api/banking/account',{headers});expect(await balance.json()).toMatchObject({balanceMicroUsd:'900000000',simulation:true});
   });
 });
 test('canonical bank proof encoding is deterministic and excludes mutable status',()=>{

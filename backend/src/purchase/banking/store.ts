@@ -197,8 +197,14 @@ export class FundingStore {
     if (mapping.providerAccountId !== observed.id || mapping.providerCustomerId !== observed.customerId) throw new AppError('BANK_PROOF_MISMATCH','Bank account ownership mismatch.',503);
     await this.pool.query('UPDATE banking_accounts SET last_observed_balance_usd=$2,last_observed_at=now() WHERE id=$1', [mapping.id,observed.dollars]);
   }
+  /** Completed fundings count too: Nessie balances no longer move, so the ledger is the only debit. */
   async otherReservations(lease: Funding): Promise<bigint> {
-    const result = await this.pool.query<{ total: string }>("SELECT COALESCE(sum(amount_micro_usd),0)::text AS total FROM funding_intents WHERE source_banking_account_id=$1 AND id<>$2 AND status NOT IN ('BANK_REJECTED','COMPENSATED','COMPLETED')", [lease.sourceId,lease.id]);
+    const result = await this.pool.query<{ total: string }>("SELECT COALESCE(sum(amount_micro_usd),0)::text AS total FROM funding_intents WHERE source_banking_account_id=$1 AND id<>$2 AND status NOT IN ('BANK_REJECTED','COMPENSATED')", [lease.sourceId,lease.id]);
+    return BigInt(result.rows[0]?.total ?? '0');
+  }
+  /** Every funding from this bank account that has not provably had no effect. */
+  async spent(sourceId: string): Promise<bigint> {
+    const result = await this.pool.query<{ total: string }>("SELECT COALESCE(sum(amount_micro_usd),0)::text AS total FROM funding_intents WHERE source_banking_account_id=$1 AND status NOT IN ('BANK_REJECTED','COMPENSATED')", [sourceId]);
     return BigInt(result.rows[0]?.total ?? '0');
   }
   async latestTx(id: string): Promise<FundingTx | null> {

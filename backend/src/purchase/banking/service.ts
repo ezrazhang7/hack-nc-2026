@@ -62,7 +62,9 @@ export class FundingService {
       }
     }
     const active = await this.store.active(identityId,this.options.generation);
-    return { nickname:mapping.nickname,balanceMicroUsd:mapping.balanceDollars===null ? null : (BigInt(mapping.balanceDollars)*1_000_000n).toString(),
+    // Nessie balances no longer move (adapter.ts), so the bank balance is the seed minus every funding that may have left it.
+    const spent = await this.store.spent(mapping.id);
+    return { nickname:mapping.nickname,balanceMicroUsd:mapping.balanceDollars===null ? null : (BigInt(mapping.balanceDollars)*1_000_000n - spent).toString(),
       observedAt:mapping.observedAt?.toISOString() ?? null,activeFunding:active ? await this.response(active) : null,
       mode:'NESSIE',stale,ready:mapping.active && this.options.enabled && !this.options.paused && !await this.store.paused(this.options.generation),simulation:true };
   }
@@ -95,7 +97,7 @@ export class FundingService {
     if (receipt.intentId!==value.id || receipt.wallet!==value.wallet || receipt.amount!==value.amount
       || receipt.proofHash!==value.proofHash || receipt.funded!==true) throw new BankError('invalid','FUNDING_RECEIPT_MISMATCH');
     if (!value.proofHash || !value.providerTransferId) throw new BankError('invalid','FUNDING_RECEIPT_MISMATCH');
-    const transfer = await this.bankFor(value.profile).transfer(value.providerTransferId);
+    const transfer = await this.bankFor(value.profile).transfer(value.providerTransferId,(await this.store.accounts(value)).source.providerAccountId);
     await this.store.recordObservation(value,transfer);
     const proof = await this.verified(value,transfer);
     if (transfer.state!=='success' || proof!==value.proofHash) throw new BankError('invalid','BANK_PROOF_MISMATCH');
@@ -156,7 +158,7 @@ export class FundingService {
     }
     if (['BANK_DISPATCHED','BANK_PENDING','BANK_UNKNOWN'].includes(value.status)) {
       let transfer: BankTransfer | null = null;
-      if (value.providerTransferId) transfer=await bank.transfer(value.providerTransferId);
+      if (value.providerTransferId) transfer=await bank.transfer(value.providerTransferId,(await this.store.accounts(value)).source.providerAccountId);
       else {
         const { source } = await this.store.accounts(value);
         const matches = (await bank.history(source.providerAccountId)).filter(item => item.tag===value.tag);
@@ -176,7 +178,7 @@ export class FundingService {
     if (value.status==='BANK_CONFIRMED') {
       if (await this.complete(value)) return;
       if (!value.providerTransferId || !value.proofHash) throw new BankError('invalid','BANK_PROOF_MISMATCH');
-      const transfer = await bank.transfer(value.providerTransferId);
+      const transfer = await bank.transfer(value.providerTransferId,(await this.store.accounts(value)).source.providerAccountId);
       await this.store.recordObservation(value,transfer);
       if (transfer.state!=='success' || await this.verified(value,transfer)!==value.proofHash) throw new BankError('invalid','BANK_PROOF_MISMATCH');
       await this.store.saveTx(value,await this.chain.prepareFunding(value));

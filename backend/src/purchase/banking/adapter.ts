@@ -26,6 +26,11 @@ export type NessieProfile = z.infer<typeof profileSchema>;
  * - reads: the object itself, history: a bare array, no pagination (read-only check, 2026-10-10);
  * - `completed` is the current docs' transfer status, `pending` the SDK fixture's. Any other status
  *   is `unknown` and fails closed to operator review; no HTTP error is treated as proof of no effect.
+ *
+ * Observed 2026-10-11 against prod-api: Nessie's transfer endpoint no longer takes a payee and no
+ * Nessie write changes an account balance. A funding transfer is therefore recorded as a
+ * withdrawal from the payer, `completed` at creation, whose description carries the funding tag and
+ * the payee account (WITHDRAWAL_PAYEE). Balances are derived by the funding ledger (store.spent).
  */
 export const BUILT_IN_PROFILE_ID = 'nessie-built-in-2026-10-10';
 export function builtInNessieProfile(baseUrl: string): NessieProfile {
@@ -58,7 +63,7 @@ export interface BankAccount { id: string; customerId: string; nickname: string;
 export interface Bank {
   account(id: string): Promise<BankAccount>;
   createTransfer(payerId: string, payeeId: string, dollars: number, tag: string): Promise<string>;
-  transfer(id: string): Promise<BankTransfer>;
+  transfer(id: string, payerId: string): Promise<BankTransfer>;
   history(accountId: string): Promise<BankTransfer[]>;
 }
 /** Account provisioning (NESSIE_PURCHASE_FLOW §3 table: POST /customers, POST /customers/{id}/accounts). */
@@ -73,10 +78,11 @@ export class BankError extends AppError {
     super(code, outcome === 'invalid' ? 'Bank response requires operator review.' : 'The bank is unavailable right now. Accepted transfers will be reconciled.', 503);
   }
 }
+/** Separates the funding tag from the payee account in a withdrawal description. */
+const WITHDRAWAL_PAYEE = '>';
 const accountSchema = z.object({ _id: providerId, customer_id: providerId, nickname: z.string().max(200), balance: z.number().int().safe().nonnegative() });
 const transferSchema = z.object({
-  _id: providerId, payer_id: providerId, payee_id: providerId,
-  amount: z.number().int().safe().nonnegative(), description: z.string().max(300), status: z.string().min(1),
+  _id: providerId, payer_id: providerId, amount: z.number().int().safe().nonnegative(), description: z.string().max(300), status: z.string().min(1),
 });
 
 export class NessieBank implements Bank, BankProvisioner {
@@ -127,7 +133,11 @@ export class NessieBank implements Bank, BankProvisioner {
     const state = this.profile.successStatuses.includes(row.status) ? 'success'
       : this.profile.pendingStatuses.includes(row.status) ? 'pending'
       : this.profile.rejectedStatuses.includes(row.status) ? 'rejected' : 'unknown';
-    return { id: row._id, payerId: row.payer_id, payeeId: row.payee_id, dollars: row.amount, tag: row.description, providerStatus: row.status, state };
+    // A description without a payee yields an empty payee, which fails party verification.
+    const split = row.description.lastIndexOf(WITHDRAWAL_PAYEE);
+    const tag = split < 0 ? row.description : row.description.slice(0, split);
+    const payeeId = split < 0 ? '' : row.description.slice(split + 1);
+    return { id: row._id, payerId: row.payer_id, payeeId, dollars: row.amount, tag, providerStatus: row.status, state };
   }
   async account(id: string): Promise<BankAccount> {
     providerId.parse(id);
@@ -139,25 +149,24 @@ export class NessieBank implements Bank, BankProvisioner {
   async createTransfer(payerId: string, payeeId: string, dollars: number, tag: string): Promise<string> {
     providerId.parse(payerId); providerId.parse(payeeId);
     if (!Number.isSafeInteger(dollars) || dollars < 1 || dollars > 1000) throw new AppError('INVALID_INPUT', 'Invalid transfer amount.');
-    const { body } = await this.request(`/accounts/${payerId}/transfers`, 'POST', {
-      medium: 'balance', payee_id: payeeId, amount: dollars,
-      transaction_date: new Date().toISOString().slice(0, 10), description: tag,
+    if (tag.includes(WITHDRAWAL_PAYEE)) throw new AppError('INVALID_INPUT', 'Invalid transfer tag.');
+    const { body } = await this.request(`/accounts/${payerId}/withdrawals`, 'POST', {
+      medium: 'balance', amount: dollars, status: this.profile.successStatuses[0],
+      transaction_date: new Date().toISOString().slice(0, 10), description: `${tag}${WITHDRAWAL_PAYEE}${payeeId}`,
     });
     try { return z.object({ _id: providerId }).parse(this.unwrap(body, this.profile.createEnvelope))._id; }
     catch { throw new BankError('uncertain'); }
   }
-  async transfer(id: string): Promise<BankTransfer> {
+  /** Nessie has no withdrawal lookup by id, so read it from the payer's withdrawal history. */
+  async transfer(id: string, payerId: string): Promise<BankTransfer> {
     providerId.parse(id);
-    const { body } = await this.request(`/transfers/${id}`);
-    let transfer: BankTransfer;
-    try { transfer = this.parsedTransfer(this.unwrap(body, this.profile.readEnvelope)); }
-    catch { throw new BankError('invalid'); }
-    if (transfer.id !== id) throw new BankError('invalid');
+    const transfer = (await this.history(payerId)).find(item => item.id === id);
+    if (!transfer) throw new BankError('uncertain');
     return transfer;
   }
   async history(accountId: string): Promise<BankTransfer[]> {
     providerId.parse(accountId);
-    let path: string | null = `/accounts/${accountId}/transfers`;
+    let path: string | null = `/accounts/${accountId}/withdrawals`;
     const visited = new Set<string>(); const transfers = new Map<string, BankTransfer>();
     for (let page = 0; path && page < 20; page++) {
       if (visited.has(path)) throw new BankError('invalid'); visited.add(path);
@@ -182,7 +191,7 @@ export class NessieBank implements Bank, BankProvisioner {
       }
       if (next) {
         const url = new URL(next, this.profile.baseUrl);
-        if (url.origin !== new URL(this.profile.baseUrl).origin || url.pathname !== `/accounts/${accountId}/transfers`
+        if (url.origin !== new URL(this.profile.baseUrl).origin || url.pathname !== `/accounts/${accountId}/withdrawals`
           || url.username || url.password || url.hash) throw new BankError('invalid');
         url.searchParams.delete('key'); path = url.pathname + url.search;
       } else path = null;

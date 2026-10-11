@@ -11,7 +11,7 @@ export async function verifyCapability(bank:Bank,prior:unknown,transferId:string
   const body=envelope==='objectCreated' ? z.object({objectCreated:z.unknown()}).parse(created.body).objectCreated : created.body;
   const record=z.object({_id:z.literal(transferId),status:z.string().min(1)}).parse(body);
   const before=snapshotSchema.parse(prior);
-  const [after,transfer]=await Promise.all([baseline(bank,before.payer.id,before.payee.id),bank.transfer(transferId)]);
+  const [after,transfer]=await Promise.all([baseline(bank,before.payer.id,before.payee.id),bank.transfer(transferId,before.payer.id)]);
   if(!Number.isSafeInteger(dollars) || dollars<1 || dollars>1000 || transfer.state!=='success' || transfer.payerId!==before.payer.id || transfer.payeeId!==before.payee.id || transfer.tag!==tag || transfer.dollars!==dollars
     || after.payer.dollars!==before.payer.dollars-dollars || after.payee.dollars!==before.payee.dollars+dollars) throw new Error('Transfer or balance evidence does not match.');
   for(const [oldRows,newRows] of [[before.sourceHistory,after.sourceHistory],[before.treasuryHistory,after.treasuryHistory]]) {
