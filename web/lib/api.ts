@@ -18,7 +18,7 @@ export type RoundSummary = {
 };
 
 export type ProjectCard = {
-  slug: string; name: string; tagline: string; description: string; stage: Stage;
+  slug: string; ticker: string | null; name: string; tagline: string; description: string; stage: Stage;
   entity_type: "UNINCORPORATED" | "INCORPORATED"; founders: Founder[];
   valuation: { effective_stage: Stage; unit_price_micro_usd: string; model_version_id: string; calculated_at: string } | null;
   round: RoundSummary | null;
@@ -41,7 +41,7 @@ export type Explanation = {
 };
 
 export type ProjectProfile = {
-  slug: string; name: string; tagline: string; description: string; stage: Stage; status: string;
+  slug: string; ticker: string | null; name: string; tagline: string; description: string; stage: Stage; status: string;
   entity_type: "UNINCORPORATED" | "INCORPORATED"; legal_name: string | null; formation_state: string | null;
   website_url: string | null; sector_code: string | null; contact_email: string | null; founders: Founder[];
   valuation: {
@@ -114,7 +114,7 @@ export function daysLeft(r: Pick<RoundSummary, "closes_at" | "status">, now = Da
   return Math.max(0, Math.ceil((Date.parse(r.closes_at) - now) / 86_400_000));
 }
 
-/** Four-letter display code for the terminal header, e.g. "Fernhill Robotics" → "FERN". */
+/** Fallback symbol for rows without a stored ticker (projects.ticker, migration 0005). */
 export const tickerOf = (name: string) => (name.replace(/[^a-z]/gi, "").slice(0, 4) || "CO").toUpperCase();
 
 /** Feed card or profile → the view model the round terminal and feed cards render. */
@@ -122,7 +122,7 @@ export function toRound(p: ProjectCard | ProjectProfile): Round {
   const r = p.round;
   const price = r?.unit_price_micro_usd ?? p.valuation?.unit_price_micro_usd ?? "0";
   return {
-    t: tickerOf(p.name), n: p.name, slug: p.slug, roundId:r?.id,
+    t: p.ticker ?? tickerOf(p.name), n: p.name, slug: p.slug, roundId:r?.id,
     s: p.valuation?.effective_stage ?? p.stage,
     e: p.entity_type === "INCORPORATED" ? "Incorporated" : "Unincorporated",
     p: microToNumber(price), pMicro: price, h: p.tagline || p.name, dek: p.description,

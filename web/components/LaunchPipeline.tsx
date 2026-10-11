@@ -16,7 +16,7 @@ import {
  */
 
 export type LaunchDraft = {
-  name: string; tagline: string; stage: Stage; entityType: "UNINCORPORATED" | "INCORPORATED";
+  name: string; ticker: string; tagline: string; stage: Stage; entityType: "UNINCORPORATED" | "INCORPORATED";
   legalName: string | null; formationState: string | null; website: string | null;
   founderName: string; founderRole: string | null; founderText: string | null; links: string[]; publishContact: boolean;
 };
@@ -98,7 +98,7 @@ export default function LaunchPipeline({ draft, onEdit, onRetry }: { draft: Laun
       if (!projectId) {
         setPhase("create");
         const { project } = await post<{ project: { id: string; slug: string } }>("/projects", {
-          name: draft.name, tagline: draft.tagline, stage: draft.stage, entity_type: draft.entityType,
+          name: draft.name, ...(draft.ticker ? { ticker: draft.ticker } : {}), tagline: draft.tagline, stage: draft.stage, entity_type: draft.entityType,
           legal_name: draft.legalName, formation_state: draft.formationState, website_url: draft.website,
           publish_contact_email: draft.publishContact,
           founder: { display_name: draft.founderName, role_title: draft.founderRole },

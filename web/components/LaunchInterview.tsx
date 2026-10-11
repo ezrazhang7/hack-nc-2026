@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import LaunchPipeline, { type LaunchDraft } from "@/components/LaunchPipeline";
-import { STAGE_LABEL, STAGES } from "@/lib/api";
+import { api, STAGE_LABEL, STAGES } from "@/lib/api";
 
 type Field = { k: string; l?: string; ph: string; type?: string; area?: boolean };
 type Step = { k: string; sec: string; q: [string, string]; fields?: Field[]; opts?: string[]; hint?: string; req?: boolean; when?: (d: Data) => boolean };
@@ -10,6 +10,7 @@ type Step = { k: string; sec: string; q: [string, string]; fields?: Field[]; opt
 // Answers map one-to-one onto POST /api/projects and the research run (docs/BACKEND_STACK.md §7).
 const STEPS: Step[] = [
   { k: "name", sec: "Identity", q: ["What’s it", "called?"], fields: [{ k: "name", ph: "Mothlight" }], hint: "A working title is fine.", req: true },
+  { k: "ticker", sec: "Identity", q: ["Pick your", "ticker."], fields: [{ k: "ticker", ph: "QPY" }], hint: "2–5 letters. Backers will know you by it.", req: true },
   { k: "line", sec: "Identity", q: ["Say it in", "one line."], fields: [{ k: "line", ph: "Quiet study rooms at 2 a.m." }], req: true },
   { k: "stage", sec: "Stage", q: ["How far", "along is it?"], opts: STAGES.map((s) => STAGE_LABEL[s]), hint: "We price on the stage your evidence supports.", req: true },
   { k: "entity", sec: "Stage", q: ["Is it", "incorporated?"], opts: ["Unincorporated", "Incorporated"], hint: "Either is fine. We label it honestly.", req: true },
@@ -28,7 +29,7 @@ const toDraft = (d: Data): LaunchDraft => {
   const incorporated = d.entity === "Incorporated";
   const text = (v?: string) => v?.trim() || null;
   return {
-    name: d.name.trim(), tagline: (d.line ?? "").trim().slice(0, 140),
+    name: d.name.trim(), ticker: (d.ticker ?? "").trim().toUpperCase(), tagline: (d.line ?? "").trim().slice(0, 140),
     stage: STAGES.find((s) => STAGE_LABEL[s] === d.stage) ?? "IDEA",
     entityType: incorporated ? "INCORPORATED" : "UNINCORPORATED",
     legalName: incorporated ? text(d.legal) : null, formationState: incorporated ? text(d.state)?.toUpperCase() ?? null : null,
@@ -59,6 +60,16 @@ export default function LaunchInterview() {
   }, []);
   useEffect(() => { try { sessionStorage.setItem(ANSWERS, JSON.stringify({ data, done })); } catch { /* private mode */ } }, [data, done]);
 
+  // Prefill the ticker with a free suggestion for the name the first time the question shows.
+  useEffect(() => {
+    if (done || step.k !== "ticker" || data.ticker || !data.name?.trim()) return;
+    let live = true;
+    api<{ suggestion: string | null }>(`/tickers/suggest?name=${encodeURIComponent(data.name.trim())}`)
+      .then((r) => { if (live && r.suggestion) setData((d) => (d.ticker ? d : { ...d, ticker: r.suggestion! })); })
+      .catch(() => { /* typing one by hand still works */ });
+    return () => { live = false; };
+  }, [step.k, data.name, data.ticker, done]);
+
   // Slide the question out, swap, slide the next one in.
   const go = (i: number) => {
     setErr("");
@@ -69,8 +80,14 @@ export default function LaunchInterview() {
       requestAnimationFrame(() => requestAnimationFrame(() => setPhase("")));
     }, 220);
   };
-  const next = (d: Data = data, skip = false) => {
+  const next = async (d: Data = data, skip = false) => {
     if (!skip && step.req && !summary(step, d)) { setErr("Needed to publish."); return; }
+    if (!skip && step.k === "ticker") {
+      const t = (d.ticker ?? "").trim().toUpperCase();
+      if (!/^[A-Z]{2,5}$/.test(t)) { setErr("Use 2–5 letters, like QPY."); return; }
+      const check = await api<{ available: boolean | null }>(`/tickers/suggest?ticker=${t}`).catch(() => null);
+      if (check?.available === false) { setErr(`${t} is taken. Try another.`); return; }
+    }
     if (!skip && step.k === "founder" && !d.fname?.trim()) { setErr("Add the founder’s name."); return; }
     if (!skip && step.k === "legal" && d.state && !/^[A-Za-z]{2}$/.test(d.state.trim())) { setErr("Use the two-letter state code, like NC."); return; }
     if (!skip && step.k === "site" && d.site && !/^https?:\/\/\S+\.\S+/.test(d.site.trim())) { setErr("Use a full link starting with https://"); return; }
@@ -117,7 +134,8 @@ export default function LaunchInterview() {
                   <input
                     id={`f-${f.k}`} ref={fi === 0 ? firstInput : undefined} name={f.k} type={f.type ?? "text"} placeholder={f.ph}
                     aria-label={f.l ?? step.sec} value={data[f.k] ?? ""}
-                    onChange={(e) => setData({ ...data, [f.k]: e.target.value })}
+                    maxLength={f.k === "ticker" ? 5 : undefined} autoCapitalize={f.k === "ticker" ? "characters" : undefined}
+                    onChange={(e) => setData({ ...data, [f.k]: f.k === "ticker" ? e.target.value.toUpperCase().replace(/[^A-Z]/g, "") : e.target.value })}
                   />
                 )}
               </div>

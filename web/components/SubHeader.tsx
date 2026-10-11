@@ -6,7 +6,7 @@ const TABS = [
   { href: "/rounds/", label: "Back a startup" },
   { href: "/launch/", label: "List" },
   { href: "/news/", label: "News" },
-  { href: "/participate/", label: "My account" },
+  { href: "/participate/", label: "Invest" },
 ] as const;
 
 export default function SubHeader({ current }: { current: (typeof TABS)[number]["href"] }) {

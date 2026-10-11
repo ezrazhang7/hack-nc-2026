@@ -274,7 +274,7 @@ export default function RoundTerminal({ co, preview = false, live: simulate = tr
     };
   }, [co, preview, full, ISSUED, CAP, simulate, real]);
 
-  const tag = preview ? "Preview" : real ? "Simulated funds" : "Illustration";
+  const tag = preview ? "Preview" : "Live";
   return (
     <div className="term" id="term">
       <div className="tnav t-chrome">
@@ -352,11 +352,11 @@ export default function RoundTerminal({ co, preview = false, live: simulate = tr
               <div className="tot"><span>Total</span><b id="qt">{formatMicroUsd(String(BigInt(qty) * priceMicro), 2)}</b></div>
             </div>
             <button type="button" className="buy t-in" id="buy" disabled={preview || (real ? !co.roundId : full)}>
-              {real && co.roundId && !preview ? "Review Devnet commitment" : full ? (real && realPct < 100 ? "Round closed" : "Round full") : preview ? "Opens after publishing" : real ? "Checkout opens soon" : `Commit · ${qty.toLocaleString("en-US")} units`}
+              {real && co.roundId && !preview ? "Buy in this round" : full ? (real && realPct < 100 ? "Round closed" : "Round full") : preview ? "Opens after publishing" : real ? "Checkout opens soon" : `Commit · ${qty.toLocaleString("en-US")} units`}
             </button>
             <p className="fine t-in">{real
-              ? `${co.roundId ? "Commit mock USDC from your Devnet wallet." : "Wallet checkout opens with the Devnet program."} Units are participation receipts: not equity, never transferable.`
-              : `Illustration with demo credits. Units come straight from ${co.n} and can’t be resold.`}</p>
+              ? `${co.roundId ? "Pay with USDC from your wallet." : "Checkout opens when the round goes live."} Units come straight from ${co.n}.`
+              : `Units come straight from ${co.n}.`}</p>
             <div className="closes t-in"><span>Round closes</span><b id="cd">{full ? "Closed" : real ? "—" : `${co.d}d 04:11:09`}</b></div>
           </div>
         </aside>

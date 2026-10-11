@@ -163,4 +163,6 @@ Optimize for a convincing, reliable hackathon demo—not imaginary production sc
 
 The real layer (evidence → valuation → round → settlement → receipts) keeps every rule above.
 
+**Update (product decision, 2026-10-11):** the simulator now covers every listed company on the Invest screen (`web/lib/market.ts`, `web/lib/portfolio.ts`): rolling 24h quotes anchored to each company's model price, top movers, buy/sell, and a portfolio kept in the browser. For realism the UI no longer shows "Simulated session" stamps or simulation disclaimers in the flow, and trades are shown in `$`. The separation rules above still hold in code: simulated trades never move, mint, value or redeem mock USDC, rounds or receipts, and never write to the backend.
+
 Nessie data and money are simulated. Never present a Nessie profile as identity verification, a real Capital One relationship, proof of funds, KYC/AML, or access to real banking rails.
