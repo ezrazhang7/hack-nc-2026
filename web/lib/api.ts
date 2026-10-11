@@ -91,6 +91,11 @@ export function formatMicroUsd(micro: string, digits = 2): string {
   return `${neg ? "-" : ""}$${whole}${digits ? "." + frac : ""}`;
 }
 
+/** Unit price from micro-USD: at least 2 decimals, up to 6, trailing zeros trimmed ("$0.416", "$2.36"). */
+export function formatUnitPrice(micro: string): string {
+  return formatMicroUsd(micro, 6).replace(/(\.\d{2}\d*?)0+$/, "$1");
+}
+
 /** "1234567.89" (decimal string in USD) → "$1.23M" / "$123K" / "$950". */
 export function formatUsdCompact(usd: string | number): string {
   const n = typeof usd === "number" ? usd : Number(usd);
@@ -120,7 +125,9 @@ export function toRound(p: ProjectCard | ProjectProfile): Round {
     t: tickerOf(p.name), n: p.name, slug: p.slug,
     s: p.valuation?.effective_stage ?? p.stage,
     e: p.entity_type === "INCORPORATED" ? "Incorporated" : "Unincorporated",
-    p: microToNumber(price), h: p.tagline || p.name, dek: p.description,
+    p: microToNumber(price), pMicro: price, h: p.tagline || p.name, dek: p.description,
+    committedMicro: r?.total_committed_micro_usd, targetMicro: r?.target_amount_micro_usd,
+    closesAt: r?.closes_at,
     sub: r ? committedPct(r) : 0, d: r ? daysLeft(r) : 0, b: r?.backers ?? 0,
     cap: r ? Number(r.max_units) : undefined, feeBps: r?.protocol_fee_bps,
     maxPer: r ? microToNumber(r.max_subscription_micro_usd) : undefined,

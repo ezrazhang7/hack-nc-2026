@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState, type CSSProperties } from "react";
-import { listProjects, STAGE_LABEL, toRound } from "@/lib/api";
+import { formatUnitPrice, listProjects, STAGE_LABEL, toRound } from "@/lib/api";
 import type { Round } from "@/lib/fixtures";
 
 const FILTERS = ["All", "Idea", "Prototype", "Launched", "Revenue", "Growth", "Closing soon"] as const;
@@ -44,7 +44,7 @@ export default function RoundsFeed() {
               <div className={`bar${full ? " full" : ""}`}><i style={{ width: `${Math.min(c.sub, 100)}%` }} /></div>
               <div className="ft">
                 <span>
-                  <b>${c.p.toFixed(2)}</b> · {full ? <span className="dn">Full</span> : `${c.sub}%`}
+                  <b>{c.pMicro ? formatUnitPrice(c.pMicro) : "—"}</b> · {full ? <span className="dn">Full</span> : `${c.sub}%`}
                   {c.d > 0 && <> · <span className={c.d <= 3 ? "dn" : ""}>{c.d}d left</span></>}
                 </span>
                 <span className="go">{full ? "Watch" : "Back them"} <span>→</span></span>

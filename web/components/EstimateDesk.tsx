@@ -108,7 +108,7 @@ export default function EstimateDesk() {
       <div className="desk-r">
         <div className="kicker">Clipping · The formula, in full</div>
         <div className="clip"><pre dangerouslySetInnerHTML={{ __html: FORMULA }} /></div>
-        <p className="note">Unknown answers score zero and lower evidence quality. That isn’t a verdict on your company; it just means we haven’t seen the evidence yet. A higher claim never creates credits or verification.</p>
+        <p className="note">This desk is a sketch to play with. The real model starts missing evidence at a neutral 0.50, so a new founder is never scored down for having no record; only verified proof moves it further.</p>
         <div className="advert">
           <span className="kicker">Advertisement · for your website</span>
           <h3>Paste one line.<br />Meet your first backers.</h3>

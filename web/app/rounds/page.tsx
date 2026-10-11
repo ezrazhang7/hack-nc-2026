@@ -15,7 +15,6 @@ export default function RoundsPage() {
       <main className="page">
         <div className="head">
           <HeroText text="Back them" em="early." />
-          <span className="bal">Demo credits <b>10,000.00</b></span>
         </div>
         <RoundsFeed />
         <p className="note">Units are simulated participation receipts, not equity.</p>

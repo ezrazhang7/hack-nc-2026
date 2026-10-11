@@ -107,9 +107,9 @@ export default function LandingMarkup() {
       <RoundTerminal co={FERN} />
       <div className="paper" id="paper" aria-hidden="true">
         <div className="paper-head"><span className="kicker">Late edition · how to read a round</span><h3>One company. One fixed price. <i>Three columns.</i></h3></div>
-        <div><span className="kicker">Column one</span><h4>Who already backed it.</h4><p>Every purchase is printed the moment it settles: time, units, total. No bids, no asks, just people who believed early.</p></div>
-        <div><span className="kicker">Column two</span><h4>One company, one fixed price, one honest chart.</h4><p>The price doesn’t move. The line that rises is how much of the round has been issued.</p><p>The founders’ story, team and dated evidence sit right underneath.</p><blockquote>“Nobody bids. Nobody asks. You either believe early, or you watch.”</blockquote></div>
-        <div><span className="kicker">Column three</span><h4>Pick a quantity. Get an exact quote.</h4><p>The quote shows unit price, fee and your allocation at full subscription. Then you confirm once.</p></div>
+        <div><span className="kicker">Column one</span><h4>Who already backed it.</h4><p>Every commitment is printed the moment it lands: time, units, total. No bids, no asks, just people who believed early.</p></div>
+        <div><span className="kicker">Column two</span><h4>One company, one fixed price, one honest chart.</h4><p>The price doesn’t move. The line that rises is how much of the round is committed.</p><p>The founders’ story, team and dated evidence sit right underneath.</p><blockquote>“Nobody bids. Nobody asks. You either believe early, or you watch.”</blockquote></div>
+        <div><span className="kicker">Column three</span><h4>Pick a quantity. Get an exact quote.</h4><p>The quote shows unit price, fee and your total. You confirm once; allocation is final when the round closes.</p></div>
       </div>
     </div>
   </div>

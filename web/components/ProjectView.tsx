@@ -6,7 +6,7 @@ import { Fragment, useEffect, useState } from "react";
 import FounderCards from "@/components/FounderCards";
 import HeroText from "@/components/HeroText";
 import {
-  committedPct, daysLeft, formatMicroUsd, formatUsdCompact, getProject, STAGE_LABEL,
+  committedPct, daysLeft, formatMicroUsd, formatUnitPrice, formatUsdCompact, getProject, STAGE_LABEL,
   type Explanation, type ProjectProfile,
 } from "@/lib/api";
 
@@ -132,7 +132,7 @@ export default function ProjectView() {
         </div>
         <aside className="ticket">
           <span className="kicker">Unit price</span>
-          <b className="px">{v ? formatMicroUsd(v.unit_price_micro_usd, 2) : "—"}</b>
+          <b className="px">{v ? formatUnitPrice(v.unit_price_micro_usd) : "—"}</b>
           {v && <span className="mv">Model value {formatUsdCompact(v.round_implied_value)}</span>}
           {r ? (
             <>

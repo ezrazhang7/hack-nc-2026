@@ -94,7 +94,7 @@
 .L .tnav .logo{font-family:var(--black);font-size:26px;line-height:1;color:var(--ink)}
 .L .tnav .search{flex:1;max-width:360px;margin-left:auto;border:1px solid var(--rule);height:34px;display:flex;align-items:center;padding:0 12px;font-size:12px;color:var(--carbon);justify-content:space-between}
 .L .tnav .search kbd{font-family:var(--mono);border:1px solid var(--rule);padding:1px 6px;font-size:11px}
-.L .tnav .bal{font-size:12px;color:var(--carbon);border:1px solid var(--rule);height:34px;display:flex;align-items:center;padding:0 12px;gap:8px}
+.L .tnav .bal{margin-left:auto;font-size:12px;color:var(--carbon);border:1px solid var(--rule);height:34px;display:flex;align-items:center;padding:0 12px;gap:8px}
 .L .tnav .bal b{color:var(--ink);font-weight:500}
 .L .tgrid{display:grid;grid-template-columns:300px 1fr 330px;min-height:640px}
 .L .panel{position:relative;min-width:0}
@@ -172,6 +172,7 @@
 .L .quote div.tot span{color:var(--ink)}
 .L .buy{display:block;width:100%;margin-top:16px;height:54px;font-family:var(--mono);font-size:14px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:var(--green);color:#071208;border:0;cursor:pointer;transition:filter .2s}
 .L .buy:hover{filter:brightness(1.12)}
+.L .buy:not(:disabled):active{filter:brightness(.92)}
 .L .buy:disabled{background:#1a1916;color:var(--carbon);cursor:not-allowed;filter:none}
 .L .fine{margin-top:12px;font-family:var(--serif);font-style:italic;font-size:13.5px;color:var(--carbon);line-height:1.4}
 .L .closes{margin-top:18px;border-top:1px solid var(--rule);padding-top:14px;font-size:12px;display:flex;justify-content:space-between;color:var(--carbon)}
@@ -382,3 +383,17 @@
 .L .briefs details[open] > p{animation:brief-in .3s cubic-bezier(.2,.7,.2,1)}
 @keyframes brief-in{from{opacity:0;transform:translateY(-4px)}}
 @media (prefers-reduced-motion:reduce){.L .briefs details[open] > p{animation:none}.L .briefs .pm:before,.L .briefs .pm:after{transition:none}}
+
+/* Real (API) round: no invented history, so the left panel says what will appear and the centre shows progress. */
+.L .tempty{padding:18px 16px;font-family:var(--serif);font-style:italic;font-size:14px;line-height:1.45;color:var(--carbon)}
+.L .rgauge{padding:34px 22px 30px;border-bottom:1px solid var(--rule);display:grid;gap:14px}
+.L .rg-big{display:flex;align-items:baseline;gap:14px}
+.L .rg-big b{font-family:var(--serif);font-weight:500;font-size:clamp(56px,7vw,96px);line-height:.9;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.L .rg-big span{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--carbon)}
+.L .rg-track{position:relative;height:14px;background:#151412;border:1px solid var(--rule)}
+.L .rg-track i{position:absolute;inset:0 auto 0 0;background:repeating-linear-gradient(90deg,var(--green) 0 3px,#3f8f49 3px 4px);animation:rg-fill 1.1s cubic-bezier(.16,1,.3,1) both}
+.L .rg-track em{position:absolute;top:-6px;bottom:-6px;width:1px;background:var(--red)}
+.L .rg-scale{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;color:var(--carbon);letter-spacing:.06em}
+.L .rgauge p{font-family:var(--serif);font-style:italic;font-size:14px;color:var(--carbon);max-width:520px}
+@keyframes rg-fill{from{transform:scaleX(0);transform-origin:left}}
+@media (prefers-reduced-motion:reduce){.L .rg-track i{animation:none}}

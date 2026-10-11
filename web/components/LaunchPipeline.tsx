@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import {
-  api, ApiError, formatMicroUsd, post, STAGE_LABEL,
+  api, ApiError, formatUnitPrice, post, STAGE_LABEL,
   type Me, type ResearchProposal, type ResearchRun, type Stage, type ValuationPreview,
 } from "@/lib/api";
 
@@ -215,7 +215,7 @@ export default function LaunchPipeline({ draft, onEdit, onRetry }: { draft: Laun
           <>
             <h2>{phase === "published" ? <>You’re <i>live.</i></> : <>Your <i>price.</i></>}</h2>
             <div className="stats">
-              <div><span>Unit price</span><b className="up">{formatMicroUsd(price.values.unitPriceMicroUsd, 2)}</b></div>
+              <div><span>Unit price</span><b className="up">{formatUnitPrice(price.values.unitPriceMicroUsd)}</b></div>
               <div><span>Model value</span><b>${Math.round(Number(price.values.roundImplied)).toLocaleString("en-US")}</b></div>
               <div><span>Priced as</span><b>{STAGE_LABEL[price.stage.effective]}</b></div>
             </div>

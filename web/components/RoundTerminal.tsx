@@ -2,27 +2,33 @@
 
 import { useEffect } from "react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { STAGE_LABEL } from "@/lib/api";
+import { committedPct, formatMicroUsd, formatUnitPrice, formatUsdCompact, STAGE_LABEL } from "@/lib/api";
 import type { Round } from "@/lib/fixtures";
 
 /*
- * One company's round terminal: fills tape, units-issued chart and the buy quote.
- * Used on the landing page (B1, fixture) and on /round/?slug= (API round). Price, cap, committed
- * share, fee and close date come from `co`; the hourly issuance shape is drawn from the committed
- * total. 1,000,000 founder units is the model's reference unit count. `live` adds simulated fills
- * (landing only). Ids are the contract with the landing page's B1 scroll timeline (#term, #fills, #chart .base …).
+ * One company's round terminal: commitments, history chart and the commit quote.
+ * Landing page (B1): a labeled illustration from a fixture, with an invented history and live fills.
+ * /round/?slug= (API round): only real numbers. Exact micro-USD amounts and the close time come from
+ * the API; there is no per-commitment feed yet, so no history is drawn rather than inventing one.
+ * 1,000,000 is the model's reference unit count. Ids are the contract with the landing page's B1
+ * scroll timeline (#term, #fills, #chart .base …).
  */
 
-const FOUNDER_UNITS = 1000000, CREDITS = 10000;
+const REFERENCE_UNITS = 1000000, CREDITS = 10000;
 const fmt$ = (n: number, d = 0) => "$" + n.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
 const fmtM = (n: number) => (n >= 1e6 ? `$${+(n / 1e6).toFixed(2)}M` : `$${Math.round(n / 1e3)}K`);
 const $ = <T extends Element = HTMLElement>(id: string) => document.getElementById(id) as unknown as T;
 
 export default function RoundTerminal({ co, preview = false, live: simulate = true }: { co: Round; preview?: boolean; live?: boolean }) {
+  const real = !!co.slug;
   const CAP = co.cap ?? 100000;
-  const ISSUED = Math.round(Math.min(co.sub, 100) / 100 * CAP), full = ISSUED >= CAP;
+  // Exact unit price in micro-USD: the API's integer for real rounds, the fixture's display price otherwise.
+  const priceMicro = BigInt(co.pMicro ?? String(Math.round(co.p * 1e6)));
+  const realPct = real && co.committedMicro && co.targetMicro ? committedPct({ total_committed_micro_usd: co.committedMicro, target_amount_micro_usd: co.targetMicro }) : 0;
+  const ISSUED = Math.round(Math.min(co.sub, 100) / 100 * CAP), full = real ? realPct >= 100 || co.d === 0 : ISSUED >= CAP;
   const raised = Math.round(ISSUED * co.p);
-  const max = Math.max(1, Math.min(CAP - ISSUED, Math.floor(CREDITS / co.p)));
+  // Real rounds cap a quote at the per-person limit; the fixture at its illustrated demo-credit balance.
+  const max = real && co.maxPer ? Math.max(1, Math.floor(co.maxPer / co.p)) : Math.max(1, Math.min(CAP - ISSUED, Math.floor(CREDITS / co.p)));
   const qty = Math.min(1000, max);
 
   useEffect(() => {
@@ -33,6 +39,9 @@ export default function RoundTerminal({ co, preview = false, live: simulate = tr
     const later = (fn: () => void, ms: number) => { const id = setTimeout(fn, ms); cleanups.push(() => clearTimeout(id)); };
     // Own tag (not data-gen) so LandingFX's start-up sweep of data-gen nodes leaves these rows alone.
     document.querySelectorAll("#fills [data-term]").forEach((n) => n.remove());
+
+    // Fixture only: an illustrated history and fill tape. Real rounds never draw invented activity.
+    if (!real) {
 
       const fills = $("fills");
       const SEED_FILLS: [string, number][] = [["14:22:07", 1000], ["14:21:40", 250], ["14:19:12", 4000], ["14:18:55", 100], ["14:16:03", 1500], ["14:12:47", 500], ["14:11:30", 2000], ["14:09:02", 300], ["14:06:18", 750], ["14:02:44", 1000], ["13:58:09", 120], ["13:55:31", 2500], ["13:51:20", 600], ["13:47:58", 1000], ["13:44:13", 200]];
@@ -113,7 +122,7 @@ export default function RoundTerminal({ co, preview = false, live: simulate = tr
         `<rect x="${g.W - g.padR + 2}" y="${g.y(v) - 10}" width="${g.padR - 4}" height="20" fill="${bg}"/><text x="${g.W - g.padR + 8}" y="${g.y(v) + 4}" fill="${ink}" font-size="11" font-weight="700" ${MONO}>${fmtK(v)}</text>`;
       const writeStrip = (i: number | null) => {
         const d = C.data[i ?? C.data.length - 1], v = i == null ? C.lastShown : d.cum;
-        strip.innerHTML = `<span class="when">${i == null ? "Now" : `${dLabel(d.h)}, ${hh(d.h)}`}</span><span>Issued<b class="up">+${d.u.toLocaleString()}</b></span><span>Total<b>${Math.round(v).toLocaleString()}</b></span><span>Of cap<b>${(v / CAP * 100).toFixed(1)}%</b></span><span>Backers<b>+${d.b}</b></span><span>Raised<b>${fmt$(Math.round(v * PRICE))}</b></span>`;
+        strip.innerHTML = `<span class="when">${i == null ? "Now" : `${dLabel(d.h)}, ${hh(d.h)}`}</span><span>Committed<b class="up">+${d.u.toLocaleString()}</b></span><span>Total<b>${Math.round(v).toLocaleString()}</b></span><span>Of cap<b>${(v / CAP * 100).toFixed(1)}%</b></span><span>Backers<b>+${d.b}</b></span><span>Raised<b>${fmt$(Math.round(v * PRICE))}</b></span>`;
       };
       // Base: grid + series (built on load/resize/range switch). Overlay: hairline, tags, scrubbed copy (every hover).
       const drawBase = () => {
@@ -228,97 +237,124 @@ export default function RoundTerminal({ co, preview = false, live: simulate = tr
         svg.innerHTML = ""; strip.innerHTML = "";
       });
 
-      const qn = $("qn"), qt = $("qt"), qa = $("qa"), buy = $("buy"), chips = $("chips");
+    }
+
+      const qn = $("qn"), qt = $("qt"), buy = $("buy"), chips = $("chips");
+      const label = (q: number) => `Commit · ${q.toLocaleString("en-US")} units`;
       const onChip = (e: Event) => {
         const b = (e.target as Element).closest("button") as HTMLButtonElement | null; if (!b) return;
         [...chips.children].forEach((x) => x.classList.toggle("on", x === b));
         const q = +b.dataset.q!;
-        qn.textContent = q.toLocaleString(); qt.textContent = fmt$(q * co.p, 2);
-        qa.textContent = (q / (FOUNDER_UNITS + CAP) * 100).toFixed(4) + "%"; buy.textContent = `Buy ${q.toLocaleString()} units`;
+        qn.textContent = q.toLocaleString("en-US"); qt.textContent = formatMicroUsd(String(BigInt(q) * BigInt(co.pMicro ?? String(Math.round(co.p * 1e6)))), 2);
+        if (!real) buy.textContent = label(q);
       };
       chips.addEventListener("click", onChip);
       const onBuy = () => {
-        if (full || preview) return; buy.textContent = co.slug ? "Wallet checkout opens soon" : "Quote locked · demo"; later(() => (buy.textContent = `Buy ${qn.textContent} units`), 1600); };
+        if (full || preview || real) return;
+        buy.textContent = "Illustration only"; later(() => (buy.textContent = label(+qn.textContent!.replace(/,/g, ""))), 1400);
+      };
       buy.addEventListener("click", onBuy);
       cleanups.push(() => { chips.removeEventListener("click", onChip); buy.removeEventListener("click", onBuy); });
-      let left = co.d * 86400 + 4 * 3600 + 11 * 60 + 9;
+      // Real rounds count down to closes_at; the fixture keeps its illustrated clock.
+      let left = real && co.closesAt ? Math.floor((Date.parse(co.closesAt) - Date.now()) / 1000) : co.d * 86400 + 4 * 3600 + 11 * 60 + 9;
       const cd = $("cd");
-      if (co.d > 0) every(() => {
-        left--;
+      const show = () => {
+        if (left <= 0) { cd.textContent = "Closed"; return; }
         const d = Math.floor(left / 86400), h = Math.floor(left % 86400 / 3600), m = Math.floor(left % 3600 / 60), s = left % 60;
         cd.textContent = `${d}d ${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
-      }, 1000);
+      };
+      if (!full) { show(); if (left > 0) every(() => { left--; show(); }, 1000); }
 
     return () => {
       cleanups.reverse().forEach((fn) => fn());
       document.querySelectorAll("#fills [data-term]").forEach((n) => n.remove());
     };
-  }, [co, preview, full, ISSUED, CAP, simulate]);
+  }, [co, preview, full, ISSUED, CAP, simulate, real]);
 
+  const tag = preview ? "Preview" : real ? "Simulated funds" : "Illustration";
   return (
     <div className="term" id="term">
       <div className="tnav t-chrome">
         <span className="logo">P</span>
-        <div className="search"><span>Search companies, founders, campuses</span><kbd>/</kbd></div>
-        <div className="bal">Demo credits <b>10,000.00</b></div>
+        <div className="bal">{real ? <>Mock USDC <b>Devnet</b></> : <>Demo credits <b>10,000.00</b></>}</div>
       </div>
       <div className="tgrid">
         <aside className="panel book">
-          <div className="ptabs t-chrome"><span className="on">Fills</span><span>Backers</span></div>
-          <div className="cap t-in">
-            <div className="lbl"><span>Round capacity</span><span>{CAP.toLocaleString("en-US")} units</span></div>
-            <div className="meter"><i style={{ width: `${ISSUED / CAP * 100}%` }}></i></div>
-            <div className="nums"><span className="up">{ISSUED.toLocaleString("en-US")} issued</span><span>{(CAP - ISSUED).toLocaleString("en-US")} left</span></div>
-          </div>
-          <div className="fills" id="fills">
-            <div className="fh"><span>Time</span><span>Units</span><span>Total</span></div>
-          </div>
+          <div className="ptabs t-chrome"><span className="on">Commitments</span></div>
+          {!real && (
+            <div className="cap t-in">
+              <div className="lbl"><span>Round capacity</span><span>{CAP.toLocaleString("en-US")} units</span></div>
+              <div className="meter"><i style={{ width: `${ISSUED / CAP * 100}%` }}></i></div>
+              <div className="nums"><span className="up">{ISSUED.toLocaleString("en-US")} committed</span><span>{(CAP - ISSUED).toLocaleString("en-US")} left</span></div>
+            </div>
+          )}
+          {real ? (
+            <p className="tempty t-in">Each commitment will list here once wallet checkout is live. Amounts are allocated pro rata when the round closes.</p>
+          ) : (
+            <div className="fills" id="fills">
+              <div className="fh"><span>Time</span><span>Units</span><span>Total</span></div>
+            </div>
+          )}
         </aside>
         <div className="panel center">
           <div className="chead t-in">
             <div className="cname">
-              <div className="k">{co.t} <em>{STAGE_LABEL[co.s]}</em> <em>{preview ? "Preview" : "Simulated units"}</em></div>
+              <div className="k">{co.t} <em>{STAGE_LABEL[co.s]}</em> <em>{tag}</em></div>
               <h3>{co.n}</h3>
             </div>
-            <div className="cprice">{fmt$(co.p, 2)}<small>FIXED · FOUNDER-APPROVED</small></div>
+            <div className="cprice">{real ? formatUnitPrice(co.pMicro!) : fmt$(co.p, 2)}<small>FIXED FOR THIS ROUND</small></div>
             <div className="cstats">
-              <div><span>Pre-money</span><b>{fmtM(co.p * FOUNDER_UNITS)}</b></div>
-              <div><span>Raised</span><b className="up" id="c-raised">{fmt$(raised)}</b></div>
+              <div><span>Model value</span><b>{real ? formatUsdCompact(co.pMicro!) : fmtM(co.p * REFERENCE_UNITS)}</b></div>
+              <div><span>Committed</span><b className="up" id="c-raised">{real ? formatMicroUsd(co.committedMicro ?? "0", 0) : fmt$(raised)}</b></div>
               {co.b > 0 || co.maxPer == null
                 ? <div><span>Backers</span><b id="c-backers">{co.b}</b></div>
                 : <div><span>Max / person</span><b>{fmt$(co.maxPer)}</b></div>}
               <div><span>Entity</span><b>{co.e === "Incorporated" ? "Inc." : "Unincorp."}</b></div>
             </div>
           </div>
-          <div className="ctools t-in" id="ctools">
-            <button type="button" data-view="1D" aria-pressed="false">1D</button>
-            <button type="button" data-view="1W" aria-pressed="false">1W</button>
-            <button type="button" data-view="Round" aria-pressed="true">Round</button>
-            <button type="button" className="play" data-replay="" aria-pressed="false">▶ Replay</button>
-            <span className="r">Units issued · cumulative</span>
-          </div>
-          <div className="cstrip t-in" id="cstrip" aria-live="off"></div>
-          <div className="chart t-in"><svg id="chart" tabIndex={0} role="img" aria-label="Units issued over the round. Use left and right arrow keys to scrub."></svg></div>
-          <div className="ctabs t-chrome"><span className="on">Story</span><a href="#founders">Founders{co.f?.length ? ` (${co.f.length})` : ""}</a><span>Terms</span><span>Updates</span></div>
+          {real ? (
+            <div className="rgauge t-in" role="img" aria-label={`${realPct}% of the round target committed`}>
+              <div className="rg-big"><b>{realPct}%</b><span>of target committed</span></div>
+              <div className="rg-track"><i style={{ width: `${Math.min(realPct, 100)}%` }} /><em style={{ left: "100%" }} /></div>
+              <div className="rg-scale"><span>$0</span><span>Target {formatMicroUsd(co.targetMicro ?? "0", 0)}</span></div>
+              <p>Oversubscribed rounds scale every commitment down pro rata at close; the excess is refunded.</p>
+            </div>
+          ) : (
+            <>
+              <div className="ctools t-in" id="ctools">
+                <button type="button" data-view="1D" aria-pressed="false">1D</button>
+                <button type="button" data-view="1W" aria-pressed="false">1W</button>
+                <button type="button" data-view="Round" aria-pressed="true">Round</button>
+                <button type="button" className="play" data-replay="" aria-pressed="false">▶ Replay</button>
+                <span className="r">Units committed · illustration</span>
+              </div>
+              <div className="cstrip t-in" id="cstrip" aria-live="off"></div>
+              <div className="chart t-in"><svg id="chart" tabIndex={0} role="img" aria-label="Units committed over the round (illustration). Use left and right arrow keys to scrub."></svg></div>
+            </>
+          )}
+          <div className="ctabs t-chrome"><span className="on">Story</span>{co.f?.length ? <a href="#founders">Founders ({co.f.length})</a> : null}</div>
           <div className="about t-in"><b>{co.n}</b>{co.city && ` · ${co.city}`}. {co.h.replace(/[.!?]$/, "")}. {co.dek}</div>
         </div>
         <aside className="panel bp">
           <div className="bpanel">
-            <div className="ptabs t-chrome"><span className="on">Buy units</span><span>Watch</span></div>
+            <div className="ptabs t-chrome"><span className="on">Commit</span></div>
             <div className="qty t-in"><span className="n" id="qn">{qty.toLocaleString("en-US")}</span><span className="u">UNITS</span></div>
             <div className="chips t-in" id="chips">
-              {[100, 500, 1000].filter((q) => q <= max).map((q) => <button key={q} data-q={q} className={q === qty ? "on" : ""}>{q === 1000 ? "1K" : q}</button>)}
-              <button data-q={max} className={qty === max && max < 1000 ? "on" : ""}>Max</button>
+              {[100, 500, 1000].filter((q) => q <= max).map((q) => <button type="button" key={q} data-q={q} className={q === qty ? "on" : ""}>{q === 1000 ? "1K" : q}</button>)}
+              <button type="button" data-q={max} className={qty === max && max < 1000 ? "on" : ""}>Max</button>
             </div>
             <div className="quote t-in">
-              <div><span>Unit price</span><b>{fmt$(co.p, 2)}</b></div>
-              <div><span>Fee</span><b>{co.feeBps != null ? `${co.feeBps / 100}% of amount` : "$0.00"}</b></div>
-              <div><span>Allocation at full round</span><b id="qa">{(qty / (FOUNDER_UNITS + CAP) * 100).toFixed(4)}%</b></div>
-              <div className="tot"><span>Total</span><b id="qt">{fmt$(qty * co.p, 2)}</b></div>
+              <div><span>Unit price</span><b>{real ? formatUnitPrice(co.pMicro!) : fmt$(co.p, 2)}</b></div>
+              <div><span>Fee</span><b>{co.feeBps != null ? `${co.feeBps / 100}% of accepted` : "1% of accepted"}</b></div>
+              <div className="tot"><span>Total</span><b id="qt">{formatMicroUsd(String(BigInt(qty) * priceMicro), 2)}</b></div>
             </div>
-            <button className="buy t-in" id="buy" disabled={full || preview}>{full ? "Round full" : preview ? "Opens after publishing" : `Buy ${qty.toLocaleString("en-US")} units`}</button>
-            <p className="fine t-in">Demo credits only. Units are virtual, bought directly from {co.n}, and can’t be resold.</p>
-            <div className="closes t-in"><span>Round closes</span><b id="cd">{co.d > 0 ? `${co.d}d 04:11:09` : "Closed"}</b></div>
+            <button type="button" className="buy t-in" id="buy" disabled={full || preview || real}>
+              {full ? (real && realPct < 100 ? "Round closed" : "Round full") : preview ? "Opens after publishing" : real ? "Checkout opens soon" : `Commit · ${qty.toLocaleString("en-US")} units`}
+            </button>
+            <p className="fine t-in">{real
+              ? "Wallet checkout opens with the Devnet program. Units are participation receipts: not equity, never transferable."
+              : `Illustration with demo credits. Units come straight from ${co.n} and can’t be resold.`}</p>
+            <div className="closes t-in"><span>Round closes</span><b id="cd">{full ? "Closed" : real ? "—" : `${co.d}d 04:11:09`}</b></div>
           </div>
         </aside>
       </div>
