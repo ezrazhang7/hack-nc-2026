@@ -119,7 +119,7 @@ export default function LandingMarkup() {
   <div className="colophon" data-scroll-reveal="single">
     <span className="mark">The Prospecto</span>
     <p>Printed on black at prospecto.finance. Built at HackNC 2026. Every company on this page is a fictional fixture, every unit is simulated, and the estimate is a demo heuristic.</p>
-    <nav><a href="/rounds/">Back a startup</a><a href="/launch/">List</a><a href="/news/">News</a><a href="https://github.com/avidnerd/hack-nc-2026">GitHub</a></nav>
+    <nav><a href="/rounds/">Back a startup</a><a href="/launch/">List</a><a href="/news/">News</a><a href="https://github.com/ezrazhang7/hack-nc-2027">GitHub</a></nav>
   </div>
 </footer>
 
