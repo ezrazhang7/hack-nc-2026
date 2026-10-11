@@ -1,5 +1,5 @@
 import { describe,expect,test,vi } from 'vitest';
-import { NessieBank,profileSchema } from '../../src/purchase/banking/adapter.js';
+import { BUILT_IN_PROFILE_ID,NessieBank,builtInNessieProfile,profileSchema,resolveNessieProfile } from '../../src/purchase/banking/adapter.js';
 import { profile } from './purchase-helpers.js';
 const raw={_id:'transfer01',payer_id:'source01',payee_id:'treasury01',amount:100,description:'prospecto:funding:intent',status:'completed'};
 const json=(value:unknown,headers?:HeadersInit)=>new Response(JSON.stringify(value),{headers:{'Content-Type':'application/json',...headers}});
@@ -55,5 +55,28 @@ describe('Nessie adapter capability contract',()=>{
     expect(()=>profileSchema.parse({...profile,capabilitiesVerified:false})).toThrow();
     expect(()=>profileSchema.parse({...profile,baseUrl:'http://bank.example'})).toThrow();
     expect(()=>profileSchema.parse({...profile,successStatuses:['pending']})).toThrow();
+  });
+});
+describe('built-in Nessie profile (NESSIE_PROFILE deprecated)',()=>{
+  test('is derived from NESSIE_BASE_URL and classifies only documented statuses',async()=>{
+    const builtIn=resolveNessieProfile({NESSIE_BASE_URL:'https://bank.example'})!;
+    expect(builtIn).toMatchObject({id:BUILT_IN_PROFILE_ID,baseUrl:'https://bank.example/',successStatuses:['completed'],pendingStatuses:['pending'],rejectedStatuses:[],definitiveNoEffectHttpStatuses:[]});
+    const read=(status:string)=>new NessieBank(builtIn,'key',async()=>json({...raw,status})).transfer('transfer01');
+    expect(await read('completed')).toMatchObject({state:'success'});
+    expect(await read('pending')).toMatchObject({state:'pending'});
+    expect(await read('cancelled')).toMatchObject({state:'unknown'});
+    expect(resolveNessieProfile({})).toBeNull();
+  });
+  test('a deprecated override must match NESSIE_BASE_URL',()=>{
+    expect(resolveNessieProfile({NESSIE_BASE_URL:'https://bank.example',NESSIE_PROFILE:JSON.stringify(profile)})).toEqual(profile);
+    expect(()=>resolveNessieProfile({NESSIE_BASE_URL:'https://other.example',NESSIE_PROFILE:JSON.stringify(profile)})).toThrow(/does not match/);
+  });
+  test('history treats the first page 404 ("No transfers found") as empty, but nothing else',async()=>{
+    const builtIn=builtInNessieProfile('https://bank.example');
+    const empty=new NessieBank(builtIn,'key',async()=>new Response('"No transfers found for this account"',{status:404}));
+    expect(await empty.history('treasury01')).toEqual([]);
+    const missingTransfer=new NessieBank(builtIn,'key',async()=>new Response('',{status:404}));
+    await expect(missingTransfer.transfer('transfer01')).rejects.toMatchObject({outcome:'uncertain'});
+    await expect(new NessieBank(builtIn,'key',async()=>new Response('',{status:500})).history('treasury01')).rejects.toMatchObject({outcome:'uncertain'});
   });
 });

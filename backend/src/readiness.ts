@@ -6,7 +6,7 @@ export function readiness(env:NodeJS.ProcessEnv=process.env) {
   const backendConfigured=required.every(name=>Boolean(env[name]?.trim()));
   const chainConfigured=['PROGRAM_ID','PAYMENT_MINT','RELAYER_SECRET_KEY'].every(name=>Boolean(env[name]?.trim()));
   return {backendConfigured,purchasesEnabled:backendConfigured && chainConfigured && env.PURCHASES_ENABLED==='true',
-    nessieEnabled:backendConfigured && chainConfigured && env.PURCHASES_ENABLED==='true' && env.NESSIE_ENABLED==='true' && Boolean(env.NESSIE_API_KEY) && Boolean(env.NESSIE_PROFILE || env.NESSIE_PROFILE_PATH) && Boolean(env.NESSIE_TREASURY_ACCOUNT_ID),
+    nessieEnabled:backendConfigured && chainConfigured && env.PURCHASES_ENABLED==='true' && env.NESSIE_ENABLED==='true' && Boolean(env.NESSIE_API_KEY) && Boolean(env.NESSIE_BASE_URL) && Boolean(env.NESSIE_TREASURY_ACCOUNT_ID),
     demoMode:env.DEMO_MODE==='true',network:'devnet',simulation:true};
 }
 

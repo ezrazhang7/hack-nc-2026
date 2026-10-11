@@ -18,6 +18,38 @@ export const profileSchema = z.object({
   if (new Set(statuses).size !== statuses.length) context.addIssue({ code: 'custom', message: 'Provider status classes must not overlap.' });
 });
 export type NessieProfile = z.infer<typeof profileSchema>;
+
+/**
+ * Built-in Nessie wire profile; replaces the deprecated NESSIE_PROFILE / NESSIE_PROFILE_PATH files
+ * (still accepted as an override). Every value is documented or observed, never guessed:
+ * - create: `201 {objectCreated}` (NESSIE_PURCHASE_FLOW §3, provider SDK fixture);
+ * - reads: the object itself, history: a bare array, no pagination (read-only check, 2026-10-10);
+ * - `completed` is the current docs' transfer status, `pending` the SDK fixture's. Any other status
+ *   is `unknown` and fails closed to operator review; no HTTP error is treated as proof of no effect.
+ */
+export const BUILT_IN_PROFILE_ID = 'nessie-built-in-2026-10-10';
+export function builtInNessieProfile(baseUrl: string): NessieProfile {
+  return profileSchema.parse({
+    id: BUILT_IN_PROFILE_ID, baseUrl: `${new URL(baseUrl).origin}/`, capabilitiesVerified: true,
+    verificationReference: 'built-in: Nessie docs + read-only account/history check; unknown statuses fail closed',
+    verifiedAt: '2026-10-10T00:00:00.000Z', createEnvelope: 'objectCreated', readEnvelope: 'direct',
+    historyEnvelope: 'array', historyPagination: 'none', successStatuses: ['completed'], pendingStatuses: ['pending'],
+    rejectedStatuses: [], definitiveNoEffectHttpStatuses: [],
+  });
+}
+
+/** The deprecated profile override if set (it must match NESSIE_BASE_URL), else the built-in profile. */
+export function resolveNessieProfile(env: { NESSIE_BASE_URL?: string; NESSIE_PROFILE?: string }, profileFile?: string): NessieProfile | null {
+  const raw = env.NESSIE_PROFILE || profileFile;
+  if (raw) {
+    const profile = profileSchema.parse(JSON.parse(raw));
+    if (!env.NESSIE_BASE_URL || new URL(profile.baseUrl).origin !== new URL(env.NESSIE_BASE_URL).origin) {
+      throw new Error('NESSIE_PROFILE host does not match NESSIE_BASE_URL.');
+    }
+    return profile;
+  }
+  return env.NESSIE_BASE_URL ? builtInNessieProfile(env.NESSIE_BASE_URL) : null;
+}
 export interface BankTransfer {
   id: string; payerId: string; payeeId: string; dollars: number; tag: string; providerStatus: string;
   state: 'pending' | 'success' | 'rejected' | 'unknown';
@@ -45,7 +77,7 @@ export class NessieBank implements Bank {
   constructor(profile: NessieProfile, private readonly apiKey: string, private readonly transport: typeof fetch = fetch) {
     this.profile = profileSchema.parse(profile);
   }
-  private async request(path: string, method: 'GET' | 'POST' = 'GET', body?: unknown): Promise<{ body: unknown; headers: Headers }> {
+  private async request(path: string, method: 'GET' | 'POST' = 'GET', body?: unknown, emptyOn404 = false): Promise<{ body: unknown; headers: Headers }> {
     const origin = new URL(this.profile.baseUrl).origin;
     const url = new URL(path, origin);
     if (url.origin !== origin || url.username || url.password || url.hash) throw new BankError('invalid');
@@ -55,6 +87,8 @@ export class NessieBank implements Bank {
         method, redirect: 'error', signal: AbortSignal.timeout(10_000),
         ...(body === undefined ? {} : { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }),
       });
+      // Nessie answers 404 "No transfers found" for an account with no history (observed 2026-10-10).
+      if (emptyOn404 && response.status === 404) return { body: [], headers: response.headers };
       if (!response.ok) {
         const conclusive = method === 'POST' && this.profile.definitiveNoEffectHttpStatuses.includes(response.status);
         throw new BankError(conclusive ? 'no-effect' : 'uncertain');
@@ -120,7 +154,7 @@ export class NessieBank implements Bank {
     const visited = new Set<string>(); const transfers = new Map<string, BankTransfer>();
     for (let page = 0; path && page < 20; page++) {
       if (visited.has(path)) throw new BankError('invalid'); visited.add(path);
-      const { body, headers } = await this.request(path);
+      const { body, headers } = await this.request(path, 'GET', undefined, page === 0);
       let rows: unknown; let next: string | null = null;
       if (this.profile.historyEnvelope === 'array') rows = body;
       else {

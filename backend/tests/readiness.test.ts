@@ -13,3 +13,10 @@ test('missing credentials never become a ready purchase service',async()=>{
 test('Solana RPC dependencies load when require of ESM is disabled, as in the Vercel loader',()=>{
   expect(()=>execFileSync(process.execPath,['--no-experimental-require-module','-e','require("@solana/web3.js");require("@coral-xyz/anchor")'],{cwd:new URL('..',import.meta.url),stdio:'pipe'})).not.toThrow();
 });
+
+test('Nessie readiness no longer needs a profile file',()=>{
+  const env={DATABASE_URL:'x',PUBLIC_ORIGIN:'x',BETTER_AUTH_SECRET:'x',EMAIL_HASH_PEPPER:'x',CAMPUS_EMAIL_DOMAINS:'edu',GEMINI_API_KEY:'x',GEMINI_MODEL:'x',DEMO_MODE:'true',
+    PROGRAM_ID:'x',PAYMENT_MINT:'x',RELAYER_SECRET_KEY:'x',PURCHASES_ENABLED:'true',NESSIE_ENABLED:'true',NESSIE_API_KEY:'x',NESSIE_TREASURY_ACCOUNT_ID:'x'};
+  expect(readiness(env).nessieEnabled).toBe(false);
+  expect(readiness({...env,NESSIE_BASE_URL:'https://bank.example'}).nessieEnabled).toBe(true);
+});

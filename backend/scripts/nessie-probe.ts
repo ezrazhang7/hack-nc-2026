@@ -1,24 +1,22 @@
-import {readFile,writeFile} from 'node:fs/promises';
-import {randomUUID} from 'node:crypto';
-import {NessieBank,profileSchema} from '../src/purchase/banking/adapter.js';
-import {baseline,verifyCapability} from '../src/purchase/banking/probe.js';
-// Read-only capability probe. Create the single tagged mock transfer in the provider's sandbox first.
-const [mode,candidateFile,baselineFile,...args]=process.argv.slice(2);
-if(!candidateFile || !baselineFile || !process.env.NESSIE_API_KEY) throw new Error('Usage: nessie:probe baseline candidate.json baseline.json payer payee, or verify candidate.json baseline.json transfer tag dollars create-response.json output.json');
-try {
-  const raw=JSON.parse(await readFile(candidateFile,'utf8'));
-  // Candidate settings are hypotheses for read-only calls; they never enable funding.
-  const candidate=profileSchema.parse({...raw,capabilitiesVerified:true});
-  if(candidate.definitiveNoEffectHttpStatuses.length) throw new Error('No-effect semantics require separate evidence. Leave the list empty.');
-  const bank=new NessieBank(candidate,process.env.NESSIE_API_KEY);
-  if(mode==='baseline') {
-    await writeFile(baselineFile,JSON.stringify(await baseline(bank,args[0]!,args[1]!),null,2),{flag:'wx',mode:0o600});
-    console.log('Private baseline saved. No bank write was made.');
-  } else if(mode==='verify') {
-    const verified=await verifyCapability(bank,JSON.parse(await readFile(baselineFile,'utf8')),args[0]!,args[1]!,Number(args[2]),JSON.parse(await readFile(args[3]!,'utf8')),candidate.createEnvelope);
-    if(verified.creationStatus!==verified.terminalStatus && !candidate.pendingStatuses.includes(verified.creationStatus)) throw new Error('Creation status was not an observed pending status.');
-    if(!args[4]) throw new Error('An output path is required.');
-    await writeFile(args[4],JSON.stringify({...candidate,verifiedAt:verified.verifiedAt,capabilitiesVerified:true,verificationReference:`sandbox-probe:${randomUUID()}`,successStatuses:[verified.terminalStatus],pendingStatuses:verified.creationStatus===verified.terminalStatus ? [] : [verified.creationStatus],rejectedStatuses:[]},null,2),{flag:'wx',mode:0o600});
-    console.log('Verified profile saved privately. One matching terminal transfer and both balance changes were observed.');
-  } else throw new Error('Unknown probe mode.');
-} catch {console.error('Capability probe failed. Funding remains disabled; no provider write was made.');process.exitCode=1;}
+import {readFile} from 'node:fs/promises';
+import {NessieBank,resolveNessieProfile} from '../src/purchase/banking/adapter.js';
+// Read-only check of the Nessie profile in use (built-in unless the deprecated NESSIE_PROFILE override is set):
+// reads the treasury and any given accounts plus their transfer history, and reports transfer statuses
+// the profile does not classify (those fail closed to review). Never creates a transfer.
+//   npm run nessie:probe -- [accountId ...]
+const env=process.env;
+if(!env.NESSIE_API_KEY || !env.NESSIE_BASE_URL || !env.NESSIE_TREASURY_ACCOUNT_ID) throw new Error('Set NESSIE_API_KEY, NESSIE_BASE_URL and NESSIE_TREASURY_ACCOUNT_ID.');
+const profile=resolveNessieProfile(env,env.NESSIE_PROFILE_PATH ? await readFile(env.NESSIE_PROFILE_PATH,'utf8') : undefined)!;
+const bank=new NessieBank(profile,env.NESSIE_API_KEY);
+console.log(`profile ${profile.id}`);
+let failed=false;
+for (const [label,id] of [['treasury',env.NESSIE_TREASURY_ACCOUNT_ID],...process.argv.slice(2).map((a,i)=>[`account ${i+1}`,a])]) {
+  try {
+    const account=await bank.account(id!);
+    const history=await bank.history(id!);
+    const unknown=[...new Set(history.filter(t=>t.state==='unknown').map(t=>t.providerStatus))];
+    console.log(`${label}: balance $${account.dollars}, ${history.length} transfers${unknown.length ? `, UNCLASSIFIED statuses: ${unknown.join(', ')}` : ''}`);
+    if(unknown.length) failed=true;
+  } catch {console.error(`${label}: read failed (check the account ID, key and base URL).`);failed=true;}
+}
+if(failed) process.exitCode=1;

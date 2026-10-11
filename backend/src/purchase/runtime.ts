@@ -6,7 +6,7 @@ import type {Idl} from '@coral-xyz/anchor';
 import { readFile } from 'node:fs/promises';
 import type { Pool } from 'pg';
 import type { Config } from '../config.js';
-import { BankError, NessieBank, profileSchema } from './banking/adapter.js';
+import { BankError, NessieBank, resolveNessieProfile } from './banking/adapter.js';
 import { FundingService, type BankingOptions } from './banking/service.js';
 import { FundingStore } from './banking/store.js';
 import { PgStore } from './db/store.js';
@@ -38,14 +38,14 @@ export async function loadPurchaseServices(pool:Pool, config:Config):Promise<Pur
   if (!config.PURCHASES_ENABLED) return undefined;
   if (!config.PROGRAM_ID || !config.PAYMENT_MINT || !config.RELAYER_SECRET_KEY)
     throw new Error('Purchases require PROGRAM_ID, PAYMENT_MINT, RELAYER_SECRET_KEY (the compiled IDL is bundled).');
-  const profile=config.NESSIE_PROFILE ? profileSchema.parse(JSON.parse(config.NESSIE_PROFILE)) : config.NESSIE_PROFILE_PATH ? profileSchema.parse(JSON.parse(await readFile(config.NESSIE_PROFILE_PATH,'utf8'))) : null;
-  if (config.NESSIE_ENABLED && (!profile || !config.NESSIE_API_KEY || !config.NESSIE_TREASURY_ACCOUNT_ID
-    || profile.baseUrl!==config.NESSIE_BASE_URL)) throw new Error('Nessie requires a verified matching profile, key and treasury.');
+  const profile=resolveNessieProfile(config,config.NESSIE_PROFILE_PATH ? await readFile(config.NESSIE_PROFILE_PATH,'utf8') : undefined);
+  if (config.NESSIE_ENABLED && (!profile || !config.NESSIE_API_KEY || !config.NESSIE_TREASURY_ACCOUNT_ID))
+    throw new Error('Nessie requires NESSIE_BASE_URL, NESSIE_API_KEY and NESSIE_TREASURY_ACCOUNT_ID.');
   const chain=await SolanaChain.fromConfig({rpcUrl:config.SOLANA_RPC_URL,programId:config.PROGRAM_ID,paymentMint:config.PAYMENT_MINT,
     relayerSecretKey:config.RELAYER_SECRET_KEY,...(config.PROGRAM_IDL_PATH ? {idlPath:config.PROGRAM_IDL_PATH} : {idl:bundledIdl as Idl})});
   return makePurchaseServices(pool,chain,{generation:config.DEMO_GENERATION_ID,enabled:config.NESSIE_ENABLED,paused:config.FUNDING_PAUSED,
     treasuryProviderId:config.NESSIE_TREASURY_ACCOUNT_ID ?? '',profile}, saved=>{
-      if (!config.NESSIE_API_KEY || new URL(saved.baseUrl).origin!==config.NESSIE_BASE_URL) throw new BankError('uncertain','BANK_PROFILE_UNAVAILABLE');
+      if (!config.NESSIE_API_KEY || !config.NESSIE_BASE_URL || new URL(saved.baseUrl).origin!==new URL(config.NESSIE_BASE_URL).origin) throw new BankError('uncertain','BANK_PROFILE_UNAVAILABLE');
       return new NessieBank(saved,config.NESSIE_API_KEY);
     });
 }
