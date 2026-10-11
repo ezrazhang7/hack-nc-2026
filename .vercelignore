@@ -5,6 +5,7 @@
 *.pem
 *-keypair.json
 id.json
+.keys
 .vercel
 node_modules
 .next
