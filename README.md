@@ -8,6 +8,11 @@
 </p>
 
 <p align="center">
+  <a href="https://prospectofunds.tech/"><img alt="Live demo: prospectofunds.tech" src="https://img.shields.io/badge/Live_demo-prospectofunds.tech-5BD06A?style=for-the-badge&labelColor=0A0A09"></a><br>
+  <b>Try it live at <a href="https://prospectofunds.tech/">https://prospectofunds.tech/</a></b>
+</p>
+
+<p align="center">
   <img alt="HackNC 2026" src="https://img.shields.io/badge/HackNC-2026-5BD06A?style=flat-square&labelColor=0A0A09">
   <img alt="Next.js 15" src="https://img.shields.io/badge/Next.js-15-ECE5D3?style=flat-square&labelColor=0A0A09">
   <img alt="Hono API" src="https://img.shields.io/badge/Hono-API-ECE5D3?style=flat-square&labelColor=0A0A09">
@@ -27,7 +32,7 @@
 | ✨ **Best Use of Gemini API** · MLH | Gemini 3.1 Flash-Lite with Search grounding and URL context reads founder links and returns cited claims, which deterministic code then verifies |
 | 🐯 **Best Use of Tiger Data** · MLH | Tiger Postgres holds every profile, claim and round; valuation, score and traction history live in TimescaleDB hypertables; a real-time continuous aggregate (`project_metrics_1m`) feeds the metrics |
 | 👥 **Community** | Classmates back the people they already know, judged on evidence instead of pedigree or a warm VC intro |
-| 🌐 **Best .Tech Domain Name** · MLH | A static-export site that moves to a permanent `.tech` home with no server to migrate |
+| 🌐 **Best .Tech Domain Name** · MLH | Live at [prospectofunds.tech](https://prospectofunds.tech/), a static-export site on a permanent `.tech` home with no server to migrate |
 | 🏆 **General** | A full primary market, from evidence to valuation to round to receipt, built in a weekend |
 
 ## The problem
