@@ -55,7 +55,7 @@
 @media (prefers-reduced-motion:reduce){
 .S .bar i{animation:none}
 }
-/* /round/ embeds the landing terminal (.L styles) inside a subpage. */
+/* Investor company views embed the landing terminal (.L styles) inside a subpage. */
 .S-round .page{max-width:1360px}
 .S .founders{padding-left:0;padding-right:0;max-width:none}
 .S .round-term{background:transparent;font-size:16px;overflow:visible}

@@ -25,11 +25,11 @@ export default function HowPage() {
           <div className="step"><span className="no">No. 5</span><h3>Settle</h3><p>A commitment moves payment atomically. Allocation is computed at close, receipts are minted exactly once, and excess is refunded.</p><span className="stamp">&rarr; Auditable settlement</span></div>
         </div>
         <section className="classifieds" aria-labelledby="who">
-          <div className="sec-head"><h2 id="who">Classifieds <i>&mdash; who it’s for</i></h2><span className="kicker">Fictional listings</span></div>
+          <div className="sec-head"><h2 id="who">Classifieds <i>&mdash; who it’s for</i></h2><span className="kicker">Public-source demo profiles</span></div>
           <div className="ads" data-scroll-reveal="stagger">
-            <div className="ad"><span className="what">Wanted: first believers</span><p>Two sophomores, one napkin sketch, a waitlist of 40. No code yet. We want the people who’ll say they were here first.</p><span className="meta">MOTH · IDEA · $0.10 / unit</span></div>
-            <div className="ad"><span className="what">For issue: 100,000 units</span><p>Soil sensor prototype, tested on three farms near Pittsboro. Unincorporated, and our profile says so up front.</p><span className="meta">TIDE · PROTOTYPE · $0.56 / unit</span></div>
-            <div className="ad"><span className="what">Seeking: pre-revenue fans</span><p>Note-taking app with 1,200 weekly users across four campuses. Launched, honest about our burn, and closing Friday.</p><span className="meta">QUIL · LAUNCHED · $1.13 / unit</span></div>
+            <div className="ad"><span className="what">Practice the hard conversation</span><p>Quippy turns the conversations people avoid into short, adaptive daily practice by voice or text.</p><span className="meta">QPY · LAUNCHED · $0.65 / unit</span></div>
+            <div className="ad"><span className="what">Electrify regional flight</span><p>Heart Aerospace is developing hybrid-electric aircraft, with public evidence supporting a prototype-stage profile.</p><span className="meta">HEART · PROTOTYPE · $0.52 / unit</span></div>
+            <div className="ad"><span className="what">Edit without the timeline</span><p>Vyra turns uploaded footage and a plain-language direction into a polished first cut.</p><span className="meta">VYRA · LAUNCHED · $0.69 / unit</span></div>
           </div>
         </section>
         <div className="foot"><Link href={routes.desk}>Try the Estimate Desk →</Link><Link href={routes.list}>List your company →</Link></div>

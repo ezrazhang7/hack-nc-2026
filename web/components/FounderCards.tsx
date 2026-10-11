@@ -7,7 +7,7 @@ import type { Founder } from "@/lib/fixtures";
  * "Meet the founders": one paper calling card per founder, fanned on the page.
  * Connect is networking, not investing: a plain link to the founder's own LinkedIn profile in a new tab.
  *  - founder-entered link (already normalized to linkedin.com/in/…): opens that profile;
- *  - demo fixture founder: opens LinkedIn's home page, labeled as a demo;
+ *  - demo founder without a public profile link: opens LinkedIn's home page, labeled as a demo;
  *  - real founder with no link yet: disabled.
  */
 
@@ -146,7 +146,7 @@ export default function FounderCards({ company, founders, demo }: { company: str
       </div>
       <div className="fnote">
         <span>Connecting is networking, not investing. Prospecto never messages anyone for you, and a LinkedIn link is not identity verification.</span>
-        {demo && <span>These founders are fictional demo fixtures.</span>}
+        {demo && <span>Public-source demo profiles; the companies and founders are not affiliated with Prospecto.</span>}
       </div>
     </section>
   );

@@ -1,5 +1,5 @@
-// Fictional companies for the landing page's illustrated story, and the news desk. Live pages
-// (/rounds, /round, /project) read the API instead (lib/api.ts).
+// Source-backed demo companies for the landing page's illustrated story and news desk. Live pages
+// read the API instead (lib/api.ts); source notes live in docs/DEMO_COMPANY_CATALOG.md.
 import type { Stage } from "@/lib/api";
 
 export type { Stage };
@@ -23,60 +23,36 @@ export type Round = {
 };
 
 export const ROUNDS: Round[] = [
-  { t: "MOTH", n: "Mothlight", s: "IDEA", e: "Unincorporated", city: "Chapel Hill", p: 0.1, sub: 38, d: 9, h: "Mothlight wants to find you a quiet room at 2 a.m.", dek: "Two sophomores, a napkin sketch and a waitlist of 40. No code yet.", b: 132 },
-  { t: "FERN", n: "Fernhill Robotics", s: "EARLY_REVENUE", e: "Incorporated", city: "Raleigh", p: 2.36, sub: 61, d: 12, h: "The $900 robot weeding 31 small farms", dek: "Started as an NC State senior design project.", b: 214 },
-  { t: "QUIL", n: "Quillnote", s: "LAUNCHED", e: "Incorporated", city: "Durham", p: 1.13, sub: 91, d: 2, h: "Quillnote’s notes app reaches four campuses", dek: "1,200 weekly users. Closing Friday.", b: 317 },
-  { t: "TIDE", n: "Tidewater Sensors", s: "PROTOTYPE", e: "Unincorporated", city: "Pittsboro", p: 0.56, sub: 54, d: 15, h: "Soil sensors, tested on three farms", dek: "A working prototype and an honest label.", b: 188 },
-  { t: "DORM", n: "Dormfold", s: "IDEA", e: "Unincorporated", city: "Chapel Hill", p: 0.09, sub: 12, d: 20, h: "Your laundry, folded by Tuesday", dek: "Just opened. Looking for its first 50 backers.", b: 42 },
-  { t: "BRKT", n: "Bracket Bio", s: "PROTOTYPE", e: "Incorporated", city: "Durham", p: 0.47, sub: 27, d: 18, h: "A $40 test strip for lab benches", dek: "Two grad students, one bench prototype.", b: 94 },
-  { t: "ORCH", n: "Orchard OS", s: "LAUNCHED", e: "Incorporated", city: "Greensboro", p: 0.97, sub: 66, d: 7, h: "Scheduling software for small orchards", dek: "Live with nine growers this season.", b: 230 },
-  { t: "KILN", n: "Kiln Labs", s: "REPEATABLE_REVENUE", e: "Incorporated", city: "Charlotte", p: 5.25, sub: 100, d: 0, h: "Kiln Labs’ round is full", dek: "Follow for the next one.", b: 348 },
+  { t: "QPY", n: "Quippy", s: "LAUNCHED", e: "Incorporated", city: "San Francisco", p: 0.652658, sub: 72, d: 10, h: "Daily practice for the conversations that matter most", dek: "Adaptive voice and text practice with line-by-line feedback.", b: 238 },
+  { t: "HEART", n: "Heart Aerospace", s: "PROTOTYPE", e: "Incorporated", city: "Los Angeles", p: 0.519676, sub: 96, d: 3, h: "Electrifying regional air travel", dek: "Hybrid-electric aircraft development backed by public prototype evidence.", b: 441 },
+  { t: "ELMT", n: "Elimentary", s: "LAUNCHED", e: "Incorporated", city: "New York City", p: 0.670384, sub: 81, d: 8, h: "AI agents for private-capital operations", dek: "Loan tapes, covenants and waterfalls turned into decision-ready data.", b: 196 },
+  { t: "SNTR", n: "Sinter", s: "PROTOTYPE", e: "Incorporated", city: "El Segundo", p: 0.559998, sub: 63, d: 9, h: "A faster plastics pipeline", dek: "Online quoting and an in-house path from prototype to production.", b: 154 },
+  { t: "PAPY", n: "Papaya", s: "LAUNCHED", e: "Incorporated", city: "San Francisco", p: 0.670384, sub: 88, d: 6, h: "Continuous optimization for AI agents", dek: "Production traces become ranked quality, latency and cost fixes.", b: 287 },
+  { t: "VYRA", n: "Vyra", s: "LAUNCHED", e: "Incorporated", city: "San Francisco", p: 0.692735, sub: 93, d: 4, h: "Autonomous video editing for non-editors", dek: "Upload footage, describe the edit and export a finished draft.", b: 364 },
+  { t: "MEMO", n: "Memorable", s: "LAUNCHED", e: "Incorporated", city: "San Francisco", p: 0.658113, sub: 69, d: 11, h: "Procedural memory for AI agents", dek: "Successful traces become reusable graph-based workflows.", b: 173 },
+  { t: "LINK", n: "LinkLane", s: "LAUNCHED", e: "Incorporated", city: "San Francisco", p: 0.702763, sub: 76, d: 7, h: "AI-powered freight brokerage in seconds", dek: "Quote, book and track loads through one automated workflow.", b: 219 },
 ];
 
-// Fictional founders for the fixture companies. Their Connect buttons open LinkedIn's home page, not a person.
+// Public founder names and profile links from the catalog sources.
 const FOUNDERS: Record<string, Founder[]> = {
-  MOTH: [
-    { n: "Jonah Mercer", r: "Co-founder · product", s: "UNC Chapel Hill · Computer Science ’28", asks: ["Dorm RAs who’ll pilot a room finder", "A designer for the first app screens"] },
-    { n: "Tess Okafor", r: "Co-founder · research", s: "UNC Chapel Hill · Information Science ’28", asks: ["Students who study after midnight, for interviews", "Facilities staff who know which rooms sit empty"] },
-  ],
-  FERN: [
-    { n: "Priya Raman", r: "Chief executive", s: "NC State · Mechanical Engineering ’26", asks: ["Two vegetable farms for a spring pilot", "Intros to NC ag-equipment dealers"] },
-    { n: "Marcus Odom", r: "Hardware & firmware", s: "NC State · Electrical Engineering ’25", asks: ["A battery supplier who sells small batches", "Embedded engineers for a summer sprint"] },
-    { n: "Lena Hartwell", r: "Field operations", s: "Grew up on a sweet-potato farm in Johnston County", asks: ["Grant writers who know USDA SBIR", "Farmers willing to be brutally honest"] },
-  ],
-  QUIL: [
-    { n: "Dev Kapoor", r: "Chief executive", s: "Duke · Computer Science ’26", asks: ["Campus ambassadors at App State and UNC Charlotte", "A mentor who has sold to universities"] },
-    { n: "Hana Liu", r: "Design & growth", s: "Duke · Visual Media Studies ’26", asks: ["Professors willing to share lecture notes", "Student-org leaders for a semester trial"] },
-  ],
-  TIDE: [
-    { n: "Samuel Brooks", r: "Founder", s: "NC State · Biological & Agricultural Engineering ’27", asks: ["Farms willing to host a sensor for a season", "Someone who knows LoRa radios"] },
-    { n: "Ivy Chen", r: "Hardware", s: "NC State · Electrical Engineering ’27", asks: ["An enclosure that survives a tractor", "PCB assembly in small runs"] },
-  ],
-  DORM: [
-    { n: "Malik Grant", r: "Founder", s: "UNC Chapel Hill · Business ’27", asks: ["Dorms with a spare laundry room", "Your first fifty laundry bags"] },
-  ],
-  BRKT: [
-    { n: "Nadia Petrova", r: "Co-founder · biology", s: "Duke · PhD candidate, Biomedical Engineering", asks: ["Lab managers to test a bench prototype", "Advice on research-use-only labeling"] },
-    { n: "Owen Fisher", r: "Co-founder · chemistry", s: "Duke · PhD candidate, Chemistry", asks: ["Reagent suppliers with small minimums", "A first wet-lab customer"] },
-  ],
-  ORCH: [
-    { n: "Rosa Delgado", r: "Chief executive", s: "UNC Greensboro · Computer Science ’25", asks: ["Blue Ridge orchards for next season", "Intros to NC apple-grower groups"] },
-    { n: "Ben Whitaker", r: "Field lead", s: "Grew up on an apple orchard in Henderson County", asks: ["Growers tired of spreadsheets", "People who schedule seasonal crews"] },
-  ],
-  KILN: [
-    { n: "Grace Adeyemi", r: "Chief executive", s: "Davidson College · Economics ’24", asks: ["Operators who have scaled past fifty people", "Charlotte-area hiring partners"] },
-    { n: "Theo Lambert", r: "Chief technology officer", s: "UNC Charlotte · Computer Engineering ’24", asks: ["Senior engineers who want an early seat"] },
-  ],
+  QPY: [{ n: "Jonathan Li", r: "Founder/CEO", s: "Product leader behind Quippy", li: "https://www.linkedin.com/in/12lijonathan" }],
+  HEART: [{ n: "Anders Forslund", r: "Founder/CEO", s: "Aerospace designer", li: "https://www.linkedin.com/in/anders-forslund" }],
+  ELMT: [{ n: "Yogesh Gorjilla", r: "Founder/CEO", li: "https://www.linkedin.com/in/yogeshgorjilla" }, { n: "Mannat Saini", r: "Founder/CTO" }, { n: "Manoj Sarda", r: "Founder/COO", li: "https://www.linkedin.com/in/manojsarda" }],
+  SNTR: [{ n: "Oliver Johnson", r: "Founder/CEO" }, { n: "Justin Kwon", r: "Founder/COO", li: "https://www.linkedin.com/in/jkwonn" }],
+  PAPY: [{ n: "Macy Mody", r: "Founder/CEO", li: "https://www.linkedin.com/in/macy-berg" }, { n: "Niyaz Puzhikkunnath", r: "Founder/CPO", li: "https://www.linkedin.com/in/niyazpk" }, { n: "Faiz Vadakkumpadath", r: "Founder", li: "https://www.linkedin.com/in/vpfaiz" }],
+  VYRA: [{ n: "Caleb Pong", r: "Founder", li: "https://www.linkedin.com/in/cjpong" }, { n: "Sulan Zhang", r: "Founder", li: "https://www.linkedin.com/in/sulan-zhang" }],
+  MEMO: [{ n: "Nikhil Krishnaswamy", r: "Founder/CEO", li: "https://www.linkedin.com/in/nikhil-krishnaswamy" }, { n: "Advaiyt Sane", r: "Founder/CTO" }],
+  LINK: [{ n: "Christopher Ruaño", r: "Founder/CEO" }, { n: "Patryk Wekwejt", r: "Founder/COO" }],
 };
 ROUNDS.forEach((r) => { r.f = FOUNDERS[r.t]; });
 
 export type Post = { sec: "Explainer" | "Round report" | "Guide" | "Dispatch"; h: string; dek: string; date: string; min: number; body: string; co: [label: string, href: string] };
 
 export const POSTS: Post[] = [
-  { sec: "Explainer", h: "What you actually own when you back an idea", dek: "Participation receipts, mock USDC, and what they don’t give you.", date: "Oct 10, 2026", min: 6, body: "Committing $100 to Mothlight moves $100 of mock USDC into its round. Receipt units are minted once, when the round closes. A receipt records that you backed them early. It carries no ownership, cash value or dividends, and it can’t be transferred.", co: ["Mothlight", "/invest/?ticker=MOTH"] },
-  { sec: "Round report", h: "Fernhill Robotics passes 60% with 12 days to go", dek: "214 backers, $144,904 in demo credits, and the price hasn’t moved a cent.", date: "Oct 9, 2026", min: 3, body: "The weeding-robot company opened at a fixed, model-set price. 61% of the round is committed. The price stays fixed until the round closes.", co: ["Fernhill", "/invest/?slug=fernhill-robotics"] },
+  { sec: "Explainer", h: "What you actually own when you back an idea", dek: "Participation receipts, mock USDC, and what they don’t give you.", date: "Oct 10, 2026", min: 6, body: "A primary commitment moves mock USDC into an issuance. Receipt units are minted once at settlement. They record participation but carry no ownership, cash value or dividends, and cannot be transferred.", co: ["Quippy", "/invest/?ticker=QPY"] },
+  { sec: "Round report", h: "Heart Aerospace passes 95%", dek: "The fixed model price stays separate from the simulated market.", date: "Oct 9, 2026", min: 3, body: "Heart’s public prototype evidence supports its stage. Its published primary price remains fixed while simulated play-credit activity moves independently.", co: ["Heart Aerospace", "/invest/?ticker=HEART"] },
   { sec: "Guide", h: "How to price a company that’s still a napkin sketch", dek: "Walking through valuation-v0.1, one factor at a time.", date: "Oct 7, 2026", min: 9, body: "Five factors, weighted by stage, tilt the odds of four outcomes. Missing evidence starts at a neutral 0.50, never at zero.", co: ["the Estimate Desk", "/desk/"] },
-  { sec: "Dispatch", h: "“We interviewed 40 students. Here’s what they said.”", dek: "Mothlight’s first founder update since opening its round.", date: "Oct 6, 2026", min: 4, body: "Thirty-one of forty said they’d leave the library before 2 a.m. if they could find an empty room. Next: a waitlist test at two dorms.", co: ["Mothlight", "/invest/?ticker=MOTH"] },
-  { sec: "Round report", h: "Kiln Labs’ round fills in nine days", dek: "The first Growth-stage round on Prospecto is fully committed.", date: "Oct 6, 2026", min: 2, body: "Every unit on offer is committed. Existing holdings stay exactly as they are; the round simply stops accepting purchases.", co: ["Explore companies", "/invest/"] },
+  { sec: "Dispatch", h: "Quippy turns awkward conversations into daily practice", dek: "A source-backed walkthrough of the QPY demo listing.", date: "Oct 6, 2026", min: 4, body: "The product is live on iOS and Android, with adaptive practice by voice or text and line-by-line feedback. The public evidence is visible beside the model price.", co: ["Quippy", "/invest/?ticker=QPY"] },
+  { sec: "Round report", h: "Vyra reaches 76,438 creators", dek: "Public usage evidence moves the score; YC membership does not.", date: "Oct 6, 2026", min: 2, body: "Vyra’s website publishes a creator count and a live product with public pricing. Those facts fit the model vocabulary; investor prestige does not.", co: ["Vyra", "/invest/?ticker=VYRA"] },
   { sec: "Explainer", h: "Why a fixed price is a feature, not a bug", dek: "No order book, no resale: what primary issuance means for backers.", date: "Oct 4, 2026", min: 5, body: "Every unit comes straight from the startup at the price the founder published. Nobody can bid it up or sell it to you second-hand.", co: ["Explore companies", "/invest/"] },
 ];

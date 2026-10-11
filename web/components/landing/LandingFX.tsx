@@ -28,14 +28,14 @@ export default function LandingFX() {
 
     /* ── fixtures priced with the demo formula ── */
     const CO = ([
-      { t: "MOTH", n: "MOTHLIGHT", s: "IDEA", score: 52, sub: 38 },
-      { t: "DORM", n: "DORMFOLD", s: "IDEA", score: 38, sub: 12 },
-      { t: "TIDE", n: "TIDEWATER SENSORS", s: "PROTOTYPE", score: 61, sub: 54 },
-      { t: "BRKT", n: "BRACKET BIO", s: "PROTOTYPE", score: 44, sub: 27 },
-      { t: "QUIL", n: "QUILLNOTE", s: "LAUNCHED", score: 63, sub: 91 },
-      { t: "ORCH", n: "ORCHARD OS", s: "LAUNCHED", score: 47, sub: 66 },
-      { t: "FERN", n: "FERNHILL ROBOTICS", s: "REVENUE", score: 68, sub: 61 },
-      { t: "KILN", n: "KILN LABS", s: "GROWTH", score: 55, sub: 100 },
+      { t: "QPY", n: "QUIPPY", s: "LAUNCHED", score: 56, sub: 72 },
+      { t: "HEART", n: "HEART AEROSPACE", s: "PROTOTYPE", score: 52, sub: 96 },
+      { t: "ELMT", n: "ELIMENTARY", s: "LAUNCHED", score: 57, sub: 81 },
+      { t: "SNTR", n: "SINTER", s: "PROTOTYPE", score: 55, sub: 63 },
+      { t: "PAPY", n: "PAPAYA", s: "LAUNCHED", score: 57, sub: 88 },
+      { t: "VYRA", n: "VYRA", s: "LAUNCHED", score: 59, sub: 93 },
+      { t: "MEMO", n: "MEMORABLE", s: "LAUNCHED", score: 56, sub: 69 },
+      { t: "LINK", n: "LINKLANE", s: "LAUNCHED", score: 59, sub: 76 },
     ] as { t: string; n: string; s: Stage; score: number; sub: number }[])
       .map((c) => ({ ...c, p: Math.round((ANCHOR[c.s] * (0.5 + c.score / 100)) / 1e6 * 100) / 100 }));
 

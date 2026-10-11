@@ -1,23 +1,25 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import LaunchPipeline, { type LaunchDraft } from "@/components/LaunchPipeline";
 import { STAGE_LABEL, STAGES } from "@/lib/api";
+import { QUIPPY_DEMO_ANSWERS } from "@/lib/demo-listing";
+import { investHref } from "@/lib/routes";
 
 type Field = { k: string; l?: string; ph: string; type?: string; area?: boolean };
 type Step = { k: string; sec: string; q: [string, string]; fields?: Field[]; opts?: string[]; hint?: string; req?: boolean; when?: (d: Data) => boolean };
 
 // Answers map one-to-one onto POST /api/projects and the research run (docs/BACKEND_STACK.md §7).
 const STEPS: Step[] = [
-  { k: "name", sec: "Identity", q: ["What’s it", "called?"], fields: [{ k: "name", ph: "Mothlight" }], hint: "A working title is fine.", req: true },
-  { k: "line", sec: "Identity", q: ["Say it in", "one line."], fields: [{ k: "line", ph: "Quiet study rooms at 2 a.m." }], req: true },
+  { k: "name", sec: "Identity", q: ["What’s it", "called?"], fields: [{ k: "name", ph: "Your company" }], hint: "A working title is fine.", req: true },
+  { k: "line", sec: "Identity", q: ["Say it in", "one line."], fields: [{ k: "line", ph: "What do you make, and for whom?" }], req: true },
   { k: "stage", sec: "Stage", q: ["How far", "along is it?"], opts: STAGES.map((s) => STAGE_LABEL[s]), hint: "We price on the stage your evidence supports.", req: true },
   { k: "entity", sec: "Stage", q: ["Is it", "incorporated?"], opts: ["Unincorporated", "Incorporated"], hint: "Either is fine. We label it honestly.", req: true },
-  { k: "legal", sec: "Stage", q: ["What’s the", "legal name?"], fields: [{ k: "legal", l: "Legal name", ph: "Mothlight, Inc." }, { k: "state", l: "State of formation", ph: "NC" }], when: (d) => d.entity === "Incorporated" },
-  { k: "site", sec: "Web", q: ["Where can backers", "see it?"], fields: [{ k: "site", ph: "https://mothlight.app", type: "url" }], hint: "No site? A Notion, Figma or demo link works." },
+  { k: "legal", sec: "Stage", q: ["What’s the", "legal name?"], fields: [{ k: "legal", l: "Legal name", ph: "Your Company, Inc." }, { k: "state", l: "State of formation", ph: "NC" }], when: (d) => d.entity === "Incorporated" },
+  { k: "site", sec: "Web", q: ["Where can backers", "see it?"], fields: [{ k: "site", ph: "https://yourcompany.com", type: "url" }], hint: "No site? A Notion, Figma or demo link works." },
   { k: "founder", sec: "Founders", q: ["Who’s", "building it?"], fields: [{ k: "fname", l: "Name", ph: "Ana Ruiz" }, { k: "role", l: "Role", ph: "CEO" }], req: true },
   { k: "proof", sec: "Evidence", q: ["What have you", "shown so far?"], fields: [{ k: "proof", l: "In your own words", ph: "40 student interviews, 120 on the waitlist, beta live since May…", area: true }, { k: "links", l: "Links · one per line", ph: "https://github.com/…", area: true }], hint: "Numbers help. We check what we can against public sources." },
-  { k: "contact", sec: "Contact", q: ["Show your email", "on the profile?"], opts: ["Publish it", "Keep it private"], req: true },
 ];
 
 type Data = Record<string, string>;
@@ -34,12 +36,12 @@ const toDraft = (d: Data): LaunchDraft => {
     legalName: incorporated ? text(d.legal) : null, formationState: incorporated ? text(d.state)?.toUpperCase() ?? null : null,
     website: text(d.site), founderName: d.fname.trim(), founderRole: text(d.role),
     founderText: text(d.proof), links: (d.links ?? "").split(/\s+/).filter(Boolean).slice(0, 10),
-    publishContact: d.contact !== "Keep it private",
   };
 };
 
-export default function LaunchInterview() {
-  const [data, setData] = useState<Data>({});
+export default function LaunchInterview({ demo = false }: { demo?: boolean }) {
+  const router = useRouter();
+  const [data, setData] = useState<Data>(() => demo ? { ...QUIPPY_DEMO_ANSWERS } : {});
   const [cur, setCur] = useState(0);
   const [phase, setPhase] = useState<"" | "out" | "in">("");
   const [err, setErr] = useState("");
@@ -52,12 +54,16 @@ export default function LaunchInterview() {
   useEffect(() => { firstInput.current?.focus({ preventScroll: true }); }, [cur, done]);
   // Keep answers for this tab so signing in elsewhere and coming back does not lose them.
   useEffect(() => {
+    if (demo) return;
     try {
       const saved = JSON.parse(sessionStorage.getItem(ANSWERS) ?? "null");
       if (saved && typeof saved.data === "object") { setData(saved.data); setDone(saved.done === true); }
     } catch { /* ignore */ }
-  }, []);
-  useEffect(() => { try { sessionStorage.setItem(ANSWERS, JSON.stringify({ data, done })); } catch { /* private mode */ } }, [data, done]);
+  }, [demo]);
+  useEffect(() => {
+    if (demo) return;
+    try { sessionStorage.setItem(ANSWERS, JSON.stringify({ data, done })); } catch { /* private mode */ }
+  }, [data, demo, done]);
 
   // Slide the question out, swap, slide the next one in.
   const go = (i: number) => {
@@ -75,7 +81,9 @@ export default function LaunchInterview() {
     if (!skip && step.k === "legal" && d.state && !/^[A-Za-z]{2}$/.test(d.state.trim())) { setErr("Use the two-letter state code, like NC."); return; }
     if (!skip && step.k === "site" && d.site && !/^https?:\/\/\S+\.\S+/.test(d.site.trim())) { setErr("Use a full link starting with https://"); return; }
     const all = visible(d);
-    if (cur < all.length - 1) go(cur + 1); else setDone(true);
+    if (cur < all.length - 1) go(cur + 1);
+    else if (demo) router.replace(investHref("QPY"));
+    else setDone(true);
   };
   const pick = (v: string) => { const d = { ...data, [step.k]: v }; setData(d); next(d); };
 

@@ -52,10 +52,10 @@ A founder pastes links: a website, a GitHub repo, a short pitch. Prospecto resea
 | Step | Page | What to look at |
 | --- | --- | --- |
 | 1 | `/` | The front page. Move your cursor over the halftone hero to move the sun |
-| 2 | `/list/` | The founder interview: paste links, watch evidence research run, preview the valuation, publish |
+| 2 | `/list/demo/` | The presenter path: Quippy’s source-backed intake is prefilled; click through and land on `QPY` without creating a duplicate |
 | 3 | `/desk/` | The Estimate Desk: how each factor and the stage weights move the model value |
 | 4 | `/invest/` | Discover every listed company, its ticker, model anchor and simulated market |
-| 5 | `/invest/?ticker=MOTH` | One investor-facing company view: market, profile, evidence, valuation and the primary-issuance link |
+| 5 | `/invest/?ticker=QPY` | Quippy’s investor-facing view: market, profile, evidence, valuation and the primary-issuance link |
 | 6 | `/portfolio/` | Play-credit holdings, P&L and simulated fills kept in this browser |
 | 7 | `/wallet/` | Real-layer demo participation: prove a Phantom wallet, fund it through Nessie, sign a primary commitment and track allocation |
 | 8 | `/manage/` | Founder publication, receipt-token and primary-issuance controls |
@@ -148,7 +148,7 @@ docs/       Architecture, valuation, evidence research, purchase flow, legal pos
 
 ## Honest status
 
-- **Real:** evidence research, valuation, profiles, rounds and wallet binding run against the live database. The backend suite has 212 passing tests.
+- **Real:** evidence research, valuation, profiles, rounds and wallet binding run against the live database. The backend suite has 229 passing tests.
 - **Seeded:** `db:seed` opens the demo companies' rounds and writes their committed totals directly. They fill the board; they are not real subscriptions.
 - **Built, not yet live:** the Anchor program, Token-2022 receipts and the Nessie funding saga are implemented and pass their tests, including the documented golden cases and non-transferability. They wait on operator setup: Devnet deploy, mock-USDC mint, a verified Nessie sandbox. Until then purchases stay disabled and `/wallet/` shows a setup notice.
 - **Planned for the demo:** a clearly labeled *simulated session*, a seeded bonding-curve market in play credits that reads the real price but never writes to it ([DEMO_UI_PLAN](docs/DEMO_UI_PLAN.md)).
@@ -158,7 +158,7 @@ docs/       Architecture, valuation, evidence research, purchase flow, legal pos
 
 ## Docs
 
-[Market architecture](docs/MARKET%20ARCHITECTURE.md) · [Backend stack](docs/BACKEND_STACK.md) · [Evidence research](docs/EVIDENCE_RESEARCH.md) · [Nessie purchase flow](docs/NESSIE_PURCHASE_FLOW.md) · [Demo UI plan](docs/DEMO_UI_PLAN.md) · [Purchase setup](docs/PURCHASE_SETUP.md) · [Legal posture](docs/LEGAL_POSTURE.md) · [Original mega plan](docs/MEGA_PLAN.md)
+[Market architecture](docs/MARKET%20ARCHITECTURE.md) · [Backend stack](docs/BACKEND_STACK.md) · [Demo company catalog](docs/DEMO_COMPANY_CATALOG.md) · [Evidence research](docs/EVIDENCE_RESEARCH.md) · [Nessie purchase flow](docs/NESSIE_PURCHASE_FLOW.md) · [Demo UI plan](docs/DEMO_UI_PLAN.md) · [Purchase setup](docs/PURCHASE_SETUP.md) · [Legal posture](docs/LEGAL_POSTURE.md) · [Original mega plan](docs/MEGA_PLAN.md)
 
 ---
 

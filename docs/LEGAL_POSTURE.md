@@ -76,11 +76,12 @@ Planned rules:
 
 ---
 
-## 4. Before real startups list (planned)
+## 4. Public-company demo profiles
 
-1. Today the public demo uses **fictional companies only** (the landing colophon says so).
-2. **Planned:** before a real startup puts its link and estimate on a live website, the link becomes a clearly labeled simulation (“Back us · demo”), or waits for a regulated route. A published estimate next to an invest link could count as solicitation for that startup's *future real* raise.
-3. If a judge asks “isn't this illegal?”, the answer is: *“It's a simulation with no money and no rights. We've mapped the regulated route, Reg CF through a registered partner portal, and the demo only shows fictional companies and simulated money.”*
+1. The demo uses public facts about real companies as **unaffiliated examples**. Those companies and founders did not create, approve or publish these profiles through Prospecto.
+2. Every price, balance, commitment and market move is simulated. The profiles are not live offerings, and no company receives money or creates rights through the demo.
+3. Before a real startup controls its own listing, the experience must remain clearly labeled as a simulation (“Back us · demo”) or wait for a regulated route. A founder-published estimate next to an invest link could count as solicitation for that startup's *future real* raise.
+4. If a judge asks “isn't this illegal?”, the answer is: *“It's an unaffiliated product simulation using public company facts. No money moves, no issuer is raising here, and no participant receives ownership or financial rights.”*
 
 ---
 

@@ -9,7 +9,7 @@ import {
 } from "@/lib/api";
 
 /*
- * /launch after the interview: the founder flow against the API (M§7.2).
+ * /list after the interview: the founder flow against the API (M§7.2).
  *   session check → POST /projects → research run (poll) → founder review → confirm →
  *   valuation preview (backend prices it) → publish.
  * The browser never computes a price. Progress is kept in sessionStorage so a refresh resumes the
@@ -19,7 +19,7 @@ import {
 export type LaunchDraft = {
   name: string; tagline: string; stage: Stage; entityType: "UNINCORPORATED" | "INCORPORATED";
   legalName: string | null; formationState: string | null; website: string | null;
-  founderName: string; founderRole: string | null; founderText: string | null; links: string[]; publishContact: boolean;
+  founderName: string; founderRole: string | null; founderText: string | null; links: string[];
 };
 
 type Phase = "session" | "create" | "research" | "review" | "pricing" | "priced" | "publishing" | "published" | "failed";
@@ -101,7 +101,7 @@ export default function LaunchPipeline({ draft, onEdit, onRetry }: { draft: Laun
         const { project } = await post<{ project: { id: string; slug: string; ticker: string } }>("/projects", {
           name: draft.name, tagline: draft.tagline, stage: draft.stage, entity_type: draft.entityType,
           legal_name: draft.legalName, formation_state: draft.formationState, website_url: draft.website,
-          publish_contact_email: draft.publishContact,
+          publish_contact_email: false,
           founder: { display_name: draft.founderName, role_title: draft.founderRole },
         }, saved.current.key);
         projectId = project.id; s = project.slug;

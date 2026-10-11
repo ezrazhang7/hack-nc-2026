@@ -380,7 +380,7 @@ P0 works without any new backend, so the spectacle can never be blocked by chain
 
 ## 11. Decisions for the team
 
-1. **Demo company:** pick the ticker and fictional profile (the brief uses `LUMA`), and seed its real evidence.
+1. **Demo company:** use the `QPY` Quippy presenter profile and its cited public evidence; label it as an unaffiliated simulation.
 2. **Demo-length rounds (B9),** or a real round seeded to close during the pitch.
 3. **The program owner and deadline:** this decides P2 (Devnet) or `OFF_CHAIN`.
 4. **Attribution method (B2):** fixed-order sequential (exact sum, order shown) versus Shapley.

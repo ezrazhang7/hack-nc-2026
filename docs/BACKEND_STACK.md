@@ -75,7 +75,7 @@ server/                       BACKEND
     banking/                  Nessie adapter + funding saga
   db/
     migrations/*.sql
-    seed.sql                  sectors, model_versions (valuation-v0.1), fictional projects
+    seed.sql                  sectors and model_versions (valuation-v0.1)
   tests/
 chain/                        ON-CHAIN
   Anchor.toml
@@ -294,7 +294,7 @@ Base `/api`, JSON, same-origin with the frontend: Vercel (deployed) or `next dev
 | POST `/wallets/verify` | session | `{address, signature(base58)}` → bind wallet (max 2 active per identity, enforced in the database). Built: ed25519 check, single-use nonce, first wallet is primary, `WALLET_TAKEN` / `WALLET_LIMIT` / `WALLET_NOT_VERIFIED` 409 |
 | POST `/funding` | session + wallet | Nessie-backed mock USDC funding (§9) |
 | GET `/projects` | none | Discovery list. Built: published projects only (open rounds first, max 100), each with listing fields, founders' names and titles, latest `valuation` (`effective_stage`, `unit_price_micro_usd`, `model_version_id`) and current `round` (same shape as the profile's) |
-| POST `/projects` | session + wallet | Create project, returns `create_project` tx to sign. **Demo (built):** session only, no wallet or tx yet; body `{name, tagline, stage, entity_type, legal_name?, formation_state?, website_url?, sector_code?, publish_contact_email, founder: {display_name, role_title?}}`; creates a DRAFT with a server-chosen slug; `Idempotency-Key` required; at most 5 per founder |
+| POST `/projects` | session + wallet | Create project, returns `create_project` tx to sign. **Demo (built):** session only, no wallet or tx yet; body `{name, tagline, stage, entity_type, legal_name?, formation_state?, website_url?, sector_code?, publish_contact_email?, founder: {display_name, role_title?}}`; contact publication defaults to false; creates a DRAFT with a server-chosen slug; `Idempotency-Key` required; at most 5 per founder |
 | POST `/projects/:id/publish` | founder | DRAFT → PUBLISHED (demo addition) |
 | GET `/projects/:slug` | none | Public profile + latest valuation + current round. Built: listing fields, founders' names and titles, the founder's campus email when `publish_contact_email`, latest valuation and scores, `valuation.explanation` (M§10.4: model status and factor weights, category scores × stage weights, sub-factor score/confidence/status without claim ids, metric codes or values, scenario probabilities, blend `alpha`, operating value inputs, demand adjustment), and the current non-draft `round` with `backers` (distinct confirmed subscribers); drafts and lookups by id only for editors (404 otherwise) |
 | GET/POST `/me/profile-snapshots`, DELETE `/me/profile-snapshots/:id` | session | Founder-pasted LinkedIn profile text (M§6.5); replace on re-save, erase on delete |
@@ -318,8 +318,8 @@ Base `/api`, JSON, same-origin with the frontend: Vercel (deployed) or `next dev
 
 **Conventions**
 - Every non-auth POST requires an `Idempotency-Key` header (8–128 chars) (M§11.2). Same key + same body hash returns the stored response; same key + different body returns `IDEMPOTENCY_CONFLICT`.
-- Session: Better Auth cookie `prospecto.session_token` (7 days; `Secure` outside localhost). Better Auth checks `Origin` against `PUBLIC_ORIGIN` on its own routes.
-- Non-GET requests MUST pass an `Origin` check against `PUBLIC_ORIGIN`.
+- Session: Better Auth cookie `prospecto.session_token` (7 days; `Secure` outside localhost). Better Auth checks `Origin` against `PUBLIC_ORIGIN` (plus any `TRUSTED_ORIGINS`) on its own routes.
+- Non-GET requests MUST pass an exact `Origin` check against `PUBLIC_ORIGIN` or a `TRUSTED_ORIGINS` entry.
 - Wallet challenge message (nonce single-use, 5 min):
   ```text
   Prospecto wants you to sign in with your Solana account:
@@ -410,6 +410,7 @@ Persist intent and reserve limits
 ```bash
 # .env.example: names only
 PUBLIC_ORIGIN=                 # browser-facing origin: http://localhost:3000 locally, the Vercel production domain when deployed
+TRUSTED_ORIGINS=               # optional, comma-separated extra exact origins (e.g. the *.vercel.app fallback)
 DATABASE_URL=                  # Tiger Data app connection (sslmode=require)
 MIGRATION_DATABASE_URL=        # owner connection for dbmate
 BETTER_AUTH_SECRET=            # 32+ random bytes; signs sessions and hashes stored codes
@@ -455,7 +456,7 @@ The browser always talks to one origin, so session cookies stay first-party and 
 
 **Vercel project** (one project, Vercel Services, currently beta): import the repo with the repository root as the project root, so the root `vercel.json` defines both services. The `api` service runs `backend/server.ts` (Hono, Node 24 from `engines`) as a Fluid compute function; the service receives the original `/api/...` path. Set the §12 variables in the project, with `PUBLIC_ORIGIN` = the production domain. Apply migrations from a laptop with `npm --prefix backend run db:migrate` before deploying code that needs them.
 
-Production: `https://hack-nc-2026.vercel.app` (project `hack-nc-2026`, deployed with `vercel deploy --prod`; the repo is not Git-connected, and `.vercelignore` keeps local `.env*` files out of uploads). Environment variables are pushed with `vercel env add`, not pulled. The `api` service installs runtime dependencies only (`npm ci --omit=dev`): Vercel's backend builder type-checks with the project's `typescript` when present, and TypeScript 7 has no JavaScript API, so that check crashed the build. `npm run typecheck` still runs locally.
+Production: `https://prospectofunds.tech` (`PUBLIC_ORIGIN`; `www` redirects to the apex), with `https://hack-nc-2026.vercel.app` kept working as a fallback via `TRUSTED_ORIGINS` (project `hack-nc-2026`, deployed with `vercel deploy --prod`; the repo is not Git-connected, and `.vercelignore` keeps local `.env*` files out of uploads). Environment variables are pushed with `vercel env add`, not pulled. The `api` service installs runtime dependencies only (`npm ci --omit=dev`): Vercel's backend builder type-checks with the project's `typescript` when present, and TypeScript 7 has no JavaScript API, so that check crashed the build. `npm run typecheck` still runs locally.
 
 **Serverless limits and how the code handles them:**
 
@@ -467,12 +468,12 @@ Production: `https://hack-nc-2026.vercel.app` (project `hack-nc-2026`, deployed 
 
 **Demo sign-in (DEMO_MODE=true only):** `POST /api/demo/sign-in { email? }` signs in without sending a code (Better Auth `createVerificationOTP` + `signInEmailOTP` server-side, same-origin only). Any input works: a well-formed email is used as typed, other text maps to a stable guest address under `guest.prospecto.invalid` (same text, same account), and blank input creates a new guest. The launch flow starts a guest session automatically, so founders get the researched report without signing up. Guest addresses are never published as a project contact. `CAMPUS_EMAIL_DOMAINS=*` (the demo setting) accepts any email domain; a domain list restores campus-only sign-in. The identity is still recorded as `VERIFIED`, which under `DEMO_MODE` means only "signed in"; `/api/me` returns `demoMode: true` so the UI can say so. Production replacement: the emailed-code flow with `DEMO_MODE=false` and a campus domain list.
 
-**Demo seed:** `npm --prefix backend run db:seed` (idempotent; `-- --dry-run` prints prices without writing) creates the fictional demo companies in `backend/scripts/demo-seed.ts`: founder identities on reserved `example.edu` addresses (never signed in, `NOT_STARTED`), evidence claims with assigned statuses, a valuation from the ACTIVE model (prices are model output, never typed), and one round each. Seeded rounds are inserted `OPEN`/`FILLED` with no Round PDA and a seeded `total_committed_micro_usd` instead of subscription rows; production rounds leave DRAFT only via the indexer. By product decision (2026-10-10) the UI does not label seeded companies or progress. Round terms are frozen, so seeded close dates are fixed at seed time.
+**Demo seed:** `npm --prefix backend run db:seed` (idempotent; `-- --dry-run` prints prices without writing) creates the source-backed public demo companies listed in [DEMO_COMPANY_CATALOG.md](DEMO_COMPANY_CATALOG.md): seed-only founder identities on reserved `example.edu` addresses (never signed in, `NOT_STARTED`), curated public evidence claims with assigned statuses, a valuation from the ACTIVE model (prices are model output, never typed), and one round each. A rerun archives only the known legacy fictional fixtures; it never deletes them or touches user-created projects. Seeded rounds are inserted `OPEN`/`FILLED` with no Round PDA and a seeded `total_committed_micro_usd` instead of subscription rows; production rounds leave DRAFT only via the indexer. Round terms are frozen, so seeded close dates are fixed at seed time.
 
 **First-deploy checks** (behaviors that could not be verified locally):
 
 1. `curl -i https://<vercel-domain>/api/health` returns `200` JSON with `cache-control: no-store`, and `/` serves the landing page.
-2. Demo sign-in followed by `GET /api/me` works on the production domain. Preview deployment URLs do not match `PUBLIC_ORIGIN`, so sign-in is expected to fail there.
+2. Demo sign-in followed by `GET /api/me` works on the production domain. Preview deployment URLs match neither `PUBLIC_ORIGIN` nor `TRUSTED_ORIGINS`, so sign-in is expected to fail there.
 3. A research run reaches a terminal status (`SUCCEEDED`, `PARTIAL`, or `FAILED`) within about 5 minutes.
 4. Client IP for rate limiting: if the logs show "Rate limiting could not determine a client IP", every user shares one bucket (30 requests/minute per path); set `advanced.ipAddress` for the headers actually observed.
 

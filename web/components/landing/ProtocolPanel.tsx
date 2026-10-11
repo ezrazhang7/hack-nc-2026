@@ -118,12 +118,13 @@ export default function ProtocolPanel() {
           <li>Already true: receipts never convert into equity. Prospecto is not a registered portal. A Nessie profile is not KYC.</li>
         </ul>
 
-        <h3>IV. Before real startups list <span>· planned</span></h3>
+        <h3>IV. Public-company demo profiles</h3>
         <ol>
-          <li>Today the public demo uses <b>fictional companies only</b>, so no real issuer is advertising a raise.</li>
-          <li><b>Planned:</b> before a real startup puts its link and estimate on a live website, the link becomes a clearly labeled simulation (“Back us · demo”), or waits for a regulated route. A published estimate next to an invest link could count as solicitation for that startup’s future real raise.</li>
+          <li>The demo uses public facts about real companies as <b>unaffiliated examples</b>. The companies and founders did not create or approve these profiles through Prospecto.</li>
+          <li>Every price, balance, commitment and market move is simulated. No issuer receives money or creates rights through this demo.</li>
+          <li>Before a startup controls its own listing, the experience remains clearly labeled as a simulation or waits for a regulated route.</li>
         </ol>
-        <blockquote className="protocol-quote">“It’s a simulation with no money and no rights. We’ve mapped the regulated route, Reg CF through a registered partner portal, and the demo only shows fictional companies and simulated money.”</blockquote>
+        <blockquote className="protocol-quote">“It’s an unaffiliated product simulation using public company facts. No money moves, no issuer is raising here, and no participant receives ownership or financial rights.”</blockquote>
 
         <h3>V. Path to a real version <span>· roadmap, not current behavior</span></h3>
         <table>

@@ -113,8 +113,8 @@ export default function EstimateDesk() {
         <div className="advert">
           <span className="kicker">Advertisement · for your website</span>
           <h3>Paste one line.<br />Meet your first backers.</h3>
-          <code>&lt;a href=<span className="t">&quot;https://prospecto.finance/i/mothlight&quot;</span>&gt;Invest in us &rarr;&lt;/a&gt;</code>
-          <Link className="invest-link" href={investHref("MOTH")}>Invest in Mothlight <b>&rarr;</b></Link>
+          <code>&lt;a href=<span className="t">&quot;https://prospecto.finance/invest/?ticker=QPY&quot;</span>&gt;Invest in us &rarr;&lt;/a&gt;</code>
+          <Link className="invest-link" href={investHref("QPY")}>Invest in Quippy <b>&rarr;</b></Link>
         </div>
       </div>
     </section>

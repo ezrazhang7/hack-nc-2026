@@ -1,4 +1,4 @@
-/* /project/ startup profile and price explanation, scoped under .S-project. */
+/* Investor-facing company profile and price explanation, scoped under .S-project. */
 .S-project .lede{display:grid;grid-template-columns:7fr 4fr;gap:40px;border-top:1px solid var(--ink);padding-top:22px}
 .S-project .lede > *{min-width:0}
 .S-project .lede h2{font-weight:500;font-size:clamp(28px,3vw,40px);line-height:1.08;letter-spacing:-.015em}

@@ -1,10 +1,10 @@
-// Seeds the demo market (BACKEND_STACK §12.3): fictional campus startups, their evidence claims,
+// Seeds the demo market (BACKEND_STACK §12.3): source-backed public startup profiles, evidence claims,
 // valuations computed by the ACTIVE model, and one round each.
 //   npm run db:seed              # writes to DATABASE_URL (idempotent; re-runs skip existing rows)
 //   npm run db:seed -- --dry-run # prints each company's model price without touching the database
 //
 // DEMO SHORTCUTS (documented, not shown in the UI by product decision 2026-10-10):
-//  - Founders are fictional; their identities use reserved example.edu addresses, never sign in,
+//  - Founder names come from public YC profiles; seed-only identities use reserved example.edu addresses, never sign in,
 //    and stay verification_status = NOT_STARTED.
 //  - Claim statuses are assigned here instead of by research/verification.
 //  - Rounds are inserted already OPEN/FILLED without an on-chain Round PDA, and
@@ -24,7 +24,7 @@ import { DEFAULT_MODEL_VERSION_ID, modelDocument, previewValuation } from "../sr
 import { ROUND_POLICY } from "../src/rounds/policy.js";
 
 type Source = "FOUNDER_STATEMENT" | "DOCUMENT" | "LINK" | "INTEGRATION";
-type Claim = [metric: string, value: string, status: ClaimStatus, source: Source, subject?: string];
+type Claim = [metric: string, value: string, status: ClaimStatus, source: Source, subject?: string, sourceUri?: string];
 
 interface Company {
   slug: string;
@@ -34,6 +34,7 @@ interface Company {
   stage: Stage;
   tagline: string;
   description: string;
+  websiteUrl: string;
   legalName?: string;
   formationState?: string;
   founders: [name: string, title: string][];
@@ -42,85 +43,94 @@ interface Company {
   round: { committedPct: number; openedDaysAgo: number; closesInDays: number };
 }
 
-const FA = "FOUNDER_ATTESTED", IV = "INDEPENDENTLY_VERIFIED", PW = "PUBLIC_WEAK";
+const FA = "FOUNDER_ATTESTED", PW = "PUBLIC_WEAK";
+const yc = (slug: string) => `https://www.ycombinator.com/companies/${slug}`;
+const HEART_RELEASE = "https://www.heartaerospace.com/newsroom/heart-aerospace-raises-107-million-in-series-b-funding";
 
 const COMPANIES: Company[] = [
   {
-    slug: "mothlight", ticker: "MOTH", name: "Mothlight", stage: "IDEA",
-    tagline: "Mothlight wants to find you a quiet room at 2 a.m.",
-    description: "Two sophomores, a napkin sketch and a waitlist of 40. No code yet.",
-    founders: [["Jonah Mercer", "Co-founder · product"], ["Tess Okafor", "Co-founder · research"]],
-    claims: [["product_status", "idea", FA, "FOUNDER_STATEMENT"], ["customer_interviews_count", "40", FA, "DOCUMENT"], ["waitlist_signups", "40", PW, "LINK"], ["team_functions_count", "2", FA, "FOUNDER_STATEMENT"], ["full_time_founders", "0", FA, "FOUNDER_STATEMENT"]],
-    round: { committedPct: 38, openedDaysAgo: 5, closesInDays: 9 },
+    slug: "quippy", ticker: "QPY", name: "Quippy", stage: "LAUNCHED",
+    tagline: "Daily, adaptive practice for the conversations that matter most.",
+    description: "Short, realistic practice conversations with line-by-line feedback and a curriculum that adapts to each person's patterns.",
+    websiteUrl: "https://quippyapp.com",
+    legalName: "Quippy App, Inc.",
+    founders: [["Jonathan Li", "Founder/CEO"]],
+    claims: [["product_status", "launched", PW, "LINK"], ["prior_shipped_products", "2", PW, "LINK", undefined, yc("quippy")], ["prior_venture_users", "280000", PW, "LINK", "Duolingo English course", yc("quippy")], ["prior_venture_revenue_usd", "1500000", PW, "LINK", "Luvu", yc("quippy")], ["team_functions_count", "3", FA, "LINK", undefined, yc("quippy")], ["full_time_founders", "1", FA, "LINK", undefined, yc("quippy")]],
+    round: { committedPct: 72, openedDaysAgo: 4, closesInDays: 10 },
   },
   {
-    slug: "fernhill-robotics", ticker: "FERN", name: "Fernhill Robotics", stage: "EARLY_REVENUE",
-    tagline: "The $900 robot weeding 31 small farms",
-    description: "Started as an NC State senior design project. Farms pay a monthly service fee per robot.",
-    legalName: "Fernhill Robotics, Inc.", formationState: "NC",
-    founders: [["Priya Raman", "Chief executive"], ["Marcus Odom", "Hardware & firmware"], ["Lena Hartwell", "Field operations"]],
-    claims: [["product_status", "launched", PW, "LINK"], ["mrr_usd", "2325", IV, "INTEGRATION"], ["active_users", "31", IV, "INTEGRATION"], ["mom_growth_pct", "12", IV, "INTEGRATION"], ["recurring_revenue_share_pct", "70", IV, "INTEGRATION"], ["retention_m1_pct", "90", FA, "FOUNDER_STATEMENT"], ["gross_margin_pct", "45", FA, "DOCUMENT"], ["runway_months", "10", FA, "DOCUMENT"], ["team_functions_count", "4", FA, "FOUNDER_STATEMENT"], ["full_time_founders", "2", FA, "FOUNDER_STATEMENT"], ["relevant_experience_years", "3", FA, "FOUNDER_STATEMENT"], ["repo_commits_90d", "140", IV, "INTEGRATION"], ["repo_active_weeks_13w", "12", IV, "INTEGRATION"]],
-    round: { committedPct: 61, openedDaysAgo: 2, closesInDays: 12 },
+    slug: "heart-aerospace", ticker: "HEART", name: "Heart Aerospace", stage: "PROTOTYPE",
+    tagline: "Electrifying regional air travel.",
+    description: "Heart is developing hybrid-electric regional aircraft and has flown a full-scale demonstrator.",
+    websiteUrl: "https://www.heartaerospace.com",
+    founders: [["Anders Forslund", "Founder/CEO"]],
+    claims: [["product_status", "prototype", PW, "LINK", undefined, HEART_RELEASE], ["team_functions_count", "4", PW, "LINK", undefined, yc("heart-aerospace")], ["full_time_founders", "1", FA, "LINK", undefined, yc("heart-aerospace")]],
+    round: { committedPct: 96, openedDaysAgo: 11, closesInDays: 3 },
   },
   {
-    slug: "quillnote", ticker: "QUIL", name: "Quillnote", stage: "LAUNCHED",
-    tagline: "Quillnote’s notes app reaches four campuses",
-    description: "1,200 weekly users. Closing Friday.",
-    legalName: "Quillnote LLC", formationState: "NC",
-    founders: [["Dev Kapoor", "Chief executive"], ["Hana Liu", "Design & growth"]],
-    claims: [["product_status", "launched", PW, "LINK"], ["active_users", "1200", IV, "INTEGRATION"], ["dau_mau_pct", "22", IV, "INTEGRATION"], ["retention_m1_pct", "38", IV, "INTEGRATION"], ["mom_growth_pct", "18", IV, "INTEGRATION"], ["cac_usd", "4", FA, "FOUNDER_STATEMENT"], ["repo_commits_90d", "210", IV, "INTEGRATION"], ["repo_active_weeks_13w", "13", IV, "INTEGRATION"], ["team_functions_count", "3", FA, "FOUNDER_STATEMENT"], ["full_time_founders", "2", FA, "FOUNDER_STATEMENT"]],
-    round: { committedPct: 91, openedDaysAgo: 12, closesInDays: 2 },
+    slug: "elimentary", ticker: "ELMT", name: "Elimentary", stage: "LAUNCHED",
+    tagline: "AI agents for private-capital operations.",
+    description: "Agents automate borrowing-base calculations, loan-tape analysis, NAV calculations and other middle- and back-office work.",
+    websiteUrl: "https://www.elimentary.com",
+    founders: [["Yogesh Gorjilla", "Founder/CEO"], ["Mannat Saini", "Founder/CTO"], ["Manoj Sarda", "Founder/COO"]],
+    claims: [["product_status", "launched", PW, "LINK"], ["prior_shipped_products", "3", PW, "LINK", undefined, yc("elimentary")], ["prior_venture_users", "20000000", PW, "LINK", "Credit products", yc("elimentary")], ["team_functions_count", "4", PW, "LINK", undefined, yc("elimentary")], ["full_time_founders", "3", FA, "LINK", undefined, yc("elimentary")]],
+    round: { committedPct: 81, openedDaysAgo: 6, closesInDays: 8 },
   },
   {
-    slug: "tidewater-sensors", ticker: "TIDE", name: "Tidewater Sensors", stage: "PROTOTYPE",
-    tagline: "Soil sensors, tested on three farms",
-    description: "A working prototype and an honest label.",
-    founders: [["Samuel Brooks", "Founder"], ["Ivy Chen", "Hardware"]],
-    claims: [["product_status", "prototype", PW, "LINK"], ["loi_count", "3", FA, "DOCUMENT"], ["customer_interviews_count", "25", FA, "DOCUMENT"], ["team_functions_count", "2", FA, "FOUNDER_STATEMENT"], ["full_time_founders", "1", FA, "FOUNDER_STATEMENT"], ["relevant_experience_years", "2", FA, "FOUNDER_STATEMENT"], ["repo_commits_90d", "45", IV, "INTEGRATION"], ["repo_active_weeks_13w", "7", IV, "INTEGRATION"]],
-    round: { committedPct: 54, openedDaysAgo: 6, closesInDays: 15 },
+    slug: "sinter-systems", ticker: "SNTR", name: "Sinter", stage: "PROTOTYPE",
+    tagline: "A faster plastics pipeline from prototype to production.",
+    description: "Sinter combines online quoting, additive tooling and an in-house manufacturing workflow for iteration-heavy hardware teams.",
+    websiteUrl: "https://www.sinter.systems",
+    legalName: "Sinter System Inc.",
+    founders: [["Oliver Johnson", "Founder/CEO"], ["Justin Kwon", "Founder/COO"]],
+    claims: [["product_status", "beta", PW, "LINK"], ["prior_shipped_products", "2", PW, "LINK", undefined, yc("sinter-systems")], ["team_functions_count", "4", PW, "LINK", undefined, yc("sinter-systems")], ["full_time_founders", "2", FA, "LINK", undefined, yc("sinter-systems")]],
+    round: { committedPct: 63, openedDaysAgo: 5, closesInDays: 9 },
   },
   {
-    slug: "dormfold", ticker: "DORM", name: "Dormfold", stage: "IDEA",
-    tagline: "Your laundry, folded by Tuesday",
-    description: "Just opened. Looking for its first 50 backers.",
-    founders: [["Malik Grant", "Founder"]],
-    claims: [["product_status", "idea", FA, "FOUNDER_STATEMENT"], ["customer_interviews_count", "12", FA, "DOCUMENT"], ["waitlist_signups", "60", PW, "LINK"], ["team_functions_count", "1", FA, "FOUNDER_STATEMENT"], ["full_time_founders", "0", FA, "FOUNDER_STATEMENT"]],
-    round: { committedPct: 12, openedDaysAgo: 1, closesInDays: 20 },
+    slug: "papaya", ticker: "PAPY", name: "Papaya", stage: "LAUNCHED",
+    tagline: "Continuous optimization for AI agents.",
+    description: "Papaya analyzes production agent traces and ranks fixes by their expected quality, latency and cost impact.",
+    websiteUrl: "https://papaya.fyi",
+    founders: [["Macy Mody", "Founder/CEO"], ["Niyaz Puzhikkunnath", "Founder/CPO"], ["Faiz Vadakkumpadath", "Founder"]],
+    claims: [["product_status", "launched", PW, "LINK"], ["prior_shipped_products", "3", PW, "LINK", undefined, yc("papaya")], ["prior_venture_revenue_usd", "10000000", PW, "LINK", "SafeBase", yc("papaya")], ["team_functions_count", "4", PW, "LINK", undefined, yc("papaya")], ["full_time_founders", "3", FA, "LINK", undefined, yc("papaya")]],
+    round: { committedPct: 88, openedDaysAgo: 8, closesInDays: 6 },
   },
   {
-    slug: "bracket-bio", ticker: "BRKT", name: "Bracket Bio", stage: "PROTOTYPE",
-    tagline: "A $40 test strip for lab benches",
-    description: "Two grad students, one bench prototype.",
-    legalName: "Bracket Bio, Inc.", formationState: "DE",
-    founders: [["Nadia Petrova", "Co-founder · biology"], ["Owen Fisher", "Co-founder · chemistry"]],
-    claims: [["product_status", "prototype", FA, "FOUNDER_STATEMENT"], ["relevant_experience_years", "5", FA, "FOUNDER_STATEMENT"], ["customer_interviews_count", "18", FA, "DOCUMENT"], ["tam_usd", "1200000000", FA, "DOCUMENT"], ["loi_count", "1", FA, "DOCUMENT"], ["team_functions_count", "2", FA, "FOUNDER_STATEMENT"], ["full_time_founders", "2", FA, "FOUNDER_STATEMENT"]],
-    round: { committedPct: 27, openedDaysAgo: 3, closesInDays: 18 },
+    slug: "vyra", ticker: "VYRA", name: "Vyra", stage: "LAUNCHED",
+    tagline: "Autonomous video editing for non-editors.",
+    description: "Creators upload real footage, describe the edit they want and receive a polished draft in minutes.",
+    websiteUrl: "https://www.usevyra.com",
+    founders: [["Caleb Pong", "Founder"], ["Sulan Zhang", "Founder"]],
+    claims: [["product_status", "launched", PW, "LINK"], ["active_users", "76438", PW, "LINK"], ["prior_venture_users", "60000", PW, "LINK", "sulansart", yc("vyra")], ["team_functions_count", "4", PW, "LINK", undefined, yc("vyra")], ["full_time_founders", "2", FA, "LINK", undefined, yc("vyra")]],
+    round: { committedPct: 93, openedDaysAgo: 10, closesInDays: 4 },
   },
   {
-    slug: "orchard-os", ticker: "ORCH", name: "Orchard OS", stage: "LAUNCHED",
-    tagline: "Scheduling software for small orchards",
-    description: "Live with nine growers this season.",
-    legalName: "Orchard OS, Inc.", formationState: "NC",
-    founders: [["Rosa Delgado", "Chief executive"], ["Ben Whitaker", "Field lead"]],
-    claims: [["product_status", "launched", PW, "LINK"], ["active_users", "9", IV, "INTEGRATION"], ["mrr_usd", "450", IV, "INTEGRATION"], ["retention_m1_pct", "89", IV, "INTEGRATION"], ["team_functions_count", "3", FA, "FOUNDER_STATEMENT"], ["full_time_founders", "2", FA, "FOUNDER_STATEMENT"], ["repo_commits_90d", "95", IV, "INTEGRATION"], ["repo_active_weeks_13w", "10", IV, "INTEGRATION"]],
-    round: { committedPct: 66, openedDaysAgo: 7, closesInDays: 7 },
+    slug: "memorable", ticker: "MEMO", name: "Memorable", stage: "LAUNCHED",
+    tagline: "Procedural, graph-based memory for AI agents.",
+    description: "Memorable turns successful agent traces into reusable workflows and retrieves them for similar tasks.",
+    websiteUrl: "https://www.memorable.sh",
+    founders: [["Nikhil Krishnaswamy", "Founder/CEO"], ["Advaiyt Sane", "Founder/CTO"]],
+    claims: [["product_status", "launched", PW, "LINK"], ["prior_shipped_products", "3", PW, "LINK", undefined, yc("memorable")], ["team_functions_count", "3", PW, "LINK", undefined, yc("memorable")], ["full_time_founders", "2", FA, "LINK", undefined, yc("memorable")]],
+    round: { committedPct: 69, openedDaysAgo: 3, closesInDays: 11 },
   },
   {
-    slug: "kiln-labs", ticker: "KILN", name: "Kiln Labs", stage: "REPEATABLE_REVENUE",
-    tagline: "Shift scheduling for campus employers",
-    description: "Kiln Labs’ round is full. Follow for the next one.",
-    legalName: "Kiln Labs, Inc.", formationState: "DE",
-    founders: [["Grace Adeyemi", "Chief executive"], ["Theo Lambert", "Chief technology officer"]],
-    claims: [["product_status", "launched", IV, "LINK"], ["mrr_usd", "18000", IV, "INTEGRATION"], ["recurring_revenue_share_pct", "85", IV, "INTEGRATION"], ["active_users", "4000", IV, "INTEGRATION"], ["mom_growth_pct", "9", IV, "INTEGRATION"], ["retention_m1_pct", "62", IV, "INTEGRATION"], ["gross_margin_pct", "72", FA, "DOCUMENT"], ["cac_usd", "35", FA, "DOCUMENT"], ["cac_payback_months", "4", FA, "DOCUMENT"], ["runway_months", "14", FA, "DOCUMENT"], ["team_functions_count", "5", FA, "FOUNDER_STATEMENT"], ["full_time_founders", "2", FA, "FOUNDER_STATEMENT"], ["relevant_experience_years", "4", FA, "FOUNDER_STATEMENT"]],
-    round: { committedPct: 100, openedDaysAgo: 9, closesInDays: 5 },
+    slug: "linklane", ticker: "LINK", name: "LinkLane", stage: "LAUNCHED",
+    tagline: "AI-powered freight brokerage in seconds.",
+    description: "LinkLane quotes, books and tracks freight while agents find carriers, negotiate rates and manage each load.",
+    websiteUrl: "https://linklane.ai",
+    founders: [["Christopher Ruaño", "Founder/CEO"], ["Patryk Wekwejt", "Founder/COO"]],
+    claims: [["product_status", "launched", PW, "LINK"], ["tam_usd", "1000000000000", PW, "LINK", undefined, yc("linklane")], ["team_functions_count", "4", PW, "LINK", undefined, yc("linklane")], ["full_time_founders", "2", FA, "LINK", undefined, yc("linklane")]],
+    round: { committedPct: 76, openedDaysAgo: 7, closesInDays: 7 },
   },
 ];
+
+const LEGACY_SEED_SLUGS = ["mothlight", "fernhill-robotics", "quillnote", "tidewater-sensors", "dormfold", "bracket-bio", "orchard-os", "kiln-labs"];
 
 const sha256 = (value: string) => createHash("sha256").update(value).digest("hex");
 const emailFor = (name: string) => `${name.toLowerCase().replace(/[^a-z]+/g, ".")}@example.edu`;
 const isNumeric = (metric: string) => isMetricCode(metric) && METRICS[metric].kind !== "product_status";
-const claimHash = (slug: string, [metric, value, status, source, subject]: Claim) =>
-  sha256(JSON.stringify(["demo-seed", slug, metric, subject ?? null, value, status, source]));
+const claimHash = (slug: string, [metric, value, status, source, subject, sourceUri]: Claim, fallbackUri: string) =>
+  sha256(JSON.stringify(["demo-seed", slug, metric, subject ?? null, value, status, source, sourceUri ?? fallbackUri]));
 
 function validate() {
   for (const c of COMPANIES) {
@@ -148,8 +158,10 @@ async function seed() {
   if (!url || !pepper) throw new Error("DATABASE_URL and EMAIL_HASH_PEPPER are required (see .env.example).");
   const pool = new pg.Pool({ connectionString: url, max: 2 });
   try {
+    // Replacement is recoverable: hide only the known old demo fixtures, never user-created data.
+    await pool.query(`update projects set status = 'ARCHIVED', updated_at = now() where slug = any($1::text[]) and status <> 'ARCHIVED'`, [LEGACY_SEED_SLUGS]);
     for (const c of COMPANIES) {
-      // Identities for every founder (fictional; never signed in).
+      // Synthetic auth identities for the public founder profiles; these accounts never sign in.
       const identityIds: string[] = [];
       for (const [name] of c.founders) {
         const email = emailFor(name);
@@ -171,9 +183,9 @@ async function seed() {
         project = (
           await pool.query<{ id: string }>(
             `insert into projects (slug, name, tagline, description, stage, status, entity_type, legal_name, formation_state,
-                                   publish_contact_email, founder_identity_id, ticker)
-             values ($1, $2, $3, $4, $5::project_stage, 'PUBLISHED', $6::entity_type, $7, $8, false, $9, $10) returning id`,
-            [c.slug, c.name, c.tagline, c.description, c.stage, c.legalName ? "INCORPORATED" : "UNINCORPORATED", c.legalName ?? null, c.formationState ?? null, identityIds[0], c.ticker],
+                                   website_url, publish_contact_email, founder_identity_id, ticker)
+             values ($1, $2, $3, $4, $5::project_stage, 'PUBLISHED', $6::entity_type, $7, $8, $9, false, $10, $11) returning id`,
+            [c.slug, c.name, c.tagline, c.description, c.stage, c.legalName ? "INCORPORATED" : "UNINCORPORATED", c.legalName ?? null, c.formationState ?? null, c.websiteUrl, identityIds[0], c.ticker],
           )
         ).rows[0];
         for (const [i, [name, title]] of c.founders.entries()) {
@@ -188,11 +200,11 @@ async function seed() {
       const hasClaims = (await pool.query(`select 1 from evidence_claims where project_id = $1 limit 1`, [project.id])).rowCount;
       if (!hasClaims) {
         for (const claim of c.claims) {
-          const [metric, value, status, source, subject] = claim;
+          const [metric, value, status, source, subject, sourceUri] = claim;
           const inserted = await pool.query<{ id: string }>(
-            `insert into evidence_claims (project_id, metric_code, subject, value_numeric, value_text, unit, source_type, content_hash, created_by_identity_id)
-             values ($1, $2, $3, $4, $5, $6, $7::evidence_source_type, $8, $9) returning id`,
-            [project.id, metric, subject ?? null, isNumeric(metric) ? value : null, isNumeric(metric) ? null : value, isMetricCode(metric) ? METRICS[metric].unit : null, source, claimHash(c.slug, claim), identityIds[0]],
+            `insert into evidence_claims (project_id, metric_code, subject, value_numeric, value_text, unit, source_type, source_uri, content_hash, created_by_identity_id)
+             values ($1, $2, $3, $4, $5, $6, $7::evidence_source_type, $8, $9, $10) returning id`,
+            [project.id, metric, subject ?? null, isNumeric(metric) ? value : null, isNumeric(metric) ? null : value, isMetricCode(metric) ? METRICS[metric].unit : null, source, sourceUri ?? c.websiteUrl, claimHash(c.slug, claim, c.websiteUrl), identityIds[0]],
           );
           await pool.query(`insert into evidence_verifications (claim_id, status, note) values ($1, $2::evidence_status, 'demo-seed')`, [inserted.rows[0].id, status]);
         }

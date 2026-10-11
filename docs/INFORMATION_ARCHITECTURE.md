@@ -19,10 +19,11 @@ The simulated market and real primary issuance remain separate. `/invest/` may s
 |---|---|---|
 | `/` | everyone | landing page |
 | `/invest/` | investor | company discovery and ticker view |
-| `/invest/?ticker=MOTH` | investor | one company's simulated market, profile, evidence, valuation explanation and primary-issuance CTA |
+| `/invest/?ticker=QPY` | investor | one company's simulated market, profile, evidence, valuation explanation and primary-issuance CTA |
 | `/portfolio/` | investor | browser-local play-credit positions and activity |
 | `/wallet/` | investor | identity, Phantom proof, mock funding, primary commitments and real receipts |
 | `/list/` | founder | company intake, evidence research, valuation preview and publication |
+| `/list/demo/` | presenter | prefilled, non-mutating Quippy intake that exits to `QPY` |
 | `/manage/` | founder | the founder's listings, receipt setup and issuance controls |
 | `/desk/` | everyone | valuation sandbox |
 | `/how/` | everyone | product explanation |
@@ -30,9 +31,9 @@ The simulated market and real primary issuance remain separate. `/invest/` may s
 
 ### Why the company uses a query parameter
 
-The frontend is a Next.js static export. Companies can be created after a deployment, so their tickers are not available to `generateStaticParams()` at build time. Export mode also does not support runtime rewrites or redirects. The canonical deployable company URL is therefore `/invest/?ticker=MOTH`.
+The frontend is a Next.js static export. Companies can be created after a deployment, so their tickers are not available to `generateStaticParams()` at build time. Export mode also does not support runtime rewrites or redirects. The canonical deployable company URL is therefore `/invest/?ticker=QPY`.
 
-`/invest/MOTH/` is deferred until the hosting layer provides an SPA fallback/rewrite or the frontend gains a request-time server. Tickers must remain unique and stable after publication before that path becomes canonical.
+`/invest/QPY/` is deferred until the hosting layer provides an SPA fallback/rewrite or the frontend gains a request-time server. Tickers must remain unique and stable after publication before that path becomes canonical.
 
 ## Data and action boundaries
 

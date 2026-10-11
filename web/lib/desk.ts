@@ -2,7 +2,7 @@ import { useSyncExternalStore } from "react";
 
 // Landing page only: which fixture company the round terminal and the founder cards are showing.
 // A tiny shared store so two separate client islands stay in step without lifting the static markup.
-const DEFAULT = "FERN";
+const DEFAULT = "QPY";
 let picked = DEFAULT;
 const subs = new Set<() => void>();
 
