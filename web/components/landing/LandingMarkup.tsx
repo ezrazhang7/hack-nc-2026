@@ -27,9 +27,7 @@ export default function LandingMarkup() {
     <LiveDateline />
   </div>
   <div className="masthead">
-    <div className="ear l">Today’s issue<em>8 rounds open, 3 from dorm rooms</em></div>
     <h1>The Prospecto</h1>
-    <div className="ear r">Price of this paper<em>Free. Backers get demo credits.</em></div>
   </div>
   <div className="motto">All the companies too early to list.</div>
   <div className="btns hero-btns">

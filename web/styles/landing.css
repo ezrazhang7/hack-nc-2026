@@ -27,10 +27,6 @@
 .L .dateline .mid{flex:1;text-align:center}
 .L .masthead{text-align:center;padding:4px 0 6px;position:relative}
 .L .masthead h1{font-family:var(--black);font-weight:400;font-size:clamp(60px,10.2vw,150px);line-height:.86;letter-spacing:-.01em;color:var(--ink)}
-.L .masthead .ear{position:absolute;top:50%;transform:translateY(-50%);width:168px;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--carbon);line-height:1.5;border:1px solid var(--rule);padding:10px 12px;text-align:left}
-.L .masthead .ear.l{left:0}
-.L .masthead .ear.r{right:0;text-align:right}
-.L .masthead .ear em{display:block;font-family:var(--serif);font-style:italic;text-transform:none;letter-spacing:0;font-size:15px;color:var(--ink);margin-top:2px}
 .L .motto{display:flex;justify-content:center;align-items:center;gap:18px;padding:10px 0 12px;font-style:italic;font-size:15px;color:var(--carbon)}
 .L .motto:before,.L .motto:after{content:"";height:1px;width:56px;background:var(--rule)}
 .L nav.sections{display:flex;justify-content:center;gap:clamp(14px,3vw,42px);padding:11px 0;border-top:1px solid var(--ink);border-bottom:3px double var(--ink);font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase}
@@ -195,11 +191,9 @@
 .L .colophon nav a{text-decoration:none;color:var(--carbon)}
 .L .colophon nav a:hover{color:var(--ink)}
 @media (max-width:1360px){
-.L .masthead .ear{width:150px}
 }
 @media (max-width:1240px){
 .L .tgrid,.L .paper{grid-template-columns:250px 1fr 290px}
-.L .masthead .ear{display:none}
 }
 @media (max-width:960px){
 .L{--gutter:16px}
@@ -338,7 +332,6 @@
 .L .hero-bg:after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 46% 52% at 50% 46%,rgba(10,10,9,.9),rgba(10,10,9,.55) 60%,rgba(10,10,9,.25)),linear-gradient(transparent 82%,var(--ground))}
 .L .hero .plate .tag.b{bottom:96px;right:var(--gutter)}
 .L .hero .masthead{margin-top:auto}
-.L .hero .masthead .ear{background:var(--ground)}
 .L .hero-btns{justify-content:center;gap:14px;margin:30px 0 auto}
 .L .hero-btns .btn{padding:17px 26px;font-size:13.5px}
 .L .hero-btns .btn:not(.go){background:rgba(10,10,9,.72);backdrop-filter:blur(2px)}
