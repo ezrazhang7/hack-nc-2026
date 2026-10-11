@@ -9,7 +9,7 @@ const jetbrains = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrai
 const unifraktur = UnifrakturMaguntia({ subsets: ["latin"], weight: "400", variable: "--font-unifraktur" });
 
 export const metadata: Metadata = {
-  title: "The Prospecto",
+  title: "Prospecto",
   description: "Founders publish an evidence-backed listing; supporters explore its model price, simulated market and primary issuance in one place.",
 };
 

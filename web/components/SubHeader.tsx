@@ -16,7 +16,7 @@ export default function SubHeader({ current }: { current: string }) {
   return (
     <header className="page top">
       <Link className="back" href={routes.home}><span>←</span> Front page</Link>
-      <Link className="mark" href={routes.home}>The Prospecto</Link>
+      <Link className="mark" href={routes.home}>Prospecto</Link>
       <nav className="tabs">
         {TABS.map((t) => (
           <Link key={t.href} href={t.href} aria-current={t.href === current ? "page" : undefined}>{t.label}</Link>
