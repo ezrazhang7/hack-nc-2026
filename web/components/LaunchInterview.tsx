@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import DemoTickerResolve from "@/components/DemoTickerResolve";
 import LaunchPipeline, { type LaunchDraft } from "@/components/LaunchPipeline";
 import { STAGE_LABEL, STAGES } from "@/lib/api";
 import { QUIPPY_DEMO_ANSWERS } from "@/lib/demo-listing";
-import { investHref } from "@/lib/routes";
 
 type Field = { k: string; l?: string; ph: string; type?: string; area?: boolean };
 type Step = { k: string; sec: string; q: [string, string]; fields?: Field[]; opts?: string[]; hint?: string; req?: boolean; when?: (d: Data) => boolean };
@@ -40,7 +39,6 @@ const toDraft = (d: Data): LaunchDraft => {
 };
 
 export default function LaunchInterview({ demo = false }: { demo?: boolean }) {
-  const router = useRouter();
   const [data, setData] = useState<Data>(() => demo ? { ...QUIPPY_DEMO_ANSWERS } : {});
   const [cur, setCur] = useState(0);
   const [phase, setPhase] = useState<"" | "out" | "in">("");
@@ -82,11 +80,11 @@ export default function LaunchInterview({ demo = false }: { demo?: boolean }) {
     if (!skip && step.k === "site" && d.site && !/^https?:\/\/\S+\.\S+/.test(d.site.trim())) { setErr("Use a full link starting with https://"); return; }
     const all = visible(d);
     if (cur < all.length - 1) go(cur + 1);
-    else if (demo) router.replace(investHref("QPY"));
     else setDone(true);
   };
   const pick = (v: string) => { const d = { ...data, [step.k]: v }; setData(d); next(d); };
 
+  if (done && demo) return <DemoTickerResolve name={data.name ?? ""} tagline={data.line ?? ""} onEdit={() => { setDone(false); go(0); }} />;
   if (done) return <LaunchPipeline key={attempt} draft={toDraft(data)} onEdit={() => { setDone(false); go(0); }} onRetry={() => setAttempt((a) => a + 1)} />;
 
   return (

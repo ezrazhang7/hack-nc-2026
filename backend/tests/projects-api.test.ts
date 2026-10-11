@@ -301,4 +301,23 @@ describe("auto-assigned tickers (Gemini picks, stored once)", () => {
     expect(third.project.ticker).toBe("QBL");
     namer = async () => [];
   });
+
+  it("names a ticker without creating a project and resolves it to the published listing of the same name", async () => {
+    const ny = await newIdentity("ny@gmail.com");
+    const created = await (await call(ny, "POST", "/projects", project({ name: "Glimmer", ticker: "GLMR" }), { "idempotency-key": "name-0001" })).json();
+    namer = async () => ["GLMR", "GLIM"];
+    const draft = await (await call(ny, "POST", "/tickers/name", { name: "Glimmer", tagline: "x" })).json();
+    expect(draft).toMatchObject({ ticker: "GLMR", picks: ["GLMR", "GLIM"], source: "gemini", listed: null }); // drafts never resolve
+
+    await call(ny, "POST", `/projects/${created.project.id}/publish`);
+    const named = await (await call(ny, "POST", "/tickers/name", { name: "glimmer", tagline: "x" })).json();
+    expect(named.listed).toEqual({ slug: created.project.slug, name: "Glimmer", ticker: "GLMR" });
+    expect((await (await call(ny, "POST", "/tickers/name", { name: "Glimmer Two" })).json()).listed).toBeNull(); // same symbol, other name
+
+    namer = async () => { throw new Error("timeout"); };
+    expect(await (await call(ny, "POST", "/tickers/name", { name: "Quippy" })).json()).toMatchObject({ ticker: "QPY", source: "fallback" });
+    namer = async () => [];
+    expect((await call(null, "POST", "/tickers/name", { name: "Quippy" })).status).toBe(401);
+    expect((await db.query<{ n: number }>(`select count(*)::int as n from projects where founder_identity_id = $1`, [ny])).rows[0].n).toBe(1);
+  });
 });

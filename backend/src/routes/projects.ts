@@ -277,6 +277,30 @@ export function createProjectsRouter(deps: ProjectsRouterDependencies): Hono {
     return context.json({ suggestion, candidates: name.trim() ? tickerCandidates(name).slice(0, 4) : [], ticker: typed || null, available });
   });
 
+  // Read-only: the symbol POST /projects would ask Gemini for, plus the published listing that already
+  // holds it under the same name (the /list/demo Quippy preset resolves to the seeded QPY this way
+  // instead of creating a duplicate). Same Gemini call and deterministic fallback as creation.
+  router.post("/tickers/name", async (context) => {
+    const foreign = rejectForeignOrigin(context, deps.publicOrigin);
+    if (foreign) return foreign;
+    await deps.requireIdentity(context);
+    const parsed = z
+      .object({ name: z.string().trim().min(1).max(120), tagline: z.string().trim().max(140).default("") })
+      .safeParse(await context.req.json().catch(() => null));
+    if (!parsed.success) return context.json({ error: { code: "INVALID_INPUT", message: parsed.error.issues[0]?.message ?? "Invalid input." } }, 400);
+    const { name, tagline } = parsed.data;
+    const gemini = deps.nameTicker ? await deps.nameTicker({ name, tagline }).catch(() => [] as string[]) : [];
+    const picks = gemini.length ? gemini : tickerCandidates(name).filter((c) => /^[A-Z]{2,4}$/.test(c));
+    const ticker = picks[0] ?? null;
+    const listed = ticker
+      ? (await deps.pool.query<{ slug: string; name: string; ticker: string }>(
+          `select slug, name, ticker from projects where ticker = $1 and status = 'PUBLISHED' and lower(name) = lower($2)`,
+          [ticker, name],
+        )).rows[0] ?? null
+      : null;
+    return context.json({ ticker, picks, source: gemini.length ? "gemini" : "fallback", listed });
+  });
+
   // The caller's own projects (founder or member), so founder tools never ask for an id.
   router.get("/me/projects", async (context) => {
     const { identityId } = await deps.requireIdentity(context);
