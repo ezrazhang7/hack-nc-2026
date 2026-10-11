@@ -1,6 +1,6 @@
 # HackNC 2026 — Direct Startup Share Investing: Mega Plan
 
-Repository: [ezrazhang7/hack-nc-2027](https://github.com/ezrazhang7/hack-nc-2027)  
+Repository: [ezrazhang7/hack-nc-2026](https://github.com/ezrazhang7/hack-nc-2026)  
 Updated: October 10, 2026  
 Status: proposed product/build specification; no application or runtime verification implemented yet.  
 Working name: **FirstStake**, subject to the team's choice.

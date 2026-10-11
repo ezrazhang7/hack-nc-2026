@@ -150,4 +150,4 @@ docs/       Architecture, valuation, evidence research, purchase flow, legal pos
 
 ---
 
-<p align="center"><sub>Made at HackNC 2026 · <a href="LICENSE">MIT</a> · <a href="https://github.com/ezrazhang7/hack-nc-2027">ezrazhang7/hack-nc-2027</a></sub></p>
+<p align="center"><sub>Made at HackNC 2026 · <a href="LICENSE">MIT</a> · <a href="https://github.com/ezrazhang7/hack-nc-2026">ezrazhang7/hack-nc-2026</a></sub></p>
