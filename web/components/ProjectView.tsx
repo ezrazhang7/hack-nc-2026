@@ -9,6 +9,7 @@ import {
   committedPct, daysLeft, formatMicroUsd, formatUnitPrice, formatUsdCompact, getProject, STAGE_LABEL,
   type Explanation, type ProjectProfile,
 } from "@/lib/api";
+import { withDemand } from "@/lib/demand";
 import { routes, walletHref } from "@/lib/routes";
 
 /*
@@ -108,7 +109,7 @@ export function CompanyProfile({ slug, embedded = false }: { slug: string; embed
     );
   }
 
-  const v = p.valuation, x = v?.explanation ?? null, r = p.round;
+  const v = p.valuation, x = v?.explanation ?? null, r = withDemand(p.round);
   const priced = v && v.effective_stage !== v.declared_stage;
   const open = r && (r.status === "OPEN" || r.status === "SCHEDULED");
   const sub = r ? committedPct(r) : 0, left = r ? daysLeft(r) : 0;

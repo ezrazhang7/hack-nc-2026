@@ -2,6 +2,7 @@
 // route /api/* to the backend, so there is no base URL and no CORS. Money arrives as integer
 // micro-USD strings; it is converted to a number only for display.
 import type { Round } from "@/lib/fixtures";
+import { withDemand } from "@/lib/demand";
 
 export const STAGES = ["IDEA", "PROTOTYPE", "LAUNCHED", "EARLY_REVENUE", "REPEATABLE_REVENUE"] as const;
 export type Stage = (typeof STAGES)[number];
@@ -119,7 +120,7 @@ export const tickerOf = (name: string) => (name.replace(/[^a-z]/gi, "").slice(0,
 
 /** Feed card or profile → the view model the round terminal and feed cards render. */
 export function toRound(p: ProjectCard | ProjectProfile): Round {
-  const r = p.round;
+  const r = withDemand(p.round);
   const price = r?.unit_price_micro_usd ?? p.valuation?.unit_price_micro_usd ?? "0";
   return {
     t: p.ticker ?? tickerOf(p.name), n: p.name, slug: p.slug, roundId:r?.id,
