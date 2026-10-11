@@ -2,13 +2,11 @@ import Link from "next/link";
 import { routes } from "@/lib/routes";
 
 const TABS = [
-  { href: routes.how, label: "How" },
   { href: routes.desk, label: "Desk" },
   { href: routes.invest, label: "Invest" },
   { href: routes.portfolio, label: "Portfolio" },
   { href: routes.wallet, label: "Wallet" },
   { href: routes.list, label: "List" },
-  { href: routes.manage, label: "Manage" },
   { href: routes.news, label: "News" },
 ] as const;
 

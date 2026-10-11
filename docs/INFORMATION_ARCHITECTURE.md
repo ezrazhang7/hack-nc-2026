@@ -8,10 +8,10 @@
 The public application is organized by user intent, not by backend resources:
 
 - an investor explores a permanent company listing and its price at **Invest**;
-- a founder creates a listing at **List** and operates it at **Manage**;
+- a founder creates a listing at **List** and operates it from **Wallet**;
 - a round remains an internal issuance and settlement record, not a destination in the public navigation.
 
-The simulated market and real primary issuance remain separate. `/invest/` may show play-credit buys, sells, quotes and P&L. `/wallet/` is the only investor workspace that prepares real-layer mock-USDC commitments. `/manage/` is the only founder workspace that prepares project, tokenization and issuance transactions.
+The simulated market and real primary issuance remain separate. `/invest/` may show play-credit buys, sells, quotes and P&L. `/wallet/` is the only workspace that prepares real-layer transactions: investor mock-USDC commitments, and — for signed-in users who own a listing — project, tokenization and issuance transactions.
 
 ## Canonical routes
 
@@ -21,12 +21,11 @@ The simulated market and real primary issuance remain separate. `/invest/` may s
 | `/invest/` | investor | company discovery and ticker view |
 | `/invest/?ticker=QPY` | investor | one company's simulated market, profile, evidence, valuation explanation and primary-issuance CTA |
 | `/portfolio/` | investor | browser-local play-credit positions and activity |
-| `/wallet/` | investor | identity, Phantom proof, mock funding, primary commitments and real receipts |
+| `/wallet/` | investor, founder | identity, Phantom proof, mock funding, primary commitments, real receipts, and the founder's listings, receipt setup and issuance controls |
 | `/list/` | founder | company intake, evidence research, valuation preview and publication |
 | `/list/demo/` | presenter | prefilled, non-mutating Quippy intake that exits to `QPY` |
-| `/manage/` | founder | the founder's listings, receipt setup and issuance controls |
 | `/desk/` | everyone | valuation sandbox |
-| `/how/` | everyone | product explanation |
+| `/how/` | everyone | product explanation (not in the top nav) |
 | `/news/` | everyone | editorial content |
 
 ### Why the company uses a query parameter
@@ -41,7 +40,7 @@ The frontend is a Next.js static export. Companies can be created after a deploy
 /list ───────────────→ projects + research + valuation APIs
                           │
                           ▼
-/manage ─────────────→ project / receipt / round preparation
+/wallet (founder) ────→ project / receipt / round preparation
                           │ signed wallet transaction
                           ▼
                     Solana real layer
@@ -55,7 +54,7 @@ The frontend is a Next.js static export. Companies can be created after a deploy
 
 - A simulated order never calls a mutating API and never changes a valuation, round, mock-USDC balance or receipt.
 - A real commitment continues to use the backend's round ID, frozen price, eligibility checks, idempotency key and signed transaction.
-- Founder controls require the existing authenticated identity and resource authorization. Moving them to `/manage/` does not relax a server check.
+- Founder controls require the existing authenticated identity and resource authorization. Moving them to `/wallet/` does not relax a server check.
 - No database, chain, valuation formula or money representation changes as part of this IA migration.
 
 ## Compatibility routes
@@ -69,7 +68,8 @@ Previously shared URLs remain as static client redirects:
 | `/project/?slug=x` | `/invest/?slug=x`, then canonicalized to its ticker |
 | `/round/?slug=x` | `/invest/?slug=x`, then canonicalized to its ticker |
 | `/participate/?round=id` | `/wallet/?round=id` |
-| `/participate/?project=id` | `/manage/?project=id` |
+| `/participate/?project=id` | `/wallet/?project=id` |
+| `/manage/?project=id` | `/wallet/?project=id` |
 
 The aliases are compatibility shells only and are not linked from live navigation.
 
@@ -86,7 +86,7 @@ Acceptance criteria:
 
 1. No live UI link targets `/launch`, `/rounds`, `/round`, `/project` or `/participate`.
 2. Company profile and valuation evidence render inside the ticker view.
-3. Investor funding/commitment controls render only at `/wallet/`; founder controls render only at `/manage/`.
+3. Investor funding/commitment controls and founder controls render only at `/wallet/`.
 4. Old query-string URLs land in the equivalent canonical workspace.
 5. Frontend lint and static export pass.
 

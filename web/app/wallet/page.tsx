@@ -8,5 +8,5 @@ import "@/styles/participate.css";
 export const metadata: Metadata = { title: "Wallet · Prospecto" };
 
 export default function WalletPage() {
-  return <div className="S S-participate"><SubHeader current={routes.wallet} /><main className="page"><Participation mode="wallet" /></main></div>;
+  return <div className="S S-participate"><SubHeader current={routes.wallet} /><main className="page"><Participation /></main></div>;
 }

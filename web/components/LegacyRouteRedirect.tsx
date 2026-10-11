@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { investSlugHref, manageHref, routes, walletHref } from "@/lib/routes";
 
-type LegacyRoute = "launch" | "rounds" | "project" | "round" | "participate";
+type LegacyRoute = "launch" | "rounds" | "project" | "round" | "participate" | "manage";
 
 function destination(kind: LegacyRoute, search: string) {
   const query = new URLSearchParams(search);

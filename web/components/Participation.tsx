@@ -2,7 +2,7 @@
 import {useCallback,useEffect,useState} from 'react';
 import {api,actionKey,dollarsToMicro,money} from '@/lib/purchase-api';
 import {connectWallet,signProof,signPrepared,walletName} from '@/lib/wallet';
-import {investSlugHref,routes} from '@/lib/routes';
+import {investSlugHref} from '@/lib/routes';
 type Status={backendConfigured:boolean;purchasesEnabled:boolean;nessieEnabled:boolean;demoMode:boolean};
 type Me={identityId:string};
 type Prepared={intentId:string;signature:string;transaction:string;kind:string;status:string;projectPda:string;receiptMint:string;grossAmountMicroUsd?:string;preview?:unknown};
@@ -15,14 +15,14 @@ type Quote={acceptedMicroUsd:string;feeMicroUsd:string;units:string;refundMicroU
 type Bank={nickname:string;balanceMicroUsd:string|null};
 type Portfolio={allocations:{intentId:string;roundId:string;grossAmountMicroUsd:string;acceptedAmountMicroUsd:string;issuedReceiptUnits:string;refundedAmountMicroUsd:string;allocationFinalized:boolean}[];holdings:{projectId:string;receiptBalanceUnits:string}[];pending:{intentId:string;grossAmountMicroUsd:string;status:string}[]};
 const terminalFunding=['COMPLETED','BANK_REJECTED','COMPENSATED','NEEDS_REVIEW'];
-export default function Participation({mode='wallet'}:{mode?:'wallet'|'manage'}){
+export default function Participation(){
   const [status,setStatus]=useState<Status|null>(null),[me,setMe]=useState<Me|null>(null),[wallet,setWallet]=useState('');
   const [email,setEmail]=useState(''),[otp,setOtp]=useState(''),[busy,setBusy]=useState(false),[error,setError]=useState(''),[notice,setNotice]=useState('');
   const [amount,setAmount]=useState('10'),[balance,setBalance]=useState<string|null>(null),[funding,setFunding]=useState<Funding|null>(null);
   const [prepared,setPrepared]=useState<Prepared|null>(null),[simulation,setSimulation]=useState<Simulation|null>(null),[tx,setTx]=useState<{signature:string;status:string}|null>(null),[retry,setRetry]=useState<{signedTx:string;intentId:string;signature:string}|null>(null);
   const [roundId,setRoundId]=useState(''),[round,setRound]=useState<Round|null>(null),[valuation,setValuation]=useState<unknown>(null),[quote,setQuote]=useState<Quote|null>(null),[portfolio,setPortfolio]=useState<Portfolio|null>(null),[bank,setBank]=useState<Bank|null>(null);
   const [projectId,setProjectId]=useState('');
-  const [mine,setMine]=useState<MyProject[]>([]),[mineLoaded,setMineLoaded]=useState(false),[open,setOpen]=useState<OpenRound[]>([]);
+  const [mine,setMine]=useState<MyProject[]>([]),[open,setOpen]=useState<OpenRound[]>([]);
   const run=useCallback(async(action:()=>Promise<void>)=>{setBusy(true);setError('');try{await action();}catch(e){setError(e instanceof Error?e.message:'The request could not be completed.');}finally{setBusy(false);}},[]);
   const refresh=useCallback(async(address:string)=>{const [b,p]=await Promise.all([api<{amountMicroUsd:string}>(`/wallet/balance?address=${encodeURIComponent(address)}`),api<Portfolio>('/portfolio')]);setBalance(b.amountMicroUsd);setPortfolio(p);},[]);
   useEffect(()=>{const query=new URLSearchParams(window.location.search);setRoundId(query.get('round')??'');setProjectId(query.get('project')??'');let active=true;api<Status>('/status').then(async s=>{if(!active)return;setStatus(s);if(s.backendConfigured){const identity=await api<Me>('/me').catch(()=>null);if(active)setMe(identity);}}).catch(e=>{if(active)setError(e.message);});return()=>{active=false;};},[]);
@@ -33,11 +33,11 @@ export default function Participation({mode='wallet'}:{mode?:'wallet'|'manage'})
   // A completed transfer moves both balances; reload them rather than showing stale numbers.
   useEffect(()=>{if(funding?.status!=='COMPLETED'||!wallet)return;refresh(wallet).catch(()=>undefined);api<Bank>('/banking/account').then(setBank).catch(()=>undefined);},[funding?.status,wallet,refresh]);
   useEffect(()=>{if(!tx||['Finalized','Failed','Expired'].includes(tx.status))return;let active=true;const timer=setTimeout(()=>{api<{status:string}>(`/transactions/${tx.signature}`).then(v=>{if(active)setTx({signature:tx.signature,status:v.status});}).catch(e=>{if(active)setError(e.message);});},3000);return()=>{active=false;clearTimeout(timer);};},[tx]);
-  useEffect(()=>{if(mode!=='wallet')return;api<{projects:{slug:string;name:string;ticker:string|null;round:{id:string;status:string}|null}[]}>('/projects').then(r=>setOpen(r.projects.filter(p=>p.round?.status==='OPEN').map(p=>({id:p.round!.id,ticker:p.ticker??p.name.slice(0,4).toUpperCase(),name:p.name,slug:p.slug})))).catch(()=>undefined);},[mode]);
-  const loadMine=useCallback(async()=>{const r=await api<{projects:MyProject[]}>('/me/projects');setMine(r.projects);setMineLoaded(true);setProjectId(id=>id&&r.projects.some(p=>p.id===id)?id:r.projects[0]?.id??'');},[]);
-  useEffect(()=>{if(me&&mode==='manage')loadMine().catch(e=>setError(e instanceof Error?e.message:'Your listings could not be loaded.'));},[me,loadMine,mode]);
+  useEffect(()=>{api<{projects:{slug:string;name:string;ticker:string|null;round:{id:string;status:string}|null}[]}>('/projects').then(r=>setOpen(r.projects.filter(p=>p.round?.status==='OPEN').map(p=>({id:p.round!.id,ticker:p.ticker??p.name.slice(0,4).toUpperCase(),name:p.name,slug:p.slug})))).catch(()=>undefined);},[]);
+  const loadMine=useCallback(async()=>{const r=await api<{projects:MyProject[]}>('/me/projects');setMine(r.projects);setProjectId(id=>id&&r.projects.some(p=>p.id===id)?id:r.projects[0]?.id??'');},[]);
+  useEffect(()=>{if(me)loadMine().catch(e=>setError(e instanceof Error?e.message:'Your listings could not be loaded.'));},[me,loadMine]);
   async function prepare(path:string,body:unknown){if(!wallet)throw new Error('Connect and verify your wallet first.');const scope=`${me?.identityId}:${wallet}:${path}:${JSON.stringify(body)}`;let p=await api<Prepared>(path,body,actionKey(scope));if(['Expired','Failed'].includes(p.status)){sessionStorage.removeItem(`prospecto:action:${scope}`);p=await api<Prepared>(path,body,actionKey(scope));}setPrepared(p);setSimulation(null);const s=await api<Simulation>(`/transactions/${p.signature}/simulate`,{});setSimulation(s);if(!s.ok)throw new Error('Transaction simulation failed. Refresh your balance and issuance before retrying.');}
-  async function bind(){const address=await connectWallet();setWallet('');const challenge=await api<{message:string}>('/wallets/challenge',{address});await api('/wallets/verify',{address,signature:await signProof(challenge.message,address)});setWallet(address);setNotice('Wallet ownership proof accepted.');if(mode==='wallet'&&status?.purchasesEnabled)await refresh(address);if(mode==='wallet'&&status?.nessieEnabled)setBank(await api('/banking/account/provision',{},actionKey(`${me?.identityId}:bank`)));}
+  async function bind(){const address=await connectWallet();setWallet('');const challenge=await api<{message:string}>('/wallets/challenge',{address});await api('/wallets/verify',{address,signature:await signProof(challenge.message,address)});setWallet(address);setNotice('Wallet ownership proof accepted.');if(status?.purchasesEnabled)await refresh(address);if(status?.nessieEnabled)setBank(await api('/banking/account/provision',{},actionKey(`${me?.identityId}:bank`)));}
   // Affordability is display-only; the server re-checks balance, caps and units on prepare.
   const gross=(()=>{try{return BigInt(dollarsToMicro(amount));}catch{return null;}})(),cash=balance===null?null:BigInt(balance);
   const cap=round?BigInt(round.maxSubscriptionMicroUsd):null,maxSpend=cap===null?null:cash!==null&&cash<cap?cash:cap;
@@ -51,7 +51,7 @@ export default function Participation({mode='wallet'}:{mode?:'wallet'|'manage'})
   async function submit(){if(!prepared||!simulation?.ok)return;const value={signedTx:await signPrepared(prepared.transaction,wallet),intentId:prepared.intentId,signature:prepared.signature};sessionStorage.setItem(`prospecto:${me!.identityId}:tx`,value.signature);sessionStorage.setItem(`prospecto:${me!.identityId}:signed`,JSON.stringify(value));setRetry(value);setTx({signature:value.signature,status:'Unknown'});setPrepared(null);setSimulation(null);await resubmit(value);}
 
   const sel=mine.find(p=>p.id===projectId);
-  const signOut=()=>run(async()=>{await api('/auth/sign-out',{});setMe(null);setWallet('');setBalance(null);setBank(null);setPortfolio(null);setFunding(null);setTx(null);setRetry(null);setPrepared(null);setMine([]);setMineLoaded(false);});
+  const signOut=()=>run(async()=>{await api('/auth/sign-out',{});setMe(null);setWallet('');setBalance(null);setBank(null);setPortfolio(null);setFunding(null);setTx(null);setRetry(null);setPrepared(null);setMine([]);});
   const short=(a:string)=>`${a.slice(0,4)}…${a.slice(-4)}`;
   return <div className="wallet">
     {error&&<p className="w-msg err" role="alert">{error}</p>}{notice&&<p className="w-msg" role="status">{notice}</p>}
@@ -59,15 +59,15 @@ export default function Participation({mode='wallet'}:{mode?:'wallet'|'manage'})
     <section className="w-card"><header><h3>Account</h3>{me&&<button className="w-link" disabled={busy} onClick={signOut}>Sign out</button>}</header>
       {me?<div className="w-grid">
         <div><span className="w-k">Wallet</span><b>{wallet?walletName(wallet):'Not connected'}</b></div>
-        {mode==='wallet'&&<div><span className="w-k">Cash</span><b className="mono">{balance===null?'—':money(balance)}</b></div>}
-        <div className="w-act"><button className="w-btn" disabled={busy} onClick={()=>run(bind)}>{wallet?'Reconnect wallet':'Connect wallet'}</button>{mode==='wallet'&&wallet&&status.purchasesEnabled&&<button className="w-btn ghost" disabled={busy} onClick={()=>run(()=>refresh(wallet))}>Refresh</button>}</div>
+        <div><span className="w-k">Cash</span><b className="mono">{balance===null?'—':money(balance)}</b></div>
+        <div className="w-act"><button className="w-btn" disabled={busy} onClick={()=>run(bind)}>{wallet?'Reconnect wallet':'Connect wallet'}</button>{wallet&&status.purchasesEnabled&&<button className="w-btn ghost" disabled={busy} onClick={()=>run(()=>refresh(wallet))}>Refresh</button>}</div>
       </div>:<div className="w-form">
         <label><span className="w-k">{status.demoMode?'Email or name':'Email'}</span><input type={status.demoMode?'text':'email'} autoComplete="email" placeholder="you@example.com" value={email} onChange={e=>setEmail(e.target.value)}/></label>
         {status.demoMode?<button className="w-btn" disabled={busy} onClick={()=>run(async()=>{await api('/demo/sign-in',{email});setMe(await api('/me'));})}>Sign in</button>:<><button className="w-btn" disabled={busy} onClick={()=>run(async()=>{await api('/auth/email-otp/send-verification-otp',{email,type:'sign-in'});setNotice('Check your email for the sign-in code.');})}>Email me a code</button><label><span className="w-k">Code</span><input value={otp} autoComplete="one-time-code" onChange={e=>setOtp(e.target.value)}/></label><button className="w-btn" disabled={busy} onClick={()=>run(async()=>{await api('/auth/sign-in/email-otp',{email,otp});setMe(await api('/me'));})}>Sign in</button></>}
       </div>}
     </section>
     {me&&<>
-    {mode==='wallet'&&<><section className="w-card"><header><h3>Add cash</h3>{bank&&<span className="w-dim mono">{bank.nickname} · {bank.balanceMicroUsd===null?'—':money(bank.balanceMicroUsd)} in bank</span>}</header>
+    <section className="w-card"><header><h3>Add cash</h3>{bank&&<span className="w-dim mono">{bank.nickname} · {bank.balanceMicroUsd===null?'—':money(bank.balanceMicroUsd)} in bank</span>}</header>
       <div className="w-form row"><label><span className="w-k">Amount</span><input inputMode="decimal" value={amount} onChange={e=>{setAmount(e.target.value);setQuote(null);}}/></label>
         <button className="w-btn" disabled={busy||!wallet||!status.nessieEnabled||Boolean(funding&&!terminalFunding.includes(funding.status))} onClick={()=>run(fund)}>Transfer from bank</button></div>
       {!wallet&&<p className="w-dim">Connect a Devnet wallet to add cash.</p>}
@@ -90,9 +90,9 @@ export default function Participation({mode='wallet'}:{mode?:'wallet'|'manage'})
         {!round.solanaRoundPda&&<p className="w-dim">This issuance opens for commitments shortly.</p>}
         {valuation!==null&&<p className="w-dim"><a href={investSlugHref(open.find(o=>o.id===round.id)?.slug)}>Why this price →</a></p>}
       </>}
-    </section></>}
-    {mode==='manage'&&mineLoaded&&mine.length===0&&<section className="w-card"><header><h3>No listings yet</h3></header><p className="w-dim">Create a company listing before setting up its receipt token and primary issuance.</p><a className="w-btn" href={routes.list}>List your company</a></section>}
-    {mode==='manage'&&mine.length>0&&<section className="w-card"><header><h3>Your companies</h3>
+    </section>
+    {/* Founder controls appear only for signed-in users who own a listing. */}
+    {mine.length>0&&<section className="w-card"><header><h3>Your companies</h3>
       <select value={projectId} onChange={e=>{setProjectId(e.target.value);const p=mine.find(m=>m.id===e.target.value);setRoundId(p?.round?.id??'');}}>{mine.map(p=><option key={p.id} value={p.id}>{p.ticker?`${p.ticker} · `:''}{p.name}</option>)}</select></header>
       {sel&&<><div className="w-grid"><div><span className="w-k">Status</span><b>{sel.status.toLowerCase()}</b></div><div><span className="w-k">Receipt token</span><b className="mono">{sel.receipt_mint?short(sel.receipt_mint):'Not created'}</b></div><div><span className="w-k">Issuance</span><b>{sel.round?sel.round.status.toLowerCase():'None'}</b></div></div>
       <ol className="w-steps">
@@ -111,7 +111,7 @@ export default function Participation({mode='wallet'}:{mode?:'wallet'|'manage'})
         <button className="w-link" disabled={busy} onClick={()=>run(async()=>{const result=await api<{status:string}>(`/transactions/${tx.signature}`);setTx({signature:tx.signature,status:result.status});if(wallet&&status.purchasesEnabled)await refresh(wallet);})}>Check</button>
         {retry&&retry.signature===tx.signature&&!['Finalized','Failed','Expired'].includes(tx.status)&&<button className="w-link" disabled={busy} onClick={()=>run(()=>resubmit(retry))}>Resend</button>}</div>
     </section>}
-    {mode==='wallet'&&portfolio!==null&&(portfolio.allocations.length>0||portfolio.pending.length>0)&&<section className="w-card"><header><h3>Primary commitments</h3></header>
+    {portfolio!==null&&(portfolio.allocations.length>0||portfolio.pending.length>0)&&<section className="w-card"><header><h3>Primary commitments</h3></header>
       <div className="rows">{portfolio.pending.map(p=><div key={p.intentId} className="w-row"><span>Pending</span><span className="mono">{money(p.grossAmountMicroUsd)}</span><span>{p.status}</span></div>)}
         {portfolio.allocations.map(a=><div key={a.intentId} className="w-row"><span>{a.allocationFinalized?'Filled':'Committed'}</span><span className="mono">{money(a.acceptedAmountMicroUsd==='0'?a.grossAmountMicroUsd:a.acceptedAmountMicroUsd)}</span><span className="mono">{Number(a.issuedReceiptUnits).toLocaleString()} units</span>{a.refundedAmountMicroUsd!=='0'&&<span className="mono">{money(a.refundedAmountMicroUsd)} refunded</span>}</div>)}</div>
     </section>}

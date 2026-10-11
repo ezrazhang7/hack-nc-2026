@@ -39,7 +39,7 @@ export default function LandingMarkup() {
     <a className="btn" href="/invest/">Explore companies</a>
   </div>
   <nav className="sections" aria-label="Sections">
-    <a href="/how/">How It Works</a>
+    <a href="/invest/">How It Works</a>
     <a href="/desk/">Estimate Desk</a>
     <a href="/list/">List Your Company</a>
     <button type="button" className="protocol-nav" data-protocol-open aria-haspopup="dialog">Protocol</button>
