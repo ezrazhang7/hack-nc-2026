@@ -23,6 +23,10 @@
 .L .tape-item{padding:0 22px;border-right:1px solid var(--rule)}
 .L .tape-item b{color:var(--ink);font-weight:500;margin-right:8px}
 @keyframes tape{to{transform:translateX(-50%)}}
+/* Fixed-width number so the scrolling tape never jitters as digits change; brief glow on each print. */
+.L .tape .live{display:inline-block;min-width:5ch;text-align:right;font-variant-numeric:tabular-nums}
+.L .tape .live.tick{animation:tapetick 1.1s ease-out}
+@keyframes tapetick{from{color:var(--ink);text-shadow:0 0 8px var(--green)}}
 .L .dateline{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px 0 10px;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--carbon)}
 .L .dateline .mid{flex:1;text-align:center}
 .L .masthead{text-align:center;padding:4px 0 6px;position:relative}
@@ -63,6 +67,9 @@
 .L .sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:20px;margin-bottom:18px;flex-wrap:wrap}
 .L .sec-head h2{font-family:var(--serif);font-weight:500;font-size:clamp(30px,3.4vw,46px);letter-spacing:-.02em;line-height:1}
 .L .sec-head h2 i{font-weight:400}
+/* "Back a startup" matches the lead headline: Newsreader 500 with a green italic. */
+.L .sec-head h2.b1-title{font-family:var(--serif);font-weight:500;font-size:clamp(44px,5.2vw,78px);letter-spacing:-.025em;line-height:.93;font-variation-settings:"opsz" 72}
+.L .sec-head h2.b1-title i{font-weight:400;color:var(--green)}
 .L .board{background:#070706;border:1px solid var(--rule);padding:18px clamp(10px,2vw,26px) 14px;overflow:hidden}
 .L .board{--fw:calc(1.18 * var(--fs) + 2px);--fs:clamp(12px,1.25vw,17px)}
 .L .brow{display:grid;grid-template-columns:calc(4*var(--fw)) calc(17*var(--fw)) calc(9*var(--fw)) calc(5*var(--fw)) 1fr;gap:clamp(10px,1.6vw,26px);align-items:center;padding:6px 0;border-bottom:1px solid #191816}
@@ -174,10 +181,7 @@
 .L .closes{margin-top:18px;border-top:1px solid var(--rule);padding-top:14px;font-size:12px;display:flex;justify-content:space-between;color:var(--carbon)}
 .L .closes b{color:var(--red);font-weight:500}
 .L .paper{position:absolute;inset:26px 0 80px 0;display:grid;grid-template-columns:300px 1fr 330px;pointer-events:none}
-.L .paper > div{padding:150px 22px 0}
-.L .paper .paper-head{position:absolute;left:-1px;right:-1px;top:-1px;background:var(--ground);z-index:2;padding:0 22px;height:132px;display:flex;flex-direction:column;justify-content:flex-end;padding-bottom:20px;border-bottom:3px double var(--ink)}
-.L .paper-head h3{font-family:var(--serif);font-weight:500;font-size:clamp(34px,4.2vw,64px);letter-spacing:-.025em;line-height:1}
-.L .paper-head h3 i{font-weight:400;color:var(--green)}
+.L .paper > div{padding:40px 22px 0}
 .L .paper blockquote{margin-top:34px;padding-top:18px;border-top:1px solid var(--rule);font-family:var(--serif);font-style:italic;font-size:clamp(24px,2.3vw,34px);line-height:1.15;letter-spacing:-.01em;color:var(--ink);max-width:520px}
 .L .paper h4{font-family:var(--serif);font-weight:500;font-size:clamp(26px,2.6vw,40px);letter-spacing:-.02em;line-height:1.02;margin-bottom:14px}
 .L .paper p{font-family:var(--serif);font-size:16.5px;line-height:1.55;color:#cfc8b6;margin-bottom:12px}
@@ -390,3 +394,51 @@
 .L .rgauge p{font-family:var(--serif);font-style:italic;font-size:14px;color:var(--carbon);max-width:520px}
 @keyframes rg-fill{from{transform:scaleX(0);transform-origin:left}}
 @media (prefers-reduced-motion:reduce){.L .rg-track i{animation:none}}
+
+/* Landing watchlist: Markets | Commitments tabs on the terminal's left panel */
+.L .ptabs button{flex:1;display:flex;align-items:center;justify-content:center;background:none;border:0;font:inherit;font-size:12px;color:var(--carbon);cursor:pointer;transition:color .2s,box-shadow .2s}
+.L .ptabs button:hover{color:var(--ink)}
+.L .ptabs button.on{color:var(--ink);box-shadow:inset 0 -2px 0 var(--ink)}
+.L .wl{font-size:12px}
+.L .wl .wh,.L .wr{display:grid;grid-template-columns:1fr 58px 72px;align-items:center;padding:0 16px;column-gap:8px}
+.L .wl .wh{height:34px;color:var(--carbon);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase}
+.L .wl .wh span:nth-child(n+2){text-align:right}
+.L .wr{position:relative;width:100%;height:52px;background:none;border:0;border-top:1px solid #1a1916;color:var(--ink);font:inherit;text-align:left;cursor:pointer;transition:background .2s}
+.L .wr:hover{background:#151412}
+.L .wr.on{background:rgba(91,208,106,.06)}
+.L .wr.on::before{content:"";position:absolute;left:0;top:9px;bottom:9px;width:2px;background:var(--green)}
+.L .wr .wt{display:flex;flex-direction:column;gap:3px;min-width:0}
+.L .wr .wt b{display:flex;align-items:center;gap:7px;font-weight:700;letter-spacing:.04em}
+.L .wr .wt small{color:var(--carbon);font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.L .wr .wp{text-align:right;font-variant-numeric:tabular-nums}
+.L .wr .wc{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.L .wr .wc em{font-style:normal;color:var(--green);font-variant-numeric:tabular-nums}
+.L .wr .wc em.full{color:var(--carbon)}
+.L .wr .wc i{position:relative;display:block;width:56px;height:3px;background:#1a1916;overflow:hidden}
+.L .wr .wc u{position:absolute;inset:0 auto 0 0;background:var(--green);text-decoration:none;transition:width .6s cubic-bezier(.22,1,.36,1)}
+.L .wr .wc em.full + i u{background:var(--carbon)}
+.L .wr .live{width:6px;height:6px;border-radius:50%;background:var(--green);animation:wlive 1.8s ease-out infinite}
+@keyframes wlive{0%{box-shadow:0 0 0 0 rgba(91,208,106,.55)}70%,100%{box-shadow:0 0 0 7px rgba(91,208,106,0)}}
+.L .wnote{margin:0;padding:12px 16px;border-top:1px solid #1a1916;color:var(--carbon);font-size:11px;line-height:1.5}
+/* A watchlist pick crossfades the round it swaps in */
+.L .term.swap .chead,.L .term.swap .cstrip,.L .term.swap .about,.L .term.swap .bpanel,.L .term.swap .cap,.L .term.swap .fills{animation:tswap .55s cubic-bezier(.22,1,.36,1)}
+@keyframes tswap{from{opacity:.15;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.L .wr .live,.L .term.swap *{animation:none}}
+
+/* Hero: a folded copy of the paper, linking to /news/. Type matches the news page: Newsreader 500, mono kickers. */
+.L .news-tab{position:absolute;top:62px;right:0;width:212px;z-index:2;animation:tab-in .9s .5s cubic-bezier(.22,1,.36,1) both}
+@keyframes tab-in{from{opacity:0;transform:translateY(-16px)}}
+.L .news-tab a{position:relative;display:block;text-decoration:none;background:var(--ink);color:#14130f;padding:13px 16px 16px;box-shadow:0 14px 30px rgba(0,0,0,.55);transform:rotate(2.5deg);transform-origin:top right;transition:transform .4s cubic-bezier(.22,1,.36,1),box-shadow .4s}
+.L .news-tab a::after{content:"";position:absolute;right:0;bottom:0;width:22px;height:22px;background:linear-gradient(135deg,#cfc6af 50%,var(--ground) 50%);transition:width .4s cubic-bezier(.22,1,.36,1),height .4s cubic-bezier(.22,1,.36,1)}
+.L .news-tab a:hover{transform:rotate(0) translateY(4px);box-shadow:0 20px 40px rgba(0,0,0,.6)}
+.L .news-tab a:hover::after{width:40px;height:40px}
+.L .news-tab a:active{transform:rotate(0) translateY(5px) scale(.985)}
+.L .news-tab a:focus-visible{outline:2px solid var(--green);outline-offset:4px}
+.L .news-tab .t{display:block;padding-bottom:8px;border-bottom:1px solid #14130f;font-family:var(--serif);font-weight:500;font-size:30px;line-height:1;letter-spacing:-.015em}
+.L .news-tab .d{display:block;margin-top:9px;font-family:var(--serif);font-size:15.5px;line-height:1.3;color:#3b382f}
+.L .news-tab .r{display:flex;align-items:center;gap:7px;margin-top:13px;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.L .news-tab .ar{transition:transform .3s cubic-bezier(.22,1,.36,1)}
+.L .news-tab a:hover .ar{transform:translateX(4px)}
+/* Below 1100px the masthead is too wide for a floating card, so it joins the flow above the masthead. */
+@media (max-width:1100px){.L .news-tab{position:relative;top:auto;right:auto;align-self:flex-end;width:200px;margin:14px 6px 0}.L .news-tab .t{font-size:26px}}
+@media (prefers-reduced-motion:reduce){.L .news-tab,.L .news-tab a,.L .news-tab a::after,.L .news-tab .ar{animation:none;transition:none}}

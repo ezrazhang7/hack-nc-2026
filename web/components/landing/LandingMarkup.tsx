@@ -1,11 +1,7 @@
 import HeroText from "@/components/HeroText";
-import FounderCards from "@/components/FounderCards";
-import RoundTerminal from "@/components/RoundTerminal";
+import { DeskFounders, DeskTerminal } from "@/components/landing/MarketDesk";
 import LiveDateline from "@/components/landing/LiveDateline";
 import DeckToggle from "@/components/landing/DeckToggle";
-import { ROUNDS } from "@/lib/fixtures";
-
-const FERN = ROUNDS.find((r) => r.t === "FERN")!;
 
 // Static landing markup. Interactive parts (tape, board, WebGL plate)
 // are filled in by LandingFX after mount; ids here are its contract.
@@ -26,8 +22,16 @@ export default function LandingMarkup() {
   <div className="dateline">
     <LiveDateline />
   </div>
+  {/* a folded copy of the paper: the hero's way into /news/ */}
+  <div className="news-tab">
+    <a href="/news/">
+      <span className="t">News</span>
+      <span className="d">Explainers, round reports and founder updates.</span>
+      <span className="r">Read the paper <span className="ar" aria-hidden="true">&rarr;</span></span>
+    </a>
+  </div>
   <div className="masthead">
-    <h1>The Prospecto</h1>
+    <h1>Prospecto</h1>
   </div>
   <div className="motto">All the companies too early to list.</div>
   <div className="btns hero-btns">
@@ -37,7 +41,6 @@ export default function LandingMarkup() {
   <nav className="sections" aria-label="Sections">
     <a href="/how/">How It Works</a>
     <a href="/desk/">Estimate Desk</a>
-    <a href="/news/">News</a>
     <a href="/list/">List Your Company</a>
     <button type="button" className="protocol-nav" data-protocol-open aria-haspopup="dialog">Protocol</button>
   </nav>
@@ -96,15 +99,14 @@ export default function LandingMarkup() {
 <section className="b1" id="rounds">
   <div className="page b1-head">
     <div className="sec-head" style={{ marginBottom: '0' }}>
-      <h2>Back a startup</h2>
+      <h2 className="b1-title">Back a <i>startup</i></h2>
       <span className="kicker">Keep scrolling. The paper turns into the product.</span>
     </div>
   </div>
   <div className="page">
     <div className="stage" id="stage">
-      <RoundTerminal co={FERN} />
+      <DeskTerminal />
       <div className="paper" id="paper" aria-hidden="true">
-        <div className="paper-head"><span className="kicker">Late edition · how to read a round</span><h3>One company. One fixed price. <i>Three columns.</i></h3></div>
         <div><span className="kicker">Column one</span><h4>Who already backed it.</h4><p>Every commitment is printed the moment it lands: time, units, total. No bids, no asks, just people who believed early.</p></div>
         <div><span className="kicker">Column two</span><h4>One company, one fixed price, one honest chart.</h4><p>The price doesn’t move. The line that rises is how much of the round is committed.</p><p>The founders’ story, team and dated evidence sit right underneath.</p><blockquote>“Nobody bids. Nobody asks. You either believe early, or you watch.”</blockquote></div>
         <div><span className="kicker">Column three</span><h4>Pick a quantity. Get an exact quote.</h4><p>The quote shows unit price, fee and your total. You confirm once; allocation is final when the round closes.</p></div>
@@ -113,11 +115,11 @@ export default function LandingMarkup() {
   </div>
 </section>
 
-<FounderCards company={FERN.n} founders={FERN.f ?? []} demo />
+<DeskFounders />
 
 <footer className="page">
   <div className="colophon" data-scroll-reveal="single">
-    <span className="mark">The Prospecto</span>
+    <span className="mark">Prospecto</span>
     <p>Printed on black at prospecto.finance. Built at HackNC 2026.</p>
     <nav><a href="/invest/">Invest</a><a href="/list/">List</a><a href="/news/">News</a><a href="https://github.com/ezrazhang7/hack-nc-2026">GitHub</a></nav>
   </div>

@@ -23,7 +23,6 @@ export default function LandingFX() {
   useEffect(() => {
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
     const cleanups: (() => void)[] = [];
-    const every = (fn: () => void, ms: number) => { const id = setInterval(fn, ms); cleanups.push(() => clearInterval(id)); };
     const later = (fn: () => void, ms: number) => { const id = setTimeout(fn, ms); cleanups.push(() => clearTimeout(id)); };
     document.querySelectorAll("[data-gen]").forEach((n) => n.remove());
 
@@ -42,9 +41,9 @@ export default function LandingFX() {
 
     /* ── ticker tape ── */
     const tape = $("tape");
-    const tapeHTML = CO.map((c) => {
+    const tapeHTML = CO.map((c, i) => {
       const full = c.sub >= 100;
-      return `<span class="tape-item"><b>${c.t}</b>${fmt$(c.p, 2)} fixed &nbsp;<span class="${full ? "dn" : "up"}">${full ? "■ round full" : "▲ " + c.sub + "% subscribed"}</span></span>`;
+      return `<span class="tape-item"><b>${c.t}</b>${fmt$(c.p, 2)} fixed &nbsp;<span class="${full ? "dn" : "up"}">${full ? "■ round full" : `▲ <span class="live" data-sub="${i}">${c.sub.toFixed(1)}%</span> subscribed`}</span></span>`;
     }).join("");
     tape.innerHTML = tapeHTML + tapeHTML;
     cleanups.push(() => { tape.innerHTML = ""; });
@@ -87,7 +86,7 @@ export default function LandingFX() {
     const paintSub = (r: (typeof rows)[number]) => {
       const pct = r.sub.querySelector(".pct")!;
       r.sub.querySelector<HTMLElement>("i")!.style.width = Math.min(100, r.c.sub) + "%";
-      pct.textContent = r.c.sub >= 100 ? "FULL" : r.c.sub + "%";
+      pct.textContent = r.c.sub >= 100 ? "FULL" : Math.floor(r.c.sub) + "%";
       if (r.c.sub >= 100) { r.sub.querySelector(".bar")!.classList.add("full"); pct.classList.add("dn"); }
     };
     const boardIO = new IntersectionObserver((es) => {
@@ -101,13 +100,33 @@ export default function LandingFX() {
     }, { threshold: 0.25 });
     boardIO.observe(board);
     cleanups.push(() => boardIO.disconnect());
-    if (!reduce) every(() => {
-      const open = rows.filter((r) => r.c.sub < 100);
+    /* ── live commitments: tape + board move together at an uneven, market-like pace ── */
+    // Prices stay fixed (primary issuance); only the committed share moves, and only up.
+    // Each step slows as a round fills and stops at 99.9%, so no round flips to "full" on screen.
+    const tapeLive = [...tape.querySelectorAll<HTMLElement>("[data-sub]")];
+    const step = () => {
+      const open = rows.filter((r) => r.c.sub < 99.9);
       if (!open.length) return;
-      const r = open[(Math.random() * open.length) | 0];
-      r.c.sub = Math.min(100, r.c.sub + 1);
-      paintSub(r);
-    }, 2600);
+      const n = 1 + ((Math.random() * Math.min(4, open.length)) | 0);
+      for (const r of [...open].sort(() => Math.random() - 0.5).slice(0, n)) {
+        const inc = Math.max(0.1, (100 - r.c.sub) * (0.001 + Math.random() * 0.005));
+        r.c.sub = Math.min(99.9, Math.round((r.c.sub + inc) * 10) / 10);
+        paintSub(r);
+        const i = CO.indexOf(r.c);
+        tapeLive.filter((e) => e.dataset.sub === String(i)).forEach((e) => {
+          e.textContent = r.c.sub.toFixed(1) + "%";
+          e.classList.remove("tick"); void e.offsetWidth; e.classList.add("tick");
+        });
+      }
+    };
+    // One self-rescheduling timer (not later(), which would grow cleanups on every print).
+    let liveTimer = 0;
+    const schedule = () => {
+      // Mostly 0.7–2.5 s between prints; about one in eight is a 3–6 s lull.
+      const lull = Math.random() < 0.125;
+      liveTimer = window.setTimeout(() => { step(); schedule(); }, lull ? 3000 + Math.random() * 3000 : 700 + Math.random() * 1800);
+    };
+    if (!reduce) { schedule(); cleanups.push(() => clearTimeout(liveTimer)); }
 
     /* ── halftone WebGL plate ── */
     cleanups.push(initHalftone($<HTMLCanvasElement>("halftone"), reduce));
@@ -125,8 +144,7 @@ export default function LandingFX() {
         gsap.set("#chart .base .ln", { strokeDasharray: 3000, strokeDashoffset: 3000 });
         gsap.set("#chart .base .area, #chart .base .vb", { opacity: 0 });
         gsap.timeline({ scrollTrigger: { trigger: "#stage", start: "top 8%", end: "+=1300", scrub: 0.6, pin: true } })
-          .to("#paper .paper-head", { opacity: 0, y: -24, duration: 0.4 })
-          .to("#paper > div:not(.paper-head) > *", { opacity: 0, y: -18, stagger: 0.04, duration: 0.5 }, "<.05")
+          .to("#paper > div > *", { opacity: 0, y: -18, stagger: 0.04, duration: 0.5 })
           .to(term, { borderColor: "rgba(43,41,37,1)", duration: 0.4 }, "<.2")
           .to(".L .t-chrome", { opacity: 1, duration: 0.4, stagger: 0.05 }, "<")
           .to(".L .t-in", { opacity: 1, y: 0, stagger: 0.05, duration: 0.5 }, "<.1")

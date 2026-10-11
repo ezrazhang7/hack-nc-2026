@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { committedPct, formatMicroUsd, formatUnitPrice, formatUsdCompact, STAGE_LABEL } from "@/lib/api";
 import type { Round } from "@/lib/fixtures";
@@ -19,8 +19,17 @@ const fmt$ = (n: number, d = 0) => "$" + n.toLocaleString("en-US", { minimumFrac
 const fmtM = (n: number) => (n >= 1e6 ? `$${+(n / 1e6).toFixed(2)}M` : `$${Math.round(n / 1e3)}K`);
 const $ = <T extends Element = HTMLElement>(id: string) => document.getElementById(id) as unknown as T;
 
-export default function RoundTerminal({ co, preview = false, live: simulate = true }: { co: Round; preview?: boolean; live?: boolean }) {
+type Props = {
+  co: Round; preview?: boolean; live?: boolean;
+  /** Landing only: fixture companies listed in a Markets tab; picking one swaps the whole terminal. */
+  watch?: Round[]; onPick?: (t: string) => void;
+};
+
+export default function RoundTerminal({ co, preview = false, live: simulate = true, watch, onPick }: Props) {
   const real = !!co.slug;
+  const [side, setSide] = useState<"markets" | "commits">("markets");
+  const markets = !!watch?.length && side === "markets";
+  const shown = useRef<string | null>(null);
   const CAP = co.cap ?? 100000;
   // Exact unit price in micro-USD: the API's integer for real rounds, the fixture's display price otherwise.
   const priceMicro = BigInt(co.pMicro ?? String(Math.round(co.p * 1e6)));
@@ -37,6 +46,10 @@ export default function RoundTerminal({ co, preview = false, live: simulate = tr
     const cleanups: (() => void)[] = [];
     const every = (fn: () => void, ms: number) => { const id = setInterval(fn, ms); cleanups.push(() => clearInterval(id)); };
     const later = (fn: () => void, ms: number) => { const id = setTimeout(fn, ms); cleanups.push(() => clearTimeout(id)); };
+    // Watchlist switch: crossfade the panels and re-wipe the chart. The first mount stays still.
+    const switched = shown.current !== null && shown.current !== co.t;
+    shown.current = co.t;
+    if (switched && !reduce) { const term = $("term"); term.classList.remove("swap"); void term.offsetWidth; term.classList.add("swap"); }
     // Own tag (not data-gen) so LandingFX's start-up sweep of data-gen nodes leaves these rows alone.
     document.querySelectorAll("#fills [data-term]").forEach((n) => n.remove());
 
@@ -226,6 +239,7 @@ export default function RoundTerminal({ co, preview = false, live: simulate = tr
         }, () => { C.live = 0; drawOverlay(); });
       };
       drawBase();
+      if (switched) { const g = geo(); animate("wipe", 700, (p) => svg.querySelector("#creveal-r")?.setAttribute("width", String(p * g.W))); }
       let cw = svg.clientWidth;
       const onResizeChart = () => { if (Math.abs(svg.clientWidth - cw) > 2) { cw = svg.clientWidth; drawBase(); ScrollTrigger.refresh(); } };
       addEventListener("resize", onResizeChart);
@@ -241,6 +255,14 @@ export default function RoundTerminal({ co, preview = false, live: simulate = tr
 
       const qn = $("qn"), qt = $("qt"), buy = $("buy"), chips = $("chips");
       const label = (q: number) => `Commit · ${q.toLocaleString("en-US")} units`;
+      // On a switch, React skips text it thinks is unchanged, so reset what the handlers below mutate.
+      if (switched && !real) {
+        qn.textContent = qty.toLocaleString("en-US");
+        [...chips.children].forEach((b) => b.classList.toggle("on", b.textContent === "Max" ? qty === max && max < 1000 : +(b as HTMLElement).dataset.q! === qty));
+        if (!full) buy.textContent = label(qty);
+        $("c-raised").textContent = fmt$(raised);
+        const cb = $("c-backers"); if (cb) cb.textContent = String(co.b);
+      }
       const onChip = (e: Event) => {
         const b = (e.target as Element).closest("button") as HTMLButtonElement | null; if (!b) return;
         [...chips.children].forEach((x) => x.classList.toggle("on", x === b));
@@ -272,7 +294,7 @@ export default function RoundTerminal({ co, preview = false, live: simulate = tr
       cleanups.reverse().forEach((fn) => fn());
       document.querySelectorAll("#fills [data-term]").forEach((n) => n.remove());
     };
-  }, [co, preview, full, ISSUED, CAP, simulate, real]);
+  }, [co, preview, full, ISSUED, CAP, simulate, real, qty, max, raised]);
 
   const tag = preview ? "Preview" : "Live";
   return (
@@ -283,9 +305,33 @@ export default function RoundTerminal({ co, preview = false, live: simulate = tr
       </div>
       <div className="tgrid">
         <aside className="panel book">
-          <div className="ptabs t-chrome"><span className="on">Commitments</span></div>
+          {watch?.length ? (
+            <div className="ptabs t-chrome" role="tablist" aria-label="Left panel">
+              <button type="button" role="tab" aria-selected={side === "markets"} className={side === "markets" ? "on" : ""} onClick={() => setSide("markets")}>Markets</button>
+              <button type="button" role="tab" aria-selected={side === "commits"} className={side === "commits" ? "on" : ""} onClick={() => setSide("commits")}>Commitments</button>
+            </div>
+          ) : (
+            <div className="ptabs t-chrome"><span className="on">Commitments</span></div>
+          )}
+          {markets && (
+            <div className="wl t-in">
+              <div className="wh"><span>Round</span><span>Price</span><span>Committed</span></div>
+              {/* Open rounds by how full they are, then full rounds. Prices are fixed, so the bar is what moves. */}
+              {[...watch!].sort((a, b) => (a.sub >= 100 ? 1 : 0) - (b.sub >= 100 ? 1 : 0) || b.sub - a.sub).map((r) => {
+                const on = r.t === co.t, isFull = r.sub >= 100;
+                return (
+                  <button type="button" key={r.t} className={"wr" + (on ? " on" : "")} aria-pressed={on} onClick={() => onPick?.(r.t)}>
+                    <span className="wt"><b>{on && !isFull && <i className="live" aria-hidden="true" />}{r.t}</b><small>{r.n}</small></span>
+                    <span className="wp">{fmt$(r.p, 2)}</span>
+                    <span className="wc"><em className={isFull ? "full" : ""}>{isFull ? "Full" : `${r.sub}%`}</em><i><u style={{ width: `${Math.min(r.sub, 100)}%` }} /></i></span>
+                  </button>
+                );
+              })}
+              <p className="wnote">Fixed price per round. The bar is how much of each round is committed.</p>
+            </div>
+          )}
           {!real && (
-            <div className="cap t-in">
+            <div className="cap t-in" hidden={markets}>
               <div className="lbl"><span>Round capacity</span><span>{CAP.toLocaleString("en-US")} units</span></div>
               <div className="meter"><i style={{ width: `${ISSUED / CAP * 100}%` }}></i></div>
               <div className="nums"><span className="up">{ISSUED.toLocaleString("en-US")} committed</span><span>{(CAP - ISSUED).toLocaleString("en-US")} left</span></div>
@@ -294,7 +340,7 @@ export default function RoundTerminal({ co, preview = false, live: simulate = tr
           {real ? (
             <p className="tempty t-in">Each commitment will list here once wallet checkout is live. Amounts are allocated pro rata when the round closes.</p>
           ) : (
-            <div className="fills" id="fills">
+            <div className="fills" id="fills" hidden={markets}>
               <div className="fh"><span>Time</span><span>Units</span><span>Total</span></div>
             </div>
           )}
