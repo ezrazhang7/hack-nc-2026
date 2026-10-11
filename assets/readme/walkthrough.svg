@@ -1,0 +1,284 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1000" role="img" aria-labelledby="t d">
+  <title id="t">Prospecto demo walkthrough</title>
+  <desc id="d">Eight stops in order: the front page at /, the founder interview at /list/, the Estimate Desk at /desk/, company discovery at /invest/, one company view at /invest/?ticker=MOTH, the play-credit portfolio at /portfolio/, the real-layer demo wallet at /wallet/, and founder controls at /manage/.</desc>
+  <style>
+    .r0 .card{animation:card0 16.8s ease-in-out infinite}
+    @keyframes card0{0.000%{fill-opacity:0;stroke-opacity:.14}0.000%{fill-opacity:0;stroke-opacity:.14}1.667%{fill-opacity:.09;stroke-opacity:.75}10.476%{fill-opacity:.09;stroke-opacity:.75}12.976%{fill-opacity:0;stroke-opacity:.14}100.000%{fill-opacity:0;stroke-opacity:.14}}
+    .r0 .tick{animation:tick0 16.8s ease-in-out infinite}
+    @keyframes tick0{0.000%{opacity:0;transform:scaleY(.2)}0.000%{opacity:0;transform:scaleY(.2)}1.667%{opacity:1;transform:scaleY(1)}10.476%{opacity:1;transform:scaleY(1)}12.976%{opacity:0;transform:scaleY(.2)}100.000%{opacity:0;transform:scaleY(.2)}}
+    .r0 .dim{animation:dim0 16.8s ease-in-out infinite}
+    @keyframes dim0{0.000%{opacity:.62}0.000%{opacity:.62}1.667%{opacity:1}10.476%{opacity:1}12.976%{opacity:.62}90.476%{opacity:.62}92.560%{opacity:.92}97.321%{opacity:.92}100.000%{opacity:.62}}
+    .r0 .stop{animation:stop0 16.8s ease-in-out infinite}
+    @keyframes stop0{0.000%{fill-opacity:0}0.000%{fill-opacity:0}1.667%{fill-opacity:1}10.476%{fill-opacity:1}12.976%{fill-opacity:.45}90.476%{fill-opacity:.45}92.560%{fill-opacity:1}97.321%{fill-opacity:1}100.000%{fill-opacity:0}}
+    .r0 .ring{animation:ring0 16.8s ease-out infinite}
+    @keyframes ring0{0.000%{opacity:0;transform:scale(1)}0.000%{opacity:0;transform:scale(1)}0.298%{opacity:.8;transform:scale(1)}5.952%{opacity:0;transform:scale(2.6)}100.000%{opacity:0;transform:scale(2.6)}}
+    .p0{animation:p0 16.8s linear infinite}
+    @keyframes p0{0.000%{opacity:0}0.000%{opacity:0}0.006%{opacity:1}11.310%{opacity:1}11.315%{opacity:0}100.000%{opacity:0}}
+    .k0{animation:k0 16.8s steps(1) infinite}
+    @keyframes k0{0.000%{transform:translateX(0)}0.000%{transform:translateX(0)}1.607%{transform:translateX(12.04px)}100.000%{transform:translateX(12.04px)}}
+    .r1 .card{animation:card1 16.8s ease-in-out infinite}
+    @keyframes card1{0.000%{fill-opacity:0;stroke-opacity:.14}11.310%{fill-opacity:0;stroke-opacity:.14}12.976%{fill-opacity:.09;stroke-opacity:.75}21.786%{fill-opacity:.09;stroke-opacity:.75}24.286%{fill-opacity:0;stroke-opacity:.14}100.000%{fill-opacity:0;stroke-opacity:.14}}
+    .r1 .tick{animation:tick1 16.8s ease-in-out infinite}
+    @keyframes tick1{0.000%{opacity:0;transform:scaleY(.2)}11.310%{opacity:0;transform:scaleY(.2)}12.976%{opacity:1;transform:scaleY(1)}21.786%{opacity:1;transform:scaleY(1)}24.286%{opacity:0;transform:scaleY(.2)}100.000%{opacity:0;transform:scaleY(.2)}}
+    .r1 .dim{animation:dim1 16.8s ease-in-out infinite}
+    @keyframes dim1{0.000%{opacity:.62}11.310%{opacity:.62}12.976%{opacity:1}21.786%{opacity:1}24.286%{opacity:.62}90.476%{opacity:.62}92.560%{opacity:.92}97.321%{opacity:.92}100.000%{opacity:.62}}
+    .r1 .stop{animation:stop1 16.8s ease-in-out infinite}
+    @keyframes stop1{0.000%{fill-opacity:0}11.310%{fill-opacity:0}12.976%{fill-opacity:1}21.786%{fill-opacity:1}24.286%{fill-opacity:.45}90.476%{fill-opacity:.45}92.560%{fill-opacity:1}97.321%{fill-opacity:1}100.000%{fill-opacity:0}}
+    .r1 .ring{animation:ring1 16.8s ease-out infinite}
+    @keyframes ring1{0.000%{opacity:0;transform:scale(1)}11.310%{opacity:0;transform:scale(1)}11.607%{opacity:.8;transform:scale(1)}17.262%{opacity:0;transform:scale(2.6)}100.000%{opacity:0;transform:scale(2.6)}}
+    .p1{animation:p1 16.8s linear infinite}
+    @keyframes p1{0.000%{opacity:0}11.310%{opacity:0}11.315%{opacity:1}22.619%{opacity:1}22.625%{opacity:0}100.000%{opacity:0}}
+    .k1{animation:k1 16.8s steps(1) infinite}
+    @keyframes k1{0.000%{transform:translateX(0)}11.310%{transform:translateX(0)}12.421%{transform:translateX(12.04px)}12.817%{transform:translateX(24.08px)}13.214%{transform:translateX(36.12px)}13.611%{transform:translateX(48.16px)}14.008%{transform:translateX(60.20px)}14.405%{transform:translateX(72.24px)}100.000%{transform:translateX(72.24px)}}
+    .r2 .card{animation:card2 16.8s ease-in-out infinite}
+    @keyframes card2{0.000%{fill-opacity:0;stroke-opacity:.14}22.619%{fill-opacity:0;stroke-opacity:.14}24.286%{fill-opacity:.09;stroke-opacity:.75}33.095%{fill-opacity:.09;stroke-opacity:.75}35.595%{fill-opacity:0;stroke-opacity:.14}100.000%{fill-opacity:0;stroke-opacity:.14}}
+    .r2 .tick{animation:tick2 16.8s ease-in-out infinite}
+    @keyframes tick2{0.000%{opacity:0;transform:scaleY(.2)}22.619%{opacity:0;transform:scaleY(.2)}24.286%{opacity:1;transform:scaleY(1)}33.095%{opacity:1;transform:scaleY(1)}35.595%{opacity:0;transform:scaleY(.2)}100.000%{opacity:0;transform:scaleY(.2)}}
+    .r2 .dim{animation:dim2 16.8s ease-in-out infinite}
+    @keyframes dim2{0.000%{opacity:.62}22.619%{opacity:.62}24.286%{opacity:1}33.095%{opacity:1}35.595%{opacity:.62}90.476%{opacity:.62}92.560%{opacity:.92}97.321%{opacity:.92}100.000%{opacity:.62}}
+    .r2 .stop{animation:stop2 16.8s ease-in-out infinite}
+    @keyframes stop2{0.000%{fill-opacity:0}22.619%{fill-opacity:0}24.286%{fill-opacity:1}33.095%{fill-opacity:1}35.595%{fill-opacity:.45}90.476%{fill-opacity:.45}92.560%{fill-opacity:1}97.321%{fill-opacity:1}100.000%{fill-opacity:0}}
+    .r2 .ring{animation:ring2 16.8s ease-out infinite}
+    @keyframes ring2{0.000%{opacity:0;transform:scale(1)}22.619%{opacity:0;transform:scale(1)}22.917%{opacity:.8;transform:scale(1)}28.571%{opacity:0;transform:scale(2.6)}100.000%{opacity:0;transform:scale(2.6)}}
+    .p2{animation:p2 16.8s linear infinite}
+    @keyframes p2{0.000%{opacity:0}22.619%{opacity:0}22.625%{opacity:1}33.929%{opacity:1}33.935%{opacity:0}100.000%{opacity:0}}
+    .k2{animation:k2 16.8s steps(1) infinite}
+    @keyframes k2{0.000%{transform:translateX(0)}22.619%{transform:translateX(0)}23.730%{transform:translateX(12.04px)}24.127%{transform:translateX(24.08px)}24.524%{transform:translateX(36.12px)}24.921%{transform:translateX(48.16px)}25.317%{transform:translateX(60.20px)}25.714%{transform:translateX(72.24px)}100.000%{transform:translateX(72.24px)}}
+    .r3 .card{animation:card3 16.8s ease-in-out infinite}
+    @keyframes card3{0.000%{fill-opacity:0;stroke-opacity:.14}33.929%{fill-opacity:0;stroke-opacity:.14}35.595%{fill-opacity:.09;stroke-opacity:.75}44.405%{fill-opacity:.09;stroke-opacity:.75}46.905%{fill-opacity:0;stroke-opacity:.14}100.000%{fill-opacity:0;stroke-opacity:.14}}
+    .r3 .tick{animation:tick3 16.8s ease-in-out infinite}
+    @keyframes tick3{0.000%{opacity:0;transform:scaleY(.2)}33.929%{opacity:0;transform:scaleY(.2)}35.595%{opacity:1;transform:scaleY(1)}44.405%{opacity:1;transform:scaleY(1)}46.905%{opacity:0;transform:scaleY(.2)}100.000%{opacity:0;transform:scaleY(.2)}}
+    .r3 .dim{animation:dim3 16.8s ease-in-out infinite}
+    @keyframes dim3{0.000%{opacity:.62}33.929%{opacity:.62}35.595%{opacity:1}44.405%{opacity:1}46.905%{opacity:.62}90.476%{opacity:.62}92.560%{opacity:.92}97.321%{opacity:.92}100.000%{opacity:.62}}
+    .r3 .stop{animation:stop3 16.8s ease-in-out infinite}
+    @keyframes stop3{0.000%{fill-opacity:0}33.929%{fill-opacity:0}35.595%{fill-opacity:1}44.405%{fill-opacity:1}46.905%{fill-opacity:.45}90.476%{fill-opacity:.45}92.560%{fill-opacity:1}97.321%{fill-opacity:1}100.000%{fill-opacity:0}}
+    .r3 .ring{animation:ring3 16.8s ease-out infinite}
+    @keyframes ring3{0.000%{opacity:0;transform:scale(1)}33.929%{opacity:0;transform:scale(1)}34.226%{opacity:.8;transform:scale(1)}39.881%{opacity:0;transform:scale(2.6)}100.000%{opacity:0;transform:scale(2.6)}}
+    .p3{animation:p3 16.8s linear infinite}
+    @keyframes p3{0.000%{opacity:0}33.929%{opacity:0}33.935%{opacity:1}45.238%{opacity:1}45.244%{opacity:0}100.000%{opacity:0}}
+    .k3{animation:k3 16.8s steps(1) infinite}
+    @keyframes k3{0.000%{transform:translateX(0)}33.929%{transform:translateX(0)}35.015%{transform:translateX(12.04px)}35.387%{transform:translateX(24.08px)}35.759%{transform:translateX(36.12px)}36.131%{transform:translateX(48.16px)}36.503%{transform:translateX(60.20px)}36.875%{transform:translateX(72.24px)}37.247%{transform:translateX(84.28px)}37.619%{transform:translateX(96.32px)}100.000%{transform:translateX(96.32px)}}
+    .r4 .card{animation:card4 16.8s ease-in-out infinite}
+    @keyframes card4{0.000%{fill-opacity:0;stroke-opacity:.14}45.238%{fill-opacity:0;stroke-opacity:.14}46.905%{fill-opacity:.09;stroke-opacity:.75}55.714%{fill-opacity:.09;stroke-opacity:.75}58.214%{fill-opacity:0;stroke-opacity:.14}100.000%{fill-opacity:0;stroke-opacity:.14}}
+    .r4 .tick{animation:tick4 16.8s ease-in-out infinite}
+    @keyframes tick4{0.000%{opacity:0;transform:scaleY(.2)}45.238%{opacity:0;transform:scaleY(.2)}46.905%{opacity:1;transform:scaleY(1)}55.714%{opacity:1;transform:scaleY(1)}58.214%{opacity:0;transform:scaleY(.2)}100.000%{opacity:0;transform:scaleY(.2)}}
+    .r4 .dim{animation:dim4 16.8s ease-in-out infinite}
+    @keyframes dim4{0.000%{opacity:.62}45.238%{opacity:.62}46.905%{opacity:1}55.714%{opacity:1}58.214%{opacity:.62}90.476%{opacity:.62}92.560%{opacity:.92}97.321%{opacity:.92}100.000%{opacity:.62}}
+    .r4 .stop{animation:stop4 16.8s ease-in-out infinite}
+    @keyframes stop4{0.000%{fill-opacity:0}45.238%{fill-opacity:0}46.905%{fill-opacity:1}55.714%{fill-opacity:1}58.214%{fill-opacity:.45}90.476%{fill-opacity:.45}92.560%{fill-opacity:1}97.321%{fill-opacity:1}100.000%{fill-opacity:0}}
+    .r4 .ring{animation:ring4 16.8s ease-out infinite}
+    @keyframes ring4{0.000%{opacity:0;transform:scale(1)}45.238%{opacity:0;transform:scale(1)}45.536%{opacity:.8;transform:scale(1)}51.190%{opacity:0;transform:scale(2.6)}100.000%{opacity:0;transform:scale(2.6)}}
+    .p4{animation:p4 16.8s linear infinite}
+    @keyframes p4{0.000%{opacity:0}45.238%{opacity:0}45.244%{opacity:1}56.548%{opacity:1}56.554%{opacity:0}100.000%{opacity:0}}
+    .k4{animation:k4 16.8s steps(1) infinite}
+    @keyframes k4{0.000%{transform:translateX(0)}45.238%{transform:translateX(0)}46.161%{transform:translateX(12.04px)}46.369%{transform:translateX(24.08px)}46.577%{transform:translateX(36.12px)}46.786%{transform:translateX(48.16px)}46.994%{transform:translateX(60.20px)}47.202%{transform:translateX(72.24px)}47.411%{transform:translateX(84.28px)}47.619%{transform:translateX(96.32px)}47.827%{transform:translateX(108.36px)}48.036%{transform:translateX(120.40px)}48.244%{transform:translateX(132.44px)}48.452%{transform:translateX(144.48px)}48.661%{transform:translateX(156.52px)}48.869%{transform:translateX(168.56px)}49.077%{transform:translateX(180.60px)}49.286%{transform:translateX(192.64px)}49.494%{transform:translateX(204.68px)}49.702%{transform:translateX(216.72px)}49.911%{transform:translateX(228.76px)}50.119%{transform:translateX(240.80px)}100.000%{transform:translateX(240.80px)}}
+    .r5 .card{animation:card5 16.8s ease-in-out infinite}
+    @keyframes card5{0.000%{fill-opacity:0;stroke-opacity:.14}56.548%{fill-opacity:0;stroke-opacity:.14}58.214%{fill-opacity:.09;stroke-opacity:.75}67.024%{fill-opacity:.09;stroke-opacity:.75}69.524%{fill-opacity:0;stroke-opacity:.14}100.000%{fill-opacity:0;stroke-opacity:.14}}
+    .r5 .tick{animation:tick5 16.8s ease-in-out infinite}
+    @keyframes tick5{0.000%{opacity:0;transform:scaleY(.2)}56.548%{opacity:0;transform:scaleY(.2)}58.214%{opacity:1;transform:scaleY(1)}67.024%{opacity:1;transform:scaleY(1)}69.524%{opacity:0;transform:scaleY(.2)}100.000%{opacity:0;transform:scaleY(.2)}}
+    .r5 .dim{animation:dim5 16.8s ease-in-out infinite}
+    @keyframes dim5{0.000%{opacity:.62}56.548%{opacity:.62}58.214%{opacity:1}67.024%{opacity:1}69.524%{opacity:.62}90.476%{opacity:.62}92.560%{opacity:.92}97.321%{opacity:.92}100.000%{opacity:.62}}
+    .r5 .stop{animation:stop5 16.8s ease-in-out infinite}
+    @keyframes stop5{0.000%{fill-opacity:0}56.548%{fill-opacity:0}58.214%{fill-opacity:1}67.024%{fill-opacity:1}69.524%{fill-opacity:.45}90.476%{fill-opacity:.45}92.560%{fill-opacity:1}97.321%{fill-opacity:1}100.000%{fill-opacity:0}}
+    .r5 .ring{animation:ring5 16.8s ease-out infinite}
+    @keyframes ring5{0.000%{opacity:0;transform:scale(1)}56.548%{opacity:0;transform:scale(1)}56.845%{opacity:.8;transform:scale(1)}62.500%{opacity:0;transform:scale(2.6)}100.000%{opacity:0;transform:scale(2.6)}}
+    .p5{animation:p5 16.8s linear infinite}
+    @keyframes p5{0.000%{opacity:0}56.548%{opacity:0}56.554%{opacity:1}67.857%{opacity:1}67.863%{opacity:0}100.000%{opacity:0}}
+    .k5{animation:k5 16.8s steps(1) infinite}
+    @keyframes k5{0.000%{transform:translateX(0)}56.548%{transform:translateX(0)}57.614%{transform:translateX(12.04px)}57.965%{transform:translateX(24.08px)}58.317%{transform:translateX(36.12px)}58.669%{transform:translateX(48.16px)}59.021%{transform:translateX(60.20px)}59.372%{transform:translateX(72.24px)}59.724%{transform:translateX(84.28px)}60.076%{transform:translateX(96.32px)}60.427%{transform:translateX(108.36px)}60.779%{transform:translateX(120.40px)}61.131%{transform:translateX(132.44px)}100.000%{transform:translateX(132.44px)}}
+    .r6 .card{animation:card6 16.8s ease-in-out infinite}
+    @keyframes card6{0.000%{fill-opacity:0;stroke-opacity:.14}67.857%{fill-opacity:0;stroke-opacity:.14}69.524%{fill-opacity:.09;stroke-opacity:.75}78.333%{fill-opacity:.09;stroke-opacity:.75}80.833%{fill-opacity:0;stroke-opacity:.14}100.000%{fill-opacity:0;stroke-opacity:.14}}
+    .r6 .tick{animation:tick6 16.8s ease-in-out infinite}
+    @keyframes tick6{0.000%{opacity:0;transform:scaleY(.2)}67.857%{opacity:0;transform:scaleY(.2)}69.524%{opacity:1;transform:scaleY(1)}78.333%{opacity:1;transform:scaleY(1)}80.833%{opacity:0;transform:scaleY(.2)}100.000%{opacity:0;transform:scaleY(.2)}}
+    .r6 .dim{animation:dim6 16.8s ease-in-out infinite}
+    @keyframes dim6{0.000%{opacity:.62}67.857%{opacity:.62}69.524%{opacity:1}78.333%{opacity:1}80.833%{opacity:.62}90.476%{opacity:.62}92.560%{opacity:.92}97.321%{opacity:.92}100.000%{opacity:.62}}
+    .r6 .stop{animation:stop6 16.8s ease-in-out infinite}
+    @keyframes stop6{0.000%{fill-opacity:0}67.857%{fill-opacity:0}69.524%{fill-opacity:1}78.333%{fill-opacity:1}80.833%{fill-opacity:.45}90.476%{fill-opacity:.45}92.560%{fill-opacity:1}97.321%{fill-opacity:1}100.000%{fill-opacity:0}}
+    .r6 .ring{animation:ring6 16.8s ease-out infinite}
+    @keyframes ring6{0.000%{opacity:0;transform:scale(1)}67.857%{opacity:0;transform:scale(1)}68.155%{opacity:.8;transform:scale(1)}73.810%{opacity:0;transform:scale(2.6)}100.000%{opacity:0;transform:scale(2.6)}}
+    .p6{animation:p6 16.8s linear infinite}
+    @keyframes p6{0.000%{opacity:0}67.857%{opacity:0}67.863%{opacity:1}79.167%{opacity:1}79.173%{opacity:0}100.000%{opacity:0}}
+    .k6{animation:k6 16.8s steps(1) infinite}
+    @keyframes k6{0.000%{transform:translateX(0)}67.857%{transform:translateX(0)}68.943%{transform:translateX(12.04px)}69.315%{transform:translateX(24.08px)}69.687%{transform:translateX(36.12px)}70.060%{transform:translateX(48.16px)}70.432%{transform:translateX(60.20px)}70.804%{transform:translateX(72.24px)}71.176%{transform:translateX(84.28px)}71.548%{transform:translateX(96.32px)}100.000%{transform:translateX(96.32px)}}
+    .r7 .card{animation:card7 16.8s ease-in-out infinite}
+    @keyframes card7{0.000%{fill-opacity:0;stroke-opacity:.14}79.167%{fill-opacity:0;stroke-opacity:.14}80.833%{fill-opacity:.09;stroke-opacity:.75}89.643%{fill-opacity:.09;stroke-opacity:.75}92.143%{fill-opacity:0;stroke-opacity:.14}100.000%{fill-opacity:0;stroke-opacity:.14}}
+    .r7 .tick{animation:tick7 16.8s ease-in-out infinite}
+    @keyframes tick7{0.000%{opacity:0;transform:scaleY(.2)}79.167%{opacity:0;transform:scaleY(.2)}80.833%{opacity:1;transform:scaleY(1)}89.643%{opacity:1;transform:scaleY(1)}92.143%{opacity:0;transform:scaleY(.2)}100.000%{opacity:0;transform:scaleY(.2)}}
+    .r7 .dim{animation:dim7 16.8s ease-in-out infinite}
+    @keyframes dim7{0.000%{opacity:.62}79.167%{opacity:.62}80.833%{opacity:1}89.643%{opacity:1}92.560%{opacity:.92}97.321%{opacity:.92}100.000%{opacity:.62}}
+    .r7 .stop{animation:stop7 16.8s ease-in-out infinite}
+    @keyframes stop7{0.000%{fill-opacity:0}79.167%{fill-opacity:0}80.833%{fill-opacity:1}89.643%{fill-opacity:1}92.143%{fill-opacity:.45}90.476%{fill-opacity:.45}92.560%{fill-opacity:1}97.321%{fill-opacity:1}100.000%{fill-opacity:0}}
+    .r7 .ring{animation:ring7 16.8s ease-out infinite}
+    @keyframes ring7{0.000%{opacity:0;transform:scale(1)}79.167%{opacity:0;transform:scale(1)}79.464%{opacity:.8;transform:scale(1)}85.119%{opacity:0;transform:scale(2.6)}100.000%{opacity:0;transform:scale(2.6)}}
+    .p7{animation:p7 16.8s linear infinite}
+    @keyframes p7{0.000%{opacity:0}79.167%{opacity:0}79.173%{opacity:1}90.476%{opacity:1}90.482%{opacity:0}100.000%{opacity:0}}
+    .k7{animation:k7 16.8s steps(1) infinite}
+    @keyframes k7{0.000%{transform:translateX(0)}79.167%{transform:translateX(0)}80.253%{transform:translateX(12.04px)}80.625%{transform:translateX(24.08px)}80.997%{transform:translateX(36.12px)}81.369%{transform:translateX(48.16px)}81.741%{transform:translateX(60.20px)}82.113%{transform:translateX(72.24px)}82.485%{transform:translateX(84.28px)}82.857%{transform:translateX(96.32px)}100.000%{transform:translateX(96.32px)}}
+    .train{animation:train 16.8s cubic-bezier(.65,0,.35,1) infinite}
+    @keyframes train{0.000%{transform:translateY(0)}0.000%{transform:translateY(0.0px)}11.310%{transform:translateY(0.0px)}13.810%{transform:translateY(92.0px)}22.619%{transform:translateY(92.0px)}25.119%{transform:translateY(184.0px)}33.929%{transform:translateY(184.0px)}36.429%{transform:translateY(276.0px)}45.238%{transform:translateY(276.0px)}47.738%{transform:translateY(368.0px)}56.548%{transform:translateY(368.0px)}59.048%{transform:translateY(460.0px)}67.857%{transform:translateY(460.0px)}70.357%{transform:translateY(552.0px)}79.167%{transform:translateY(552.0px)}81.667%{transform:translateY(644.0px)}90.476%{transform:translateY(644.0px)}97.321%{transform:translateY(644.0px)}100.000%{transform:translateY(0)}}
+    .prog{transform-origin:76px 226.0px;animation:prog 16.8s cubic-bezier(.65,0,.35,1) infinite}
+    @keyframes prog{0.000%{transform:scaleY(0)}0.000%{transform:scaleY(0.0000)}11.310%{transform:scaleY(0.0000)}13.810%{transform:scaleY(0.1429)}22.619%{transform:scaleY(0.1429)}25.119%{transform:scaleY(0.2857)}33.929%{transform:scaleY(0.2857)}36.429%{transform:scaleY(0.4286)}45.238%{transform:scaleY(0.4286)}47.738%{transform:scaleY(0.5714)}56.548%{transform:scaleY(0.5714)}59.048%{transform:scaleY(0.7143)}67.857%{transform:scaleY(0.7143)}70.357%{transform:scaleY(0.8571)}79.167%{transform:scaleY(0.8571)}81.667%{transform:scaleY(1.0000)}90.476%{transform:scaleY(1.0000)}97.321%{transform:scaleY(1);opacity:1}100.000%{transform:scaleY(1);opacity:0}}
+    .fin{animation:fin 16.8s ease-in-out infinite}
+    @keyframes fin{0.000%{opacity:0}90.476%{opacity:0}92.560%{opacity:1}97.321%{opacity:1}100.000%{opacity:0}}
+    .caret{animation:blink .9s steps(1) infinite}@keyframes blink{50%{opacity:0}}
+    .tick{transform-box:fill-box;transform-origin:center}.ring{transform-box:fill-box;transform-origin:center}
+    @media (prefers-reduced-motion: reduce){*{animation:none!important}.p0{opacity:1}.k0{transform:translateX(12.04px)}}
+  </style>
+  <rect width="1200" height="1000" rx="18" fill="#0A0A09"/>
+  <text x="60" y="56" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="16" letter-spacing="2" fill="#ECE5D3" opacity=".65">DEMO WALKTHROUGH · EIGHT STOPS, ONE CLICK-PATH</text>
+  <text x="1140" y="56" text-anchor="end" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="16" letter-spacing="2" fill="#ECE5D3" opacity=".65">FOLLOW THE RAIL ↓</text>
+  <rect x="60" y="72" width="1080" height="1" fill="#ECE5D3" opacity=".4"/>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="20">
+    <rect x="60" y="98" width="1080" height="56" rx="12" fill="#161512" stroke="#ECE5D3" stroke-opacity=".16"/>
+    <circle cx="88" cy="126" r="6" fill="#E07A7A" opacity=".85"/>
+    <circle cx="110" cy="126" r="6" fill="#D9B45A" opacity=".85"/>
+    <circle cx="132" cy="126" r="6" fill="#5BD06A" opacity=".85"/>
+    <rect x="166" y="110" width="680" height="32" rx="8" fill="#0A0A09" stroke="#ECE5D3" stroke-opacity=".1"/>
+    <text x="184" y="133" fill="#ECE5D3" opacity=".45">localhost:3000</text>
+    <g class="p0" opacity="0"><text x="352.6" y="133" fill="#ECE5D3">/</text><g class="k0"><rect x="352.6" y="112" width="300" height="28" fill="#0A0A09"/><rect class="caret" x="353.6" y="118" width="2" height="20" fill="#ECE5D3"/></g></g>
+    <g class="p1" opacity="0"><text x="352.6" y="133" fill="#5BD06A">/list/</text><g class="k1"><rect x="352.6" y="112" width="300" height="28" fill="#0A0A09"/><rect class="caret" x="353.6" y="118" width="2" height="20" fill="#ECE5D3"/></g></g>
+    <g class="p2" opacity="0"><text x="352.6" y="133" fill="#7FA7C9">/desk/</text><g class="k2"><rect x="352.6" y="112" width="300" height="28" fill="#0A0A09"/><rect class="caret" x="353.6" y="118" width="2" height="20" fill="#ECE5D3"/></g></g>
+    <g class="p3" opacity="0"><text x="352.6" y="133" fill="#D9B45A">/invest/</text><g class="k3"><rect x="352.6" y="112" width="300" height="28" fill="#0A0A09"/><rect class="caret" x="353.6" y="118" width="2" height="20" fill="#ECE5D3"/></g></g>
+    <g class="p4" opacity="0"><text x="352.6" y="133" fill="#D9B45A">/invest/?ticker=MOTH</text><g class="k4"><rect x="352.6" y="112" width="300" height="28" fill="#0A0A09"/><rect class="caret" x="353.6" y="118" width="2" height="20" fill="#ECE5D3"/></g></g>
+    <g class="p5" opacity="0"><text x="352.6" y="133" fill="#E07A7A">/portfolio/</text><g class="k5"><rect x="352.6" y="112" width="300" height="28" fill="#0A0A09"/><rect class="caret" x="353.6" y="118" width="2" height="20" fill="#ECE5D3"/></g></g>
+    <g class="p6" opacity="0"><text x="352.6" y="133" fill="#E39A4B">/wallet/</text><g class="k6"><rect x="352.6" y="112" width="300" height="28" fill="#0A0A09"/><rect class="caret" x="353.6" y="118" width="2" height="20" fill="#ECE5D3"/></g></g>
+    <g class="p7" opacity="0"><text x="352.6" y="133" fill="#9C8CF2">/manage/</text><g class="k7"><rect x="352.6" y="112" width="300" height="28" fill="#0A0A09"/><rect class="caret" x="353.6" y="118" width="2" height="20" fill="#ECE5D3"/></g></g>
+    <text class="p0" opacity="0" x="1116" y="133" text-anchor="end" font-size="18" letter-spacing="2" fill="#ECE5D3">STEP 1 / 8</text>
+    <text class="p1" opacity="0" x="1116" y="133" text-anchor="end" font-size="18" letter-spacing="2" fill="#5BD06A">STEP 2 / 8</text>
+    <text class="p2" opacity="0" x="1116" y="133" text-anchor="end" font-size="18" letter-spacing="2" fill="#7FA7C9">STEP 3 / 8</text>
+    <text class="p3" opacity="0" x="1116" y="133" text-anchor="end" font-size="18" letter-spacing="2" fill="#D9B45A">STEP 4 / 8</text>
+    <text class="p4" opacity="0" x="1116" y="133" text-anchor="end" font-size="18" letter-spacing="2" fill="#D9B45A">STEP 5 / 8</text>
+    <text class="p5" opacity="0" x="1116" y="133" text-anchor="end" font-size="18" letter-spacing="2" fill="#E07A7A">STEP 6 / 8</text>
+    <text class="p6" opacity="0" x="1116" y="133" text-anchor="end" font-size="18" letter-spacing="2" fill="#E39A4B">STEP 7 / 8</text>
+    <text class="p7" opacity="0" x="1116" y="133" text-anchor="end" font-size="18" letter-spacing="2" fill="#9C8CF2">STEP 8 / 8</text>
+    <text class="fin" opacity="0" x="1116" y="133" text-anchor="end" font-size="18" letter-spacing="2" fill="#ECE5D3">TOUR COMPLETE ✓</text>
+  </g>
+  <rect x="75" y="226.0" width="2" height="644.0" fill="#ECE5D3" opacity=".16"/>
+  <defs><linearGradient id="railg" x1="0" x2="0" y1="226.0" y2="870.0" gradientUnits="userSpaceOnUse">
+    <stop offset="0.000" stop-color="#ECE5D3"/>
+    <stop offset="0.143" stop-color="#5BD06A"/>
+    <stop offset="0.286" stop-color="#7FA7C9"/>
+    <stop offset="0.429" stop-color="#D9B45A"/>
+    <stop offset="0.571" stop-color="#D9B45A"/>
+    <stop offset="0.714" stop-color="#E07A7A"/>
+    <stop offset="0.857" stop-color="#E39A4B"/>
+    <stop offset="1.000" stop-color="#9C8CF2"/>
+  </linearGradient></defs>
+  <rect class="prog" x="74.5" y="226.0" width="3" height="644.0" fill="url(#railg)"/>
+  <g class="r0">
+    <rect class="card" x="108" y="186" width="1032" height="80" rx="10" fill="#ECE5D3" fill-opacity="0" stroke="#ECE5D3" stroke-opacity=".14" stroke-width="1.5"/>
+    <rect class="tick" x="108" y="200" width="4" height="52" rx="2" fill="#ECE5D3" opacity="0"/>
+    <circle class="ring" cx="76" cy="226.0" r="10" fill="none" stroke="#ECE5D3" stroke-width="2" opacity="0"/>
+    <circle class="stop" cx="76" cy="226.0" r="9" fill="#ECE5D3" fill-opacity="0" stroke="#ECE5D3" stroke-width="2"/>
+    <g class="dim" opacity=".62">
+      <text x="134" y="221" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#ECE5D3">01</text>
+      <rect x="172" y="198" width="41.2" height="32" rx="7" fill="#ECE5D3" fill-opacity=".1" stroke="#ECE5D3" stroke-opacity=".5"/>
+      <text x="186" y="221" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="22" fill="#ECE5D3">/</text>
+      <text x="233.2" y="223" font-family="Georgia, 'Times New Roman', Times, serif" font-size="27" font-weight="700" fill="#ECE5D3">The front page</text>
+      <text x="1120" y="220" text-anchor="end" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" letter-spacing="2" fill="#ECE5D3">FRONT PAGE</text>
+      <text x="172" y="252" font-family="Georgia, 'Times New Roman', Times, serif" font-size="21" font-style="italic" fill="#ECE5D3" opacity=".88">Move your cursor over the halftone hero to move the sun</text>
+    </g>
+  </g>
+  <g class="r1">
+    <rect class="card" x="108" y="278" width="1032" height="80" rx="10" fill="#5BD06A" fill-opacity="0" stroke="#5BD06A" stroke-opacity=".14" stroke-width="1.5"/>
+    <rect class="tick" x="108" y="292" width="4" height="52" rx="2" fill="#5BD06A" opacity="0"/>
+    <circle class="ring" cx="76" cy="318.0" r="10" fill="none" stroke="#5BD06A" stroke-width="2" opacity="0"/>
+    <circle class="stop" cx="76" cy="318.0" r="9" fill="#5BD06A" fill-opacity="0" stroke="#5BD06A" stroke-width="2"/>
+    <g class="dim" opacity=".62">
+      <text x="134" y="313" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#5BD06A">02</text>
+      <rect x="172" y="290" width="107.5" height="32" rx="7" fill="#5BD06A" fill-opacity=".1" stroke="#5BD06A" stroke-opacity=".5"/>
+      <text x="186" y="313" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="22" fill="#5BD06A">/list/</text>
+      <text x="299.5" y="315" font-family="Georgia, 'Times New Roman', Times, serif" font-size="27" font-weight="700" fill="#ECE5D3">The founder interview</text>
+      <text x="1120" y="312" text-anchor="end" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" letter-spacing="2" fill="#5BD06A">FOUNDER</text>
+      <text x="172" y="344" font-family="Georgia, 'Times New Roman', Times, serif" font-size="21" font-style="italic" fill="#ECE5D3" opacity=".88">Paste links, watch evidence research run, preview the valuation, publish</text>
+    </g>
+  </g>
+  <g class="r2">
+    <rect class="card" x="108" y="370" width="1032" height="80" rx="10" fill="#7FA7C9" fill-opacity="0" stroke="#7FA7C9" stroke-opacity=".14" stroke-width="1.5"/>
+    <rect class="tick" x="108" y="384" width="4" height="52" rx="2" fill="#7FA7C9" opacity="0"/>
+    <circle class="ring" cx="76" cy="410.0" r="10" fill="none" stroke="#7FA7C9" stroke-width="2" opacity="0"/>
+    <circle class="stop" cx="76" cy="410.0" r="9" fill="#7FA7C9" fill-opacity="0" stroke="#7FA7C9" stroke-width="2"/>
+    <g class="dim" opacity=".62">
+      <text x="134" y="405" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#7FA7C9">03</text>
+      <rect x="172" y="382" width="107.5" height="32" rx="7" fill="#7FA7C9" fill-opacity=".1" stroke="#7FA7C9" stroke-opacity=".5"/>
+      <text x="186" y="405" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="22" fill="#7FA7C9">/desk/</text>
+      <text x="299.5" y="407" font-family="Georgia, 'Times New Roman', Times, serif" font-size="27" font-weight="700" fill="#ECE5D3">The Estimate Desk</text>
+      <text x="1120" y="404" text-anchor="end" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" letter-spacing="2" fill="#7FA7C9">MODEL</text>
+      <text x="172" y="436" font-family="Georgia, 'Times New Roman', Times, serif" font-size="21" font-style="italic" fill="#ECE5D3" opacity=".88">How each factor and the stage weights move the model value</text>
+    </g>
+  </g>
+  <g class="r3">
+    <rect class="card" x="108" y="462" width="1032" height="80" rx="10" fill="#D9B45A" fill-opacity="0" stroke="#D9B45A" stroke-opacity=".14" stroke-width="1.5"/>
+    <rect class="tick" x="108" y="476" width="4" height="52" rx="2" fill="#D9B45A" opacity="0"/>
+    <circle class="ring" cx="76" cy="502.0" r="10" fill="none" stroke="#D9B45A" stroke-width="2" opacity="0"/>
+    <circle class="stop" cx="76" cy="502.0" r="9" fill="#D9B45A" fill-opacity="0" stroke="#D9B45A" stroke-width="2"/>
+    <g class="dim" opacity=".62">
+      <text x="134" y="497" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#D9B45A">04</text>
+      <rect x="172" y="474" width="134.0" height="32" rx="7" fill="#D9B45A" fill-opacity=".1" stroke="#D9B45A" stroke-opacity=".5"/>
+      <text x="186" y="497" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="22" fill="#D9B45A">/invest/</text>
+      <text x="326.0" y="499" font-family="Georgia, 'Times New Roman', Times, serif" font-size="27" font-weight="700" fill="#ECE5D3">Discover</text>
+      <text x="1120" y="496" text-anchor="end" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" letter-spacing="2" fill="#D9B45A">INVESTOR</text>
+      <text x="172" y="528" font-family="Georgia, 'Times New Roman', Times, serif" font-size="21" font-style="italic" fill="#ECE5D3" opacity=".88">Every listed company, its ticker, model anchor and simulated market</text>
+    </g>
+  </g>
+  <g class="r4">
+    <rect class="card" x="108" y="554" width="1032" height="80" rx="10" fill="#D9B45A" fill-opacity="0" stroke="#D9B45A" stroke-opacity=".14" stroke-width="1.5"/>
+    <rect class="tick" x="108" y="568" width="4" height="52" rx="2" fill="#D9B45A" opacity="0"/>
+    <circle class="ring" cx="76" cy="594.0" r="10" fill="none" stroke="#D9B45A" stroke-width="2" opacity="0"/>
+    <circle class="stop" cx="76" cy="594.0" r="9" fill="#D9B45A" fill-opacity="0" stroke="#D9B45A" stroke-width="2"/>
+    <g class="dim" opacity=".62">
+      <text x="134" y="589" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#D9B45A">05</text>
+      <rect x="172" y="566" width="293.0" height="32" rx="7" fill="#D9B45A" fill-opacity=".1" stroke="#D9B45A" stroke-opacity=".5"/>
+      <text x="186" y="589" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="22" fill="#D9B45A">/invest/?ticker=MOTH</text>
+      <text x="485.0" y="591" font-family="Georgia, 'Times New Roman', Times, serif" font-size="27" font-weight="700" fill="#ECE5D3">One company, up close</text>
+      <text x="1120" y="588" text-anchor="end" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" letter-spacing="2" fill="#D9B45A">INVESTOR</text>
+      <text x="172" y="620" font-family="Georgia, 'Times New Roman', Times, serif" font-size="21" font-style="italic" fill="#ECE5D3" opacity=".88">Market, profile, evidence, valuation and the primary-issuance link</text>
+    </g>
+  </g>
+  <g class="r5">
+    <rect class="card" x="108" y="646" width="1032" height="80" rx="10" fill="#E07A7A" fill-opacity="0" stroke="#E07A7A" stroke-opacity=".14" stroke-width="1.5"/>
+    <rect class="tick" x="108" y="660" width="4" height="52" rx="2" fill="#E07A7A" opacity="0"/>
+    <circle class="ring" cx="76" cy="686.0" r="10" fill="none" stroke="#E07A7A" stroke-width="2" opacity="0"/>
+    <circle class="stop" cx="76" cy="686.0" r="9" fill="#E07A7A" fill-opacity="0" stroke="#E07A7A" stroke-width="2"/>
+    <g class="dim" opacity=".62">
+      <text x="134" y="681" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#E07A7A">06</text>
+      <rect x="172" y="658" width="173.8" height="32" rx="7" fill="#E07A7A" fill-opacity=".1" stroke="#E07A7A" stroke-opacity=".5"/>
+      <text x="186" y="681" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="22" fill="#E07A7A">/portfolio/</text>
+      <text x="365.8" y="683" font-family="Georgia, 'Times New Roman', Times, serif" font-size="27" font-weight="700" fill="#ECE5D3">Portfolio</text>
+      <text x="1120" y="680" text-anchor="end" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" letter-spacing="2" fill="#E07A7A">PLAY CREDITS</text>
+      <text x="172" y="712" font-family="Georgia, 'Times New Roman', Times, serif" font-size="21" font-style="italic" fill="#ECE5D3" opacity=".88">Play-credit holdings, P&amp;L and simulated fills kept in this browser</text>
+    </g>
+  </g>
+  <g class="r6">
+    <rect class="card" x="108" y="738" width="1032" height="80" rx="10" fill="#E39A4B" fill-opacity="0" stroke="#E39A4B" stroke-opacity=".14" stroke-width="1.5"/>
+    <rect class="tick" x="108" y="752" width="4" height="52" rx="2" fill="#E39A4B" opacity="0"/>
+    <circle class="ring" cx="76" cy="778.0" r="10" fill="none" stroke="#E39A4B" stroke-width="2" opacity="0"/>
+    <circle class="stop" cx="76" cy="778.0" r="9" fill="#E39A4B" fill-opacity="0" stroke="#E39A4B" stroke-width="2"/>
+    <g class="dim" opacity=".62">
+      <text x="134" y="773" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#E39A4B">07</text>
+      <rect x="172" y="750" width="134.0" height="32" rx="7" fill="#E39A4B" fill-opacity=".1" stroke="#E39A4B" stroke-opacity=".5"/>
+      <text x="186" y="773" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="22" fill="#E39A4B">/wallet/</text>
+      <text x="326.0" y="775" font-family="Georgia, 'Times New Roman', Times, serif" font-size="27" font-weight="700" fill="#ECE5D3">The wallet</text>
+      <text x="1120" y="772" text-anchor="end" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" letter-spacing="2" fill="#E39A4B">REAL LAYER</text>
+      <text x="172" y="804" font-family="Georgia, 'Times New Roman', Times, serif" font-size="21" font-style="italic" fill="#ECE5D3" opacity=".88">Prove a Phantom wallet, fund it through Nessie, sign a commitment, track allocation</text>
+    </g>
+  </g>
+  <g class="r7">
+    <rect class="card" x="108" y="830" width="1032" height="80" rx="10" fill="#9C8CF2" fill-opacity="0" stroke="#9C8CF2" stroke-opacity=".14" stroke-width="1.5"/>
+    <rect class="tick" x="108" y="844" width="4" height="52" rx="2" fill="#9C8CF2" opacity="0"/>
+    <circle class="ring" cx="76" cy="870.0" r="10" fill="none" stroke="#9C8CF2" stroke-width="2" opacity="0"/>
+    <circle class="stop" cx="76" cy="870.0" r="9" fill="#9C8CF2" fill-opacity="0" stroke="#9C8CF2" stroke-width="2"/>
+    <g class="dim" opacity=".62">
+      <text x="134" y="865" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="18" fill="#9C8CF2">08</text>
+      <rect x="172" y="842" width="134.0" height="32" rx="7" fill="#9C8CF2" fill-opacity=".1" stroke="#9C8CF2" stroke-opacity=".5"/>
+      <text x="186" y="865" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="22" fill="#9C8CF2">/manage/</text>
+      <text x="326.0" y="867" font-family="Georgia, 'Times New Roman', Times, serif" font-size="27" font-weight="700" fill="#ECE5D3">Founder controls</text>
+      <text x="1120" y="864" text-anchor="end" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="15" letter-spacing="2" fill="#9C8CF2">FOUNDER</text>
+      <text x="172" y="896" font-family="Georgia, 'Times New Roman', Times, serif" font-size="21" font-style="italic" fill="#ECE5D3" opacity=".88">Publication, receipt-token and primary-issuance controls</text>
+    </g>
+  </g>
+  <g class="train"><circle cx="76" cy="226.0" r="16" fill="#ECE5D3" opacity=".12"/><circle cx="76" cy="226.0" r="5" fill="#ECE5D3"/></g>
+  <rect x="60" y="936" width="1080" height="1" fill="#ECE5D3" opacity=".4"/>
+  <text x="60" y="970" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="16" letter-spacing="2" fill="#ECE5D3" opacity=".65">MOCK MONEY · SOLANA DEVNET · NO REAL SECURITIES</text>
+  <text x="1140" y="970" text-anchor="end" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="16" letter-spacing="2" fill="#ECE5D3" opacity=".65">npm run dev → localhost:3000</text>
+</svg>

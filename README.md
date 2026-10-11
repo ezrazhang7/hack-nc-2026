@@ -49,6 +49,13 @@ A founder pastes links: a website, a GitHub repo, a short pitch. Prospecto resea
 
 ## Demo walkthrough
 
+<p align="center">
+  <img src="./assets/readme/walkthrough.svg" width="100%" alt="Demo walkthrough in eight stops: the front page, the founder interview, the Estimate Desk, company discovery, one company view, the portfolio, the wallet and founder controls">
+</p>
+
+<details>
+<summary><b>The same walkthrough as text</b></summary>
+
 | Step | Page | What to look at |
 | --- | --- | --- |
 | 1 | `/` | The front page. Move your cursor over the halftone hero to move the sun |
@@ -59,6 +66,8 @@ A founder pastes links: a website, a GitHub repo, a short pitch. Prospecto resea
 | 6 | `/portfolio/` | Play-credit holdings, P&L and simulated fills kept in this browser |
 | 7 | `/wallet/` | Real-layer demo participation: prove a Phantom wallet, fund it through Nessie, sign a primary commitment and track allocation |
 | 8 | `/manage/` | Founder publication, receipt-token and primary-issuance controls |
+
+</details>
 
 ## Built with
 
