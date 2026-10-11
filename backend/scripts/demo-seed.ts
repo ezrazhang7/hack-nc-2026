@@ -39,8 +39,8 @@ interface Company {
   formationState?: string;
   founders: [name: string, title: string][];
   claims: Claim[];
-  /** Round state: percent of target committed, days since open, days until close. */
-  round: { committedPct: number; openedDaysAgo: number; closesInDays: number };
+  /** Round window: days since open, days until close. Demand is simulated in the browser (web/lib/demand.ts). */
+  round: { openedDaysAgo: number; closesInDays: number };
 }
 
 const FA = "FOUNDER_ATTESTED", PW = "PUBLIC_WEAK";
@@ -57,7 +57,7 @@ const COMPANIES: Company[] = [
     legalName: "Quippy App, Inc.",
     founders: [["Jonathan Li", "Founder/CEO"]],
     claims: [["product_status", "launched", PW, "LINK"], ["prior_shipped_products", "2", PW, "LINK", undefined, yc("quippy")], ["team_functions_count", "3", FA, "LINK", undefined, yc("quippy")], ["full_time_founders", "1", FA, "LINK", undefined, yc("quippy")]],
-    round: { committedPct: 72, openedDaysAgo: 4, closesInDays: 10 },
+    round: { openedDaysAgo: 4, closesInDays: 10 },
   },
   {
     slug: "heart-aerospace", ticker: "HEART", name: "Heart Aerospace", stage: "PROTOTYPE",
@@ -66,7 +66,7 @@ const COMPANIES: Company[] = [
     websiteUrl: "https://www.heartaerospace.com",
     founders: [["Anders Forslund", "Founder/CEO"]],
     claims: [["product_status", "prototype", PW, "LINK", undefined, HEART_RELEASE], ["team_functions_count", "4", PW, "LINK", undefined, yc("heart-aerospace")], ["full_time_founders", "1", FA, "LINK", undefined, yc("heart-aerospace")]],
-    round: { committedPct: 96, openedDaysAgo: 11, closesInDays: 3 },
+    round: { openedDaysAgo: 11, closesInDays: 3 },
   },
   {
     slug: "elimentary", ticker: "ELMT", name: "Elimentary", stage: "LAUNCHED",
@@ -75,7 +75,7 @@ const COMPANIES: Company[] = [
     websiteUrl: "https://www.elimentary.com",
     founders: [["Yogesh Gorjilla", "Founder/CEO"], ["Mannat Saini", "Founder/CTO"], ["Manoj Sarda", "Founder/COO"]],
     claims: [["product_status", "launched", PW, "LINK"], ["prior_shipped_products", "3", PW, "LINK", undefined, yc("elimentary")], ["prior_venture_users", "20000000", PW, "LINK", "Credit products", yc("elimentary")], ["team_functions_count", "4", PW, "LINK", undefined, yc("elimentary")], ["full_time_founders", "3", FA, "LINK", undefined, yc("elimentary")]],
-    round: { committedPct: 81, openedDaysAgo: 6, closesInDays: 8 },
+    round: { openedDaysAgo: 6, closesInDays: 8 },
   },
   {
     slug: "sinter-systems", ticker: "SNTR", name: "Sinter", stage: "PROTOTYPE",
@@ -85,7 +85,7 @@ const COMPANIES: Company[] = [
     legalName: "Sinter System Inc.",
     founders: [["Oliver Johnson", "Founder/CEO"], ["Justin Kwon", "Founder/COO"]],
     claims: [["product_status", "beta", PW, "LINK"], ["prior_shipped_products", "2", PW, "LINK", undefined, yc("sinter-systems")], ["team_functions_count", "4", PW, "LINK", undefined, yc("sinter-systems")], ["full_time_founders", "2", FA, "LINK", undefined, yc("sinter-systems")]],
-    round: { committedPct: 63, openedDaysAgo: 5, closesInDays: 9 },
+    round: { openedDaysAgo: 5, closesInDays: 9 },
   },
   {
     slug: "papaya", ticker: "PAPY", name: "Papaya", stage: "LAUNCHED",
@@ -94,7 +94,7 @@ const COMPANIES: Company[] = [
     websiteUrl: "https://papaya.fyi",
     founders: [["Macy Mody", "Founder/CEO"], ["Niyaz Puzhikkunnath", "Founder/CPO"], ["Faiz Vadakkumpadath", "Founder"]],
     claims: [["product_status", "launched", PW, "LINK"], ["prior_shipped_products", "3", PW, "LINK", undefined, yc("papaya")], ["prior_venture_revenue_usd", "10000000", PW, "LINK", "SafeBase", yc("papaya")], ["team_functions_count", "4", PW, "LINK", undefined, yc("papaya")], ["full_time_founders", "3", FA, "LINK", undefined, yc("papaya")]],
-    round: { committedPct: 88, openedDaysAgo: 8, closesInDays: 6 },
+    round: { openedDaysAgo: 8, closesInDays: 6 },
   },
   {
     slug: "vyra", ticker: "VYRA", name: "Vyra", stage: "LAUNCHED",
@@ -103,7 +103,7 @@ const COMPANIES: Company[] = [
     websiteUrl: "https://www.usevyra.com",
     founders: [["Caleb Pong", "Founder"], ["Sulan Zhang", "Founder"]],
     claims: [["product_status", "launched", PW, "LINK"], ["active_users", "76438", PW, "LINK"], ["prior_venture_users", "60000", PW, "LINK", "sulansart", yc("vyra")], ["team_functions_count", "4", PW, "LINK", undefined, yc("vyra")], ["full_time_founders", "2", FA, "LINK", undefined, yc("vyra")]],
-    round: { committedPct: 93, openedDaysAgo: 10, closesInDays: 4 },
+    round: { openedDaysAgo: 10, closesInDays: 4 },
   },
   {
     slug: "memorable", ticker: "MEMO", name: "Memorable", stage: "LAUNCHED",
@@ -112,7 +112,7 @@ const COMPANIES: Company[] = [
     websiteUrl: "https://www.memorable.sh",
     founders: [["Nikhil Krishnaswamy", "Founder/CEO"], ["Advaiyt Sane", "Founder/CTO"]],
     claims: [["product_status", "launched", PW, "LINK"], ["prior_shipped_products", "3", PW, "LINK", undefined, yc("memorable")], ["team_functions_count", "3", PW, "LINK", undefined, yc("memorable")], ["full_time_founders", "2", FA, "LINK", undefined, yc("memorable")]],
-    round: { committedPct: 69, openedDaysAgo: 3, closesInDays: 11 },
+    round: { openedDaysAgo: 3, closesInDays: 11 },
   },
   {
     slug: "linklane", ticker: "LINK", name: "LinkLane", stage: "LAUNCHED",
@@ -121,7 +121,7 @@ const COMPANIES: Company[] = [
     websiteUrl: "https://linklane.ai",
     founders: [["Christopher Ruaño", "Founder/CEO"], ["Patryk Wekwejt", "Founder/COO"]],
     claims: [["product_status", "launched", PW, "LINK"], ["tam_usd", "1000000000000", PW, "LINK", undefined, yc("linklane")], ["team_functions_count", "4", PW, "LINK", undefined, yc("linklane")], ["full_time_founders", "2", FA, "LINK", undefined, yc("linklane")]],
-    round: { committedPct: 76, openedDaysAgo: 7, closesInDays: 7 },
+    round: { openedDaysAgo: 7, closesInDays: 7 },
   },
   {
     slug: "treasury", ticker: "TRSY", name: "Treasury", stage: "LAUNCHED",
@@ -131,7 +131,7 @@ const COMPANIES: Company[] = [
     legalName: "Treasury Technologies, Inc.",
     founders: [["Junead Khan", "Founder/CEO"]],
     claims: [["product_status", "launched", PW, "LINK", undefined, TREASURY_APP_STORE], ["full_time_founders", "1", FA, "LINK", undefined, "https://treasury.sh/about"]],
-    round: { committedPct: 41, openedDaysAgo: 2, closesInDays: 12 },
+    round: { openedDaysAgo: 2, closesInDays: 12 },
   },
 ];
 
@@ -146,7 +146,6 @@ const claimHash = (slug: string, [metric, value, status, source, subject, source
 function validate() {
   for (const c of COMPANIES) {
     for (const [metric] of c.claims) if (!isMetricCode(metric)) throw new Error(`${c.slug}: unknown metric ${metric}`);
-    if (c.round.committedPct < 0 || c.round.committedPct > 100) throw new Error(`${c.slug}: committedPct out of range`);
   }
 }
 
@@ -230,7 +229,6 @@ async function seed() {
         const maxUnits = ROUND_POLICY.defaultMaxUnits;
         const target = maxUnits * price;
         const cap = (target * ROUND_POLICY.defaultMaxSubscriptionBps) / 10_000n;
-        const committed = (target * BigInt(c.round.committedPct)) / 100n;
         await pool.query(
           `insert into rounds
              (project_id, round_number, opens_at, closes_at, unit_price_micro_usd, max_units, target_amount_micro_usd,
@@ -241,10 +239,17 @@ async function seed() {
                   $9, $10::round_status
              from valuation_snapshots v where v.id = $11`,
           [project.id, c.round.openedDaysAgo, c.round.closesInDays, String(maxUnits), String(target), String(cap < price ? price : cap),
-           Number(ROUND_POLICY.protocolFeeBps), Number(ROUND_POLICY.founderFeeShareBps), String(committed),
-           c.round.committedPct >= 100 ? "FILLED" : "OPEN", valuation.snapshot.id],
+           Number(ROUND_POLICY.protocolFeeBps), Number(ROUND_POLICY.founderFeeShareBps), "0",
+           "OPEN", valuation.snapshot.id],
         );
       }
+      // Seeded rounds carry no committed amount: shown demand is simulated per browser session, and only
+      // real subscriptions add to the stored total. Earlier seeds stored a fixed share; clear it.
+      await pool.query(
+        `update rounds set total_committed_micro_usd = 0 where project_id = $1 and total_committed_micro_usd <> 0
+            and not exists (select 1 from subscriptions s where s.round_id = rounds.id)`,
+        [project.id],
+      );
       console.log(`${c.slug.padEnd(20)} ${valuation.stage.effective.padEnd(19)} $${valuation.values.unitPrice}${valuation.snapshot.reused ? " (unchanged)" : ""}`);
     }
   } finally {
