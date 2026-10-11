@@ -154,40 +154,88 @@ export default function LandingFX() {
   return null;
 }
 
-/** Two-pass WebGL: raymarched terrain luminance → rotated halftone dot screen. Returns cleanup. */
+/** Two-pass WebGL: raymarched Fifth Avenue at golden hour → rotated halftone dot screen. Returns cleanup. */
 function initHalftone(cv: HTMLCanvasElement, reduce: boolean): () => void {
   const gl = cv.getContext("webgl", { antialias: false });
   if (!gl) return () => {};
   const VS = "attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}";
+  // Pass 1, luminance only (red channel): a vague Fifth Avenue looking into a low sun. Setback towers
+  // line a wet avenue, a cross street every fifth lot, flags over the sidewalk, and the Empire State
+  // silhouette on the axis. The sun sits right under the cursor (m), so facades catch and shadow the
+  // light as it moves; t drifts the camera up the avenue.
   const FS1 = `precision highp float;
   uniform vec2 r;uniform float t;uniform vec2 m;
-  float hh(vec2 p){p=fract(p*vec2(123.34,456.21));p+=dot(p,p+45.32);return fract(p.x*p.y);}
-  float n(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.-2.*f);
-    return mix(mix(hh(i),hh(i+vec2(1,0)),u.x),mix(hh(i+vec2(0,1)),hh(i+vec2(1,1)),u.x),u.y);}
-  float H(vec2 p){float a=0.,w=.55;mat2 R=mat2(.8,-.6,.6,.8);
-    for(int i=0;i<6;i++){float v=1.-abs(n(p)*2.-1.);a+=w*v*v;p=R*p*2.02;w*=.48;}
-    return a*a*2.3;}
+  float h1(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+  float vn(vec2 p){vec2 i=floor(p),f=fract(p);vec2 u=f*f*(3.-2.*f);
+    return mix(mix(h1(i),h1(i+vec2(1,0)),u.x),mix(h1(i+vec2(0,1)),h1(i+vec2(1,1)),u.x),u.y);}
+  float box(vec3 p,vec3 b){vec3 q=abs(p)-b;return length(max(q,0.))+min(max(q.x,max(q.y,q.z)),0.);}
+  float tower(vec3 q,float id,float sd){
+    float r1=h1(vec2(id,sd)),r2=h1(vec2(id,sd+7.)),r3=h1(vec2(id,sd+13.));
+    float hA=.8+1.3*r1;
+    float d=box(q-vec3(3.15,hA*.5,0.),vec3(2.,hA*.5,.57));
+    if(r2>.2){float hB=hA+.7+2.4*r2;
+      d=min(d,box(q-vec3(3.45,hB*.5,0.),vec3(2.,hB*.5,.5)));
+      if(r3>.5){float hC=hB+.5+1.8*r3;
+        d=min(d,box(q-vec3(3.8,hC*.5,0.),vec3(2.,hC*.5,.38)));}}
+    d=min(d,box(q-vec3(3.1,hA,0.),vec3(2.,.025,.6)));
+    if(r3<.5){float wv=sin(t*1.7+id*3.)*.015*(1.15-q.x);
+      d=min(d,box(q-vec3(.98,.66,0.),vec3(.17,.006,.006)));
+      d=min(d,box(q-vec3(.93,.57+wv,0.),vec3(.11,.075,.004)));}
+    return d;}
+  // Only the current lot and its nearest neighbour are checked, so march steps are capped at .55.
+  float city(vec3 p){
+    float sd=p.x>0.?1.:2.;
+    vec3 q=vec3(abs(p.x),p.y,p.z);
+    float zi=floor(q.z/1.2),zf=q.z-zi*1.2-.6;
+    float d=p.y;
+    for(int k=0;k<2;k++){
+      float id=zi+(k==0?0.:sign(zf+1e-4));
+      if(mod(id,5.)<3.5)d=min(d,tower(vec3(q.x,q.y,q.z-id*1.2-.6),id,sd));}
+    return d;}
+  vec3 nrm(vec3 p){vec2 e=vec2(.0015,0.);
+    return normalize(vec3(city(p+e.xyy)-city(p-e.xyy),city(p+e.yxy)-city(p-e.yxy),city(p+e.yyx)-city(p-e.yyx)));}
+  float sky(vec3 rd,vec3 sd){
+    float s=max(dot(rd,sd),0.);
+    vec2 q=rd.xy/max(rd.z,.05)-sd.xy/sd.z;
+    float rays=vn(vec2(atan(q.y,q.x)*26.,t*.05));
+    float hz=exp(-max(rd.y,0.)*7.);
+    return .025+.10*hz+(pow(s,36.)*.30+pow(s,360.)*.25)*(.75+.35*rays)+smoothstep(.99984,.9999,s)*.75;}
+  float shadow(vec3 p,vec3 l){float s=1.,d=.03;
+    for(int k=0;k<28;k++){float h=city(p+l*d);s=min(s,10.*h/d);d+=clamp(h,.04,.6);if(s<.02||d>18.)break;}
+    return clamp(s,0.,1.);}
+  float esb(vec2 q){float v=q.y,u=abs(q.x);if(v<0.)return 0.;
+    float w=v<.10?.075:v<.22?.052:v<.27?.042:v<.31?.032:v<.335?.022:v<.36?.014:v<.40?.006:v<.47?.0022:0.;
+    return step(u,w);}
   void main(){
     vec2 uv=(gl_FragCoord.xy-.5*r)/r.y;
-    vec3 ro=vec3(.0,2.05,t*.32);
-    vec3 rd=normalize(vec3(uv.x,uv.y-.13,1.2));
-    vec3 sd=normalize(vec3(m.x*1.4-.55,.07+m.y*.10,1.));
-    float sun=max(dot(rd,sd),0.);
-    float haze=exp(-max(rd.y,0.)*26.);
-    float sky=.012+.22*haze+pow(sun,1400.)*2.+pow(sun,60.)*.28;
-    float d=.2,hit=-1.;
-    for(int i=0;i<150;i++){vec3 p=ro+rd*d;float h=H(p.xz*.30)*.95;float dy=p.y-h;
-      if(dy<.0025*d){hit=d;break;} d+=max(.02,dy*.5); if(d>48.)break;}
-    float L=sky;
-    if(hit>0.){vec3 p=ro+rd*hit;vec2 e=vec2(.03,0.);
-      float h0=H(p.xz*.30)*.95;
-      vec3 nn=normalize(vec3((H((p.xz+e.xy)*.30)*.95-h0),e.x,(H((p.xz+e.yx)*.30)*.95-h0)));
-      float dif=max(dot(nn,normalize(vec3(sd.x,.42,sd.z))),0.);
-      L=.01+pow(dif,1.4)*.92;
-      L*=.3+.7*smoothstep(-.2,1.8,p.y);
-      float fog=1.-exp(-hit*.06);
-      L=mix(L,.03+.20*haze,fog);
-    }
+    vec3 ro=vec3(sin(t*.06)*.12,.3,t*.22);
+    vec3 rd=normalize(vec3(uv.x,uv.y+.10,1.55));
+    vec3 sd=normalize(vec3((m.x-.5)*r.x/r.y,max(m.y-.5+.10,.02),1.55));
+    float bg=sky(rd,sd);
+    vec2 eq=rd.xy/rd.z/.82;
+    if(esb(eq)>.5){bg=mix(.03,bg,.2);if(eq.y>.27&&eq.y<.36)bg+=.12*step(.5,fract(eq.y*90.));}
+    float d=.05,hit=-1.;
+    for(int i=0;i<160;i++){float h=city(ro+rd*d);if(h<.0008*d){hit=d;break;}d+=min(h,.55);if(d>80.)break;}
+    float L=bg;
+    if(hit>0.){vec3 p=ro+rd*hit,n=nrm(p);
+      if(p.y<.004){
+        float glow=sky(reflect(rd,vec3(0,1,0)),sd);
+        L=.02+glow*.6*smoothstep(1.2,.1,abs(p.x))*(.55+.45*vn(vec2(p.x*14.,p.z*1.5)));
+        L+=step(abs(abs(p.x)-.38),.012)*step(.55,fract(p.z*.7))*.2;
+      }else{
+        float dif=max(dot(n,sd),0.);
+        L=.035+max(n.y,0.)*.10+(dif>0.?dif*.6*shadow(p+n*.004,sd):0.);
+        if(abs(n.x)>.5){vec2 g=vec2(p.z*7.,p.y*9.),f=fract(g);
+          float win=step(.3,f.x)*step(f.x,.7)*step(.3,f.y)*step(f.y,.72);
+          float lit=step(.9,h1(floor(g)+vec2(sign(p.x))+floor(t*.08+h1(floor(g))*6.)));
+          L+=win*(lit*.48+.025);
+          if(p.y<.24)L+=.22*step(.5,fract(p.z*2.5))*step(.06,p.y);}
+        L+=pow(1.-abs(dot(n,rd)),5.)*.25*pow(max(dot(rd,sd),0.),3.);
+      }
+      L=mix(L,sky(rd,sd),1.-exp(-hit*.03));}
+    // Bloom shows through the towers, so the sun visibly tracks the cursor even when it is occluded.
+    float sb=max(dot(rd,sd),0.);
+    L+=pow(sb,160.)*.38+pow(sb,32.)*.08;
     gl_FragColor=vec4(clamp(L,0.,1.),0.,0.,1.);
   }`;
   const FS2 = `precision highp float;
