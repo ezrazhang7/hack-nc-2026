@@ -51,7 +51,7 @@ export default function Participation({mode='wallet'}:{mode?:'wallet'|'manage'})
       {me?<div className="w-grid">
         <div><span className="w-k">Wallet</span><b className="mono">{wallet?short(wallet):'Not connected'}</b></div>
         {mode==='wallet'&&<div><span className="w-k">Cash</span><b className="mono">{balance===null?'—':money(balance)}</b></div>}
-        <div className="w-act"><button className="w-btn" disabled={busy} onClick={()=>run(bind)}>{wallet?'Reconnect Phantom':'Connect Phantom'}</button>{mode==='wallet'&&wallet&&status.purchasesEnabled&&<button className="w-btn ghost" disabled={busy} onClick={()=>run(()=>refresh(wallet))}>Refresh</button>}</div>
+        <div className="w-act"><button className="w-btn" disabled={busy} onClick={()=>run(bind)}>{wallet?'Reconnect wallet':'Connect wallet'}</button>{mode==='wallet'&&wallet&&status.purchasesEnabled&&<button className="w-btn ghost" disabled={busy} onClick={()=>run(()=>refresh(wallet))}>Refresh</button>}</div>
       </div>:<div className="w-form">
         <label><span className="w-k">{status.demoMode?'Email or name':'Email'}</span><input type={status.demoMode?'text':'email'} autoComplete="email" placeholder="you@example.com" value={email} onChange={e=>setEmail(e.target.value)}/></label>
         {status.demoMode?<button className="w-btn" disabled={busy} onClick={()=>run(async()=>{await api('/demo/sign-in',{email});setMe(await api('/me'));})}>Sign in</button>:<><button className="w-btn" disabled={busy} onClick={()=>run(async()=>{await api('/auth/email-otp/send-verification-otp',{email,type:'sign-in'});setNotice('Check your email for the sign-in code.');})}>Email me a code</button><label><span className="w-k">Code</span><input value={otp} autoComplete="one-time-code" onChange={e=>setOtp(e.target.value)}/></label><button className="w-btn" disabled={busy} onClick={()=>run(async()=>{await api('/auth/sign-in/email-otp',{email,otp});setMe(await api('/me'));})}>Sign in</button></>}
@@ -61,7 +61,7 @@ export default function Participation({mode='wallet'}:{mode?:'wallet'|'manage'})
     {mode==='wallet'&&<><section className="w-card"><header><h3>Add cash</h3>{bank&&<span className="w-dim mono">{bank.nickname} · {bank.balanceMicroUsd===null?'—':money(bank.balanceMicroUsd)} in bank</span>}</header>
       <div className="w-form row"><label><span className="w-k">Amount</span><input inputMode="decimal" value={amount} onChange={e=>{setAmount(e.target.value);setQuote(null);}}/></label>
         <button className="w-btn" disabled={busy||!wallet||!status.nessieEnabled||Boolean(funding&&!terminalFunding.includes(funding.status))} onClick={()=>run(fund)}>Transfer from bank</button></div>
-      {!wallet&&<p className="w-dim">Connect Phantom to add cash.</p>}
+      {!wallet&&<p className="w-dim">Connect a Devnet wallet to add cash.</p>}
       {funding&&<div className="w-status"><span className="mono">{money(funding.amountMicroUsd)}</span><b>{funding.status.replaceAll('_',' ').toLowerCase()}</b>{funding.errorCode&&<span className="err">{funding.errorCode}</span>}
         {!terminalFunding.includes(funding.status)&&<button className="w-link" disabled={busy} onClick={()=>run(async()=>setFunding(await api(`/funding/${funding.fundingId}/resume`,{})))}>Resume</button>}
         {terminalFunding.includes(funding.status)&&<button className="w-link" disabled={busy||funding.status==='NEEDS_REVIEW'} onClick={()=>{sessionStorage.removeItem(`prospecto:action:${me.identityId}:${wallet}:fund:${funding.amountMicroUsd}`);sessionStorage.removeItem(`prospecto:${me.identityId}:funding`);setFunding(null);}}>New transfer</button>}</div>}
@@ -91,7 +91,7 @@ export default function Participation({mode='wallet'}:{mode?:'wallet'|'manage'})
     </section>}
     {prepared&&<section className="w-card focus"><header><h3>Confirm in your wallet</h3></header>
       <div className="w-grid"><div><span className="w-k">Action</span><b>{prepared.kind}</b></div><div><span className="w-k">Amount</span><b className="mono">{prepared.grossAmountMicroUsd?money(prepared.grossAmountMicroUsd):'—'}</b></div><div><span className="w-k">Network fee</span><b className="mono">{simulation?.feeLamports?`${(Number(simulation.feeLamports)/1e9).toFixed(6)} SOL`:'—'}</b></div><div><span className="w-k">Check</span><b className={simulation?.ok?'up':''}>{simulation?simulation.ok?'Ready':'Failed':'Checking…'}</b></div></div>
-      <div className="w-act"><button className="w-btn" disabled={busy||!simulation?.ok} onClick={()=>run(submit)}>Approve in Phantom</button><button className="w-btn ghost" disabled={busy} onClick={()=>{setPrepared(null);setSimulation(null);}}>Cancel</button></div>
+      <div className="w-act"><button className="w-btn" disabled={busy||!simulation?.ok} onClick={()=>run(submit)}>Approve in wallet</button><button className="w-btn ghost" disabled={busy} onClick={()=>{setPrepared(null);setSimulation(null);}}>Cancel</button></div>
     </section>}
     {tx&&<section className="w-card"><header><h3>Transaction status</h3><a className="w-link" href={`https://explorer.solana.com/tx/${tx.signature}?cluster=devnet`} target="_blank" rel="noreferrer">View on Solana ↗</a></header>
       <div className="w-status"><b role="status" className={tx.status==='Finalized'?'up':''}>{tx.status}</b><span className="mono">{short(tx.signature)}</span>
