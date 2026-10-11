@@ -6,6 +6,7 @@
 # Solana keypairs (Anchor/CLI write these as JSON byte arrays)
 *-keypair.json
 id.json
+chain/.keys/
 
 # OS / editor
 .DS_Store
