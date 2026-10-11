@@ -22,6 +22,11 @@
   <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-ECE5D3?style=flat-square&labelColor=0A0A09">
 </p>
 
+<p align="center">
+  <a href="./assets/readme/prospecto-demo.mp4"><img src="./assets/readme/prospecto-demo-poster.jpg" width="100%" alt="Prospecto in two minutes: the problem, the founder listing flow for Quippy and Treasury, exploring and backing companies, and the news desk"></a><br>
+  <b>▶ <a href="./assets/readme/prospecto-demo.mp4">Watch Prospecto in two minutes</a></b>
+</p>
+
 ---
 
 ## HackNC 2026 tracks
