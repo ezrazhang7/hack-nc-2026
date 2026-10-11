@@ -80,7 +80,7 @@ export class FundingStore {
         if (row.wallet_address !== wallet || String(row.amount_micro_usd) !== amount || row.generation !== options.generation) throw new AppError('IDEMPOTENCY_CONFLICT','This funding key was used for different inputs.',409);
         return funding(row);
       }
-      if (!options.enabled || !options.profile) throw new AppError('BANK_UNAVAILABLE','Nessie funding needs a verified sandbox profile.',503);
+      if (!options.enabled || !options.profile) throw new AppError('BANK_UNAVAILABLE','Bank transfers are unavailable right now.',503);
       const control = await client.query<{ paused: boolean }>('SELECT paused FROM funding_controls FOR UPDATE');
       if (options.paused || control.rows.some(row=>row.paused)) throw new AppError('BANK_UNAVAILABLE','New wallet funding is paused.',503);
       const walletResult = await client.query(`SELECT 1 FROM wallets w JOIN identities i ON i.id=w.identity_id
@@ -89,7 +89,7 @@ export class FundingStore {
       const mappings = await client.query<AccountRow>('SELECT * FROM banking_accounts WHERE generation=$1 AND (identity_id=$2 OR role=$3) FOR UPDATE', [options.generation,identityId,'TREASURY']);
       const source = mappings.rows.find(row => row.role === 'PARTICIPANT'); const treasury = mappings.rows.find(row => row.role === 'TREASURY');
       if (!source?.active || !treasury?.active || treasury.provider_account_id !== options.treasuryProviderId || source.provider_account_id === treasury.provider_account_id) {
-        throw new AppError('BANK_ACCOUNT_NOT_READY','Demo bank account mappings are not ready.',409);
+        throw new AppError('BANK_ACCOUNT_NOT_READY','Your bank account is not open yet.',409);
       }
       const pending = await client.query("SELECT 1 FROM funding_intents WHERE source_banking_account_id=$1 AND status NOT IN ('BANK_REJECTED','COMPENSATED','COMPLETED')", [source.id]);
       if (pending.rowCount) throw new AppError('FUNDING_IN_PROGRESS','Recover the existing funding intent first.',409);

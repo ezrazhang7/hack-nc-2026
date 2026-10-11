@@ -32,7 +32,7 @@ function signature(value: string) {
 export function createPurchaseRouter(store: Store, chain: Chain, publicOrigin: AllowedOrigins, purchases:PurchaseServices | undefined,
   requireIdentity:(context:Context)=>Promise<{identityId:string}>, schedule:(task:()=>Promise<void>)=>void = task => { void task().catch(()=>undefined); }) {
   const app = new Hono<{ Variables: Variables }>();
-  const isPurchase=(path:string)=>/^\/(?:banking\/(?:account|activity)|funding(?:\/.*)?|wallet\/balance|portfolio|transactions(?:\/.*)?|rounds\/[^/]+\/(?:open\/prepare|subscribe\/prepare|subscriptions\/me|settlement\/prepare)|projects\/[^/]+\/tokenization(?:\/.*)?|tokenization\/allocation\/preview)$/.test(path.replace(/^\/api/,''));
+  const isPurchase=(path:string)=>/^\/(?:banking\/(?:account(?:\/provision)?|activity)|funding(?:\/.*)?|wallet\/balance|portfolio|transactions(?:\/.*)?|rounds\/[^/]+\/(?:open\/prepare|subscribe\/prepare|subscriptions\/me|settlement\/prepare)|projects\/[^/]+\/tokenization(?:\/.*)?|tokenization\/allocation\/preview)$/.test(path.replace(/^\/api/,''));
   const service = new TokenizationService(store, chain);
   const purchase=() => {if (!purchases) throw new AppError('BANK_UNAVAILABLE','Purchase flow is not configured.',503);return purchases;};
   app.use('*', async (context, next) => {
@@ -59,6 +59,7 @@ export function createPurchaseRouter(store: Store, chain: Chain, publicOrigin: A
   });
 
   app.get('/banking/account',context => purchase().funding.account(context.get('identityId')).then(result=>context.json(result)));
+  app.post('/banking/account/provision',context => purchase().funding.provision(context.get('identityId')).then(result=>context.json(result)));
   app.get('/banking/activity',context => purchase().funding.activity(context.get('identityId')).then(result=>context.json(result)));
   app.post('/funding',async context => {
     const body=z.object({walletAddress:z.string(),amountMicroUsd:amount}).strict().parse(await context.req.json());

@@ -61,9 +61,16 @@ export interface Bank {
   transfer(id: string): Promise<BankTransfer>;
   history(accountId: string): Promise<BankTransfer[]>;
 }
+/** Account provisioning (NESSIE_PURCHASE_FLOW §3 table: POST /customers, POST /customers/{id}/accounts). */
+export interface BankProvisioner {
+  customersByLastName(lastName: string): Promise<string[]>;
+  checkingAccounts(customerId: string): Promise<BankAccount[]>;
+  createCustomer(lastName: string): Promise<string>;
+  createChecking(customerId: string, nickname: string, dollars: number): Promise<string>;
+}
 export class BankError extends AppError {
   constructor(readonly outcome: 'uncertain' | 'no-effect' | 'invalid', code = 'BANK_UNAVAILABLE') {
-    super(code, outcome === 'invalid' ? 'Bank response requires operator review.' : 'The demo bank is unavailable. Accepted funding will be reconciled.', 503);
+    super(code, outcome === 'invalid' ? 'Bank response requires operator review.' : 'The bank is unavailable right now. Accepted transfers will be reconciled.', 503);
   }
 }
 const accountSchema = z.object({ _id: providerId, customer_id: providerId, nickname: z.string().max(200), balance: z.number().int().safe().nonnegative() });
@@ -72,7 +79,7 @@ const transferSchema = z.object({
   amount: z.number().int().safe().nonnegative(), description: z.string().max(300), status: z.string().min(1),
 });
 
-export class NessieBank implements Bank {
+export class NessieBank implements Bank, BankProvisioner {
   readonly profile: NessieProfile;
   constructor(profile: NessieProfile, private readonly apiKey: string, private readonly transport: typeof fetch = fetch) {
     this.profile = profileSchema.parse(profile);
@@ -131,7 +138,7 @@ export class NessieBank implements Bank {
   }
   async createTransfer(payerId: string, payeeId: string, dollars: number, tag: string): Promise<string> {
     providerId.parse(payerId); providerId.parse(payeeId);
-    if (!Number.isSafeInteger(dollars) || dollars < 1 || dollars > 1000) throw new AppError('INVALID_INPUT', 'Invalid mock bank amount.');
+    if (!Number.isSafeInteger(dollars) || dollars < 1 || dollars > 1000) throw new AppError('INVALID_INPUT', 'Invalid transfer amount.');
     const { body } = await this.request(`/accounts/${payerId}/transfers`, 'POST', {
       medium: 'balance', payee_id: payeeId, amount: dollars,
       transaction_date: new Date().toISOString().slice(0, 10), description: tag,
@@ -182,5 +189,34 @@ export class NessieBank implements Bank {
     }
     if (path) throw new BankError('invalid');
     return [...transfers.values()];
+  }
+  async customersByLastName(lastName: string): Promise<string[]> {
+    const { body } = await this.request('/customers');
+    const rows = z.array(z.object({ _id: providerId, last_name: z.string() }).passthrough()).safeParse(body);
+    if (!rows.success) throw new BankError('invalid');
+    return rows.data.filter(row => row.last_name === lastName).map(row => row._id);
+  }
+  async checkingAccounts(customerId: string): Promise<BankAccount[]> {
+    providerId.parse(customerId);
+    const { body } = await this.request(`/customers/${customerId}/accounts`, 'GET', undefined, true);
+    const rows = z.array(accountSchema.extend({ type: z.string() })).safeParse(body);
+    if (!rows.success) throw new BankError('invalid');
+    return rows.data.filter(row => row.type === 'Checking' && row.customer_id === customerId)
+      .map(row => ({ id: row._id, customerId: row.customer_id, nickname: row.nickname, dollars: row.balance }));
+  }
+  async createCustomer(lastName: string): Promise<string> {
+    // A fixed fictional address: Nessie requires one, and no user data is ever sent.
+    const { body } = await this.request('/customers', 'POST', {
+      first_name: 'Prospecto', last_name: lastName,
+      address: { street_number: '100', street_name: 'Franklin St', city: 'Chapel Hill', state: 'NC', zip: '27514' },
+    });
+    try { return z.object({ _id: providerId }).parse(this.unwrap(body, this.profile.createEnvelope))._id; }
+    catch { throw new BankError('uncertain'); }
+  }
+  async createChecking(customerId: string, nickname: string, dollars: number): Promise<string> {
+    providerId.parse(customerId);
+    const { body } = await this.request(`/customers/${customerId}/accounts`, 'POST', { type: 'Checking', nickname, rewards: 0, balance: dollars });
+    try { return z.object({ _id: providerId }).parse(this.unwrap(body, this.profile.createEnvelope))._id; }
+    catch { throw new BankError('uncertain'); }
   }
 }

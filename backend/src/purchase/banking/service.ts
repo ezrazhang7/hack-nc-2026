@@ -1,6 +1,7 @@
 import type { Store } from '../tokenization/types.js';
 import { AppError } from '../http/errors.js';
-import { BankError, type Bank, type BankTransfer, type NessieProfile } from './adapter.js';
+import { BankError, type Bank, type BankProvisioner, type BankTransfer, type NessieProfile } from './adapter.js';
+import { provisionBankAccount } from './provision.js';
 import { fundingDollars, hash } from './canonical.js';
 import { FundingStore, LeaseLost } from './store.js';
 import type { Funding, PurchaseChain } from './types.js';
@@ -40,9 +41,16 @@ export class FundingService {
     if (!value) throw new AppError('NOT_FOUND','Funding intent not found.',404);
     return this.response(value);
   }
+  /** Opens the identity's bank account on first use (provision.ts), then returns it like account(). */
+  async provision(identityId: string) {
+    const bank = this.options.enabled && this.options.profile ? this.bankFor(this.options.profile) : null;
+    if (!bank || !('createCustomer' in bank)) throw new AppError('BANK_UNAVAILABLE','Bank accounts are unavailable right now.',503);
+    await provisionBankAccount(this.store.pool,bank as Bank & BankProvisioner,this.options,identityId);
+    return this.account(identityId);
+  }
   async account(identityId: string) {
     const mapping = await this.store.mapping(identityId,this.options.generation);
-    if (!mapping) throw new AppError('BANK_ACCOUNT_NOT_READY','No demo bank account is mapped to this identity.',409);
+    if (!mapping) throw new AppError('BANK_ACCOUNT_NOT_READY','Your bank account is not open yet.',409);
     let stale = true;
     if (this.options.profile) {
       try {
