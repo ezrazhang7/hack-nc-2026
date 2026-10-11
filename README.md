@@ -46,6 +46,7 @@ A founder pastes links: a website, a GitHub repo, a short pitch. Prospecto resea
 | 4 | `/rounds/` | Every open round, with its exact unit price and percent committed |
 | 5 | `/round/?slug=…` | One round's terminal: model value, fixed unit price, commitment gauge, countdown |
 | 6 | `/project/?slug=…` | The company profile: claims, sources and verification status |
+| 7 | `/participate/` | Real participation: sign in, prove a Phantom wallet, fund it from a Nessie mock account, sign a subscription, track allocation |
 
 ## Built with
 
@@ -53,8 +54,8 @@ A founder pastes links: a website, a GitHub repo, a short pitch. Prospecto resea
 | --- | --- | --- |
 | **Gemini** (3.1 Flash-Lite, Search grounding, URL context) | Researches founder links and extracts cited claims. Advisory only: it never sets a score or a price | ✅ Live |
 | **Tiger Data** (Tiger Cloud Postgres) | Projects, evidence, versioned valuation snapshots and rounds; forward-only migrations via `dbmate` | ✅ Live |
-| **Solana** (Devnet) | Wallet binding by ed25519 signature today; the round program and Token-2022 receipts are specified | 🟡 Wallets live, program designed |
-| **Capital One Nessie** | Mock bank balances that fund demo wallets with mock USDC | 🟡 Specified in [the purchase flow](docs/NESSIE_PURCHASE_FLOW.md) |
+| **Solana** (Devnet) | Anchor program for funding, subscriptions, pro-rata allocation, refunds and withdrawals; non-transferable Token-2022 receipts; wallet binding by ed25519 signature | 🟡 Built and tested, Devnet deploy pending |
+| **Capital One Nessie** | Server-side adapter: mock bank balances fund demo wallets with mock USDC through a recoverable saga that never retries a bank write blindly | 🟡 Built, off until sandbox-verified |
 
 | Layer | Choice |
 | --- | --- |
@@ -121,22 +122,23 @@ npm run dev
 cd ../web && npm install && npm run dev
 ```
 
-Checks: `npm test` and `npm run typecheck` in `backend/`; `npm run lint` and `npm run build` in `web/`.
+Checks: `npm test` and `npm run typecheck` in `backend/`; `npm run lint` and `npm run build` in `web/`; `cargo test --manifest-path chain/Cargo.toml` for the program. Enabling real purchases (program deploy, mock-USDC mint, Nessie fixtures) is a separate operator checklist in [PURCHASE_SETUP](docs/PURCHASE_SETUP.md).
 
 ## Repository map
 
 ```text
 web/        Next.js front end (landing, launch, desk, rounds, round, project, news)
 backend/    Hono API: auth, evidence research, valuation, rounds, settlement math, wallets
+chain/      Anchor program: rounds, subscriptions, allocation, refunds, Token-2022 receipts
 db/         Forward-only SQL migrations and the versioned valuation-model seed
 docs/       Architecture, valuation, evidence research, purchase flow, legal posture
 ```
 
 ## Honest status
 
-- **Real:** evidence research, valuation, profiles, rounds and wallet binding run against the live database.
+- **Real:** evidence research, valuation, profiles, rounds and wallet binding run against the live database. The backend suite has 212 passing tests.
 - **Seeded:** `db:seed` opens the demo companies' rounds and writes their committed totals directly. They fill the board; they are not real subscriptions.
-- **Not built yet:** the Anchor round program, Token-2022 receipt minting and the Nessie funding saga. Their designs, invariants and golden cases are in [MARKET ARCHITECTURE](docs/MARKET%20ARCHITECTURE.md) and [NESSIE_PURCHASE_FLOW](docs/NESSIE_PURCHASE_FLOW.md).
+- **Built, not yet live:** the Anchor program, Token-2022 receipts and the Nessie funding saga are implemented and pass their tests, including the documented golden cases and non-transferability. They wait on operator setup: Devnet deploy, mock-USDC mint, a verified Nessie sandbox. Until then purchases stay disabled and `/participate/` shows a setup notice.
 - **Planned for the demo:** a clearly labeled *simulated session*, a seeded bonding-curve market in play credits that reads the real price but never writes to it ([DEMO_UI_PLAN](docs/DEMO_UI_PLAN.md)).
 
 > [!IMPORTANT]
@@ -144,7 +146,7 @@ docs/       Architecture, valuation, evidence research, purchase flow, legal pos
 
 ## Docs
 
-[Market architecture](docs/MARKET%20ARCHITECTURE.md) · [Backend stack](docs/BACKEND_STACK.md) · [Evidence research](docs/EVIDENCE_RESEARCH.md) · [Nessie purchase flow](docs/NESSIE_PURCHASE_FLOW.md) · [Demo UI plan](docs/DEMO_UI_PLAN.md) · [Legal posture](docs/LEGAL_POSTURE.md) · [Original mega plan](docs/MEGA_PLAN.md)
+[Market architecture](docs/MARKET%20ARCHITECTURE.md) · [Backend stack](docs/BACKEND_STACK.md) · [Evidence research](docs/EVIDENCE_RESEARCH.md) · [Nessie purchase flow](docs/NESSIE_PURCHASE_FLOW.md) · [Demo UI plan](docs/DEMO_UI_PLAN.md) · [Purchase setup](docs/PURCHASE_SETUP.md) · [Legal posture](docs/LEGAL_POSTURE.md) · [Original mega plan](docs/MEGA_PLAN.md)
 
 ---
 
