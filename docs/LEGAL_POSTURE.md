@@ -17,6 +17,7 @@ Prospecto at HackNC 2026 is a **simulation**:
 | Rights | None: no ownership, cash value, redemption, dividends or conversion | Nothing for a buyer to profit from |
 | Companies | Fictional fixtures in the public demo | No real issuer is marketing a real offering |
 | Valuation | Transparent heuristic with invented stage anchors, labeled as such | Not an appraisal, not investment advice |
+| Market simulator | Off-chain, seeded trading session in play credits, labeled "Simulated session"; it never touches receipts or mock USDC | Shows what attention could do without a real secondary market; P&L is play-credit only and never described as a return on the receipt |
 
 The grey edges are **language** (copy that sounds like a real offering) and **real startups** embedding an “Invest in us” link and a published valuation on their live sites. §3 and §4 cover both.
 

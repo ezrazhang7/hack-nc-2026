@@ -154,4 +154,13 @@ Do not claim success without running the relevant checks. Report exactly what pa
 
 Optimize for a convincing, reliable hackathon demo—not imaginary production scale. Preserve the primary-issuance-only model: no secondary trading, order book, AMM, leverage, shorting, mainnet funds, or claims of legal equity. Keep the product explainable: a participant should always be able to answer, **“Why is this the price?”**
 
+**Demo market-simulator exception (approved 2026-10-10).** The demo may include a clearly labeled, off-chain, seeded market simulator: a bonding curve, simulated traders, buys and sells, order book, candles, and play-credit P&L for the demo company (see [`docs/DEMO_UI_PLAN.md`](./docs/DEMO_UI_PLAN.md)). It must:
+
+- never move, mint, burn, value, or redeem real-layer assets (mock USDC, round vaults, participation receipts) or write to valuation snapshots, rounds, or subscriptions;
+- use its own play credits and sim units, labeled "Simulated session" wherever they appear;
+- read real-layer values (unit price, model value, verified evidence) one way only; simulated activity may appear in real formulas only as a labeled what-if, never as a real input;
+- be deterministic from a seed plus presenter inputs, so a session can be replayed exactly.
+
+The real layer (evidence → valuation → round → settlement → receipts) keeps every rule above.
+
 Nessie data and money are simulated. Never present a Nessie profile as identity verification, a real Capital One relationship, proof of funds, KYC/AML, or access to real banking rails.

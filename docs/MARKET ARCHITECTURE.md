@@ -47,6 +47,8 @@ The system intentionally is **not** a stock exchange:
 - no claim that a hackathon receipt is legal equity;
 - no use of an LLM to determine prices or settle transactions.
 
+**Demo exception:** a clearly labeled, off-chain, seeded market simulator may show secondary-style trading (bonding curve, buys and sells, volume) for the demo company using play credits only. It never touches the system described here: it reads the real unit price, model value, and evidence one way, and its activity reaches valuation formulas only as a labeled what-if. See AGENTS.md (scope discipline) and [DEMO_UI_PLAN.md](DEMO_UI_PLAN.md).
+
 The hackathon version uses four sponsor technologies with non-overlapping responsibilities:
 
 - **Capital One Nessie** simulates bank account balances and transfers to fund demo wallets; it does not settle startup receipts.
