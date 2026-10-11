@@ -1,0 +1,10 @@
+{
+  "cluster": "devnet",
+  "programId": "GRpwgGnAZkiynrTYyYPSfFUhYVUjtFg3Ad8KVdLrTe6S",
+  "admin": "FsadR3syfFAmxBnk3USGfx9AogPAkq8ZWMZAWPwjnnf2",
+  "relayer": "Dtmsa7EQYrxRUrDknx5qi2yoLxYroPUfJaZY1exkWKTG",
+  "paymentMint": "7bZQT8TScZtiHU5i6ZJJRhCgC7nNfjb5vEphS6G5ExCf",
+  "config": "CF8mkDWQ8AVqtwQwcRLLSBeeSJJgou6w5fh7xwo6BKYe",
+  "protocolFeeVault": "FJmLC21kbNXeion7r8XFpByjVs9ep1YTE4CZVr9NCmmf",
+  "setup": "backend/scripts/protocol-init.ts"
+}
