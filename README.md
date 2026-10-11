@@ -1,57 +1,135 @@
-# hack-nc-2026
+<p align="center">
+  <img src="./assets/readme/hero.svg" width="100%" alt="The Prospecto: all the companies too early to list. Evidence becomes a model value, a fixed unit price, a round and receipts.">
+</p>
 
-HackNC project building a simple investment link for startups at any stage.
+<p align="center">
+  <b>The only platform where you can back your friend's startup.</b><br>
+  <sub>Built at <b>HackNC 2026</b> · a simulation on Solana Devnet with mock money and no real securities</sub>
+</p>
 
-## Project plan
+<p align="center">
+  <img alt="HackNC 2026" src="https://img.shields.io/badge/HackNC-2026-5BD06A?style=flat-square&labelColor=0A0A09">
+  <img alt="Next.js 15" src="https://img.shields.io/badge/Next.js-15-ECE5D3?style=flat-square&labelColor=0A0A09">
+  <img alt="Hono API" src="https://img.shields.io/badge/Hono-API-ECE5D3?style=flat-square&labelColor=0A0A09">
+  <img alt="Tiger Postgres" src="https://img.shields.io/badge/Tiger-Postgres-ECE5D3?style=flat-square&labelColor=0A0A09">
+  <img alt="Gemini 3.1 Flash-Lite" src="https://img.shields.io/badge/Gemini-3.1_Flash--Lite-ECE5D3?style=flat-square&labelColor=0A0A09">
+  <img alt="Solana Devnet" src="https://img.shields.io/badge/Solana-Devnet-ECE5D3?style=flat-square&labelColor=0A0A09">
+  <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-ECE5D3?style=flat-square&labelColor=0A0A09">
+</p>
 
-Read the [complete mega plan](docs/MEGA_PLAN.md) for the product direction, founder profiles, business rationale, and hackathon planning. Its original backend sections are historical; the current implementation follows the [market architecture](docs/MARKET%20ARCHITECTURE.md), [backend stack](docs/BACKEND_STACK.md), and [complete Nessie purchase flow](docs/NESSIE_PURCHASE_FLOW.md).
+---
 
-The plan also covers [target users and benefits](docs/MEGA_PLAN.md#28-first-users-and-potential-customers), [competitors and potential advantages](docs/MEGA_PLAN.md#30-competitive-landscape), [demand evidence](docs/MEGA_PLAN.md#32-demand-evidence-and-its-limits), and [why community funding can complement VCs](docs/MEGA_PLAN.md#33-why-complement-vcs-and-why-small-investments-matter).
+## The problem
 
-Backend implementers should follow the [backend tech stack spec](docs/BACKEND_STACK.md) and [Nessie purchase-flow design](docs/NESSIE_PURCHASE_FLOW.md): account mappings, funding saga, guarded token minting, signed subscriptions, allocation/refunds, API contracts, recovery, and numerical fixtures.
+Campus startups are too early for VCs and too informal for crowdfunding portals. The people who believe in them first, their classmates, have no structured way to back them. And when a founder names a price, nobody can see where it came from.
 
-## Proposed MVP
+## What Prospecto does
 
-1. A founder creates a startup profile, submits evidence, and receives an explainable valuation suggestion.
-2. The founder opens a fixed-price, timed primary round and shares its participation link.
-3. A verified demo participant uses **Capital One Nessie** to transfer fictional dollars and fund a mock-token wallet.
-4. The participant signs a Solana Devnet subscription; tokens enter the round vault and a commitment is recorded atomically.
-5. After round close, the program allocates non-transferable participation receipts, splits disclosed fees, and refunds excess tokens. Tiger updates the dashboards.
+A founder pastes links: a website, a GitHub repo, a short pitch. Prospecto researches the evidence, computes a **transparent model value**, and opens a **fixed-price primary round** that other students can join with simulated funds. Every number on the page answers one question: ***"Why is this the price?"***
 
-**Participation is directly in startup rounds. Secondary trading is outside scope.**
+- **Evidence over pedigree.** Gemini finds and quotes sources; deterministic code verifies the quotes and decides what each claim is worth. Missing evidence starts at a neutral 0.50, never at zero, and is never invented.
+- **An auditable price.** Stage-weighted factor scores, scenario values and a versioned model (`valuation-v0.1`) produce one unit price, stored with all of its inputs.
+- **Fair rounds.** Commitments are pro-rata, not first-come-first-served. A disclosed 1% fee applies only to accepted amounts, and oversubscription is refunded exactly.
+- **Honest receipts.** Participants receive non-transferable participation units, not shares, with no secondary trading.
 
-All bank balances and tokens are simulated. Participation receipts have no legal ownership, cash value, redemption, or automatic conversion to actual equity. Nessie is a mock banking API, not a real bank connection or identity check. The valuation model is illustrative.
+<p align="center">
+  <img src="./assets/readme/pipeline.svg" width="100%" alt="Five stages: evidence, valuation, round, settlement, receipts">
+</p>
 
-The [purchase-flow specification](docs/NESSIE_PURCHASE_FLOW.md) includes frontend request/response contracts and [verified numerical examples](docs/fixtures/nessie-purchase-cases.json). A $100 accepted commitment at $1 per unit yields 99 units after the existing 1% fee.
+## Demo walkthrough
 
-## Frontend
+| Step | Page | What to look at |
+| --- | --- | --- |
+| 1 | `/` | The front page. Move your cursor over the halftone hero to move the sun |
+| 2 | `/launch/` | The founder interview: paste links, watch evidence research run, preview the valuation, publish |
+| 3 | `/desk/` | The Estimate Desk: how each factor and the stage weights move the model value |
+| 4 | `/rounds/` | Every open round, with its exact unit price and percent committed |
+| 5 | `/round/?slug=…` | One round's terminal: model value, fixed unit price, commitment gauge, countdown |
+| 6 | `/project/?slug=…` | The company profile: claims, sources and verification status |
 
-The frontend lives in [`web/`](web/) and is a Next.js static export (`output: "export"`, `trailingSlash: true`); `next build` writes a static site to `web/out/`.
+## Built with
+
+| Sponsor tech | Role in Prospecto | Status |
+| --- | --- | --- |
+| **Gemini** (3.1 Flash-Lite, Search grounding, URL context) | Researches founder links and extracts cited claims. Advisory only: it never sets a score or a price | ✅ Live |
+| **Tiger Data** (Tiger Cloud Postgres) | Projects, evidence, versioned valuation snapshots and rounds; forward-only migrations via `dbmate` | ✅ Live |
+| **Solana** (Devnet) | Wallet binding by ed25519 signature today; the round program and Token-2022 receipts are specified | 🟡 Wallets live, program designed |
+| **Capital One Nessie** | Mock bank balances that fund demo wallets with mock USDC | 🟡 Specified in [the purchase flow](docs/NESSIE_PURCHASE_FLOW.md) |
 
 | Layer | Choice |
 | --- | --- |
-| Framework | Next.js 15 (App Router), React 19, TypeScript (strict) |
-| Styling | Hand-written CSS in `web/styles/`, scoped per page; no Tailwind |
-| Fonts | `next/font/google`: Newsreader, JetBrains Mono, UnifrakturMaguntia |
-| Motion | GSAP + ScrollTrigger on the front page, a WebGL halftone canvas, CSS page-turn transitions, an IntersectionObserver scroll reveal, and a per-character hero text reveal; all respect `prefers-reduced-motion` |
-| Data | Fictional fixtures in `web/lib/fixtures.ts`; no API calls yet |
+| Frontend | Next.js 15 (App Router, static export), React 19, strict TypeScript, hand-written CSS, GSAP, a WebGL halftone shader |
+| Backend | Hono on Node 24, Zod at every boundary, parameterized SQL via `pg` (no ORM), Better Auth with campus-email OTP |
+| Money | Integer micro-USD end to end (`BigInt` in TS, `NUMERIC` in SQL); the UI formats prices but never computes them |
+| Hosting | One Vercel project with two services, the static site and the API as Vercel Functions, with `/api/*` rewritten to the API |
 
-Routes: `/` (front page), `/how/` (how a round opens), `/desk/` (Estimate Desk), `/launch/` (founder listing interview), `/rounds/` ("Back a startup": every open round), `/round/?co=TICKER` (one company's round; `?co=draft` previews the founder's unpublished listing from this browser tab), `/news/` (explainers and round reports).
+## Under the hood
 
-```bash
-cd web
-npm install
-npm run dev     # http://localhost:3000
-npm run lint
-npm run build   # static site in web/out/
+```text
+model_reference_value = α_stage × current_operating_value + (1 − α_stage) × scenario_value
+unit_price_micro_usd  = floor(round_implied_value × 1,000,000 / REFERENCE_UNITS)    # REFERENCE_UNITS = 1,000,000
+protocol_fee          = floor(accepted × 100 / 10,000)                               # 1%, on accepted amounts only
 ```
 
-`landing/` holds the earlier plain-HTML prototype that `web/` replaced. It is kept for reference and is not served.
+A $100 accepted commitment at $1 per unit yields **99 units** after the fee. That example, along with oversubscription, dust and zero-unit cases, lives in the [golden fixtures](docs/fixtures/nessie-purchase-cases.json) that the tests check against.
 
-There is no Next.js server: the Hono backend serves the built `web/out/` from the same origin as `/api/*` (see [backend stack spec](docs/BACKEND_STACK.md)).
+<details>
+<summary><b>API surface</b></summary>
 
-## Current status
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` | `/api/projects`, `/api/projects/:slugOrId` | Published profiles with their latest valuation |
+| `POST` | `/api/projects` · `/:id/publish` | Create and publish a founder profile |
+| `POST` | `/api/projects/:id/research-runs` | Start a Gemini evidence-research run (rate-limited, cached 24 h) |
+| `POST` | `/api/projects/:id/valuation/preview` | Deterministic valuation preview |
+| `POST` | `/api/projects/:id/rounds` | Open a fixed-price round |
+| `GET` | `/api/rounds/:id` · `/:id/quote` | Round state and an exact commitment quote |
+| `POST` | `/api/wallets/challenge` · `/verify` | Bind a Solana wallet by signature |
+| `POST` | `/api/demo/sign-in` | Campus-email demo sign-in (only when `DEMO_MODE=true`) |
 
-The frontend pages are built against demo fixtures. The backend, on-chain program, and deployed demo are not implemented yet. Follow the [Nessie implementation plan](docs/NESSIE_PURCHASE_FLOW.md#13-implementation-plan-ownership-and-rollout) and backend stack build order. Live Nessie and Devnet verification require the team's credentials and deployment.
+</details>
 
-Repository: [avidnerd/hack-nc-2026](https://github.com/avidnerd/hack-nc-2026).
+## Run it locally
+
+```bash
+# 1. Configure (never commit real values)
+cp .env.example .env.local        # DATABASE_URL, BETTER_AUTH_SECRET, GEMINI_API_KEY, …
+
+# 2. API on :8787
+cd backend && npm ci
+npm run db:migrate                # Tiger Postgres schema + valuation-v0.1
+npm run db:seed                   # demo companies (idempotent; --dry-run previews prices)
+npm run dev
+
+# 3. Web on :3000 (proxies /api/* to :8787)
+cd ../web && npm install && npm run dev
+```
+
+Checks: `npm test` and `npm run typecheck` in `backend/`; `npm run lint` and `npm run build` in `web/`.
+
+## Repository map
+
+```text
+web/        Next.js front end (landing, launch, desk, rounds, round, project, news)
+backend/    Hono API: auth, evidence research, valuation, rounds, settlement math, wallets
+db/         Forward-only SQL migrations and the versioned valuation-model seed
+docs/       Architecture, valuation, evidence research, purchase flow, legal posture
+```
+
+## Honest status
+
+- **Real:** evidence research, valuation, profiles, rounds and wallet binding run against the live database.
+- **Seeded:** `db:seed` opens the demo companies' rounds and writes their committed totals directly. They fill the board; they are not real subscriptions.
+- **Not built yet:** the Anchor round program, Token-2022 receipt minting and the Nessie funding saga. Their designs, invariants and golden cases are in [MARKET ARCHITECTURE](docs/MARKET%20ARCHITECTURE.md) and [NESSIE_PURCHASE_FLOW](docs/NESSIE_PURCHASE_FLOW.md).
+- **Planned for the demo:** a clearly labeled *simulated session*, a seeded bonding-curve market in play credits that reads the real price but never writes to it ([DEMO_UI_PLAN](docs/DEMO_UI_PLAN.md)).
+
+> [!IMPORTANT]
+> Prospecto is a **simulation**. Balances and tokens are mock assets on Devnet. Participation receipts carry no ownership, cash value, redemption, dividends or conversion to equity. Nessie is a mock banking API, not a bank connection or an identity check. The valuation model is illustrative, not an appraisal or investment advice. See [LEGAL_POSTURE](docs/LEGAL_POSTURE.md) for the regulated route a real version would need.
+
+## Docs
+
+[Market architecture](docs/MARKET%20ARCHITECTURE.md) · [Backend stack](docs/BACKEND_STACK.md) · [Evidence research](docs/EVIDENCE_RESEARCH.md) · [Nessie purchase flow](docs/NESSIE_PURCHASE_FLOW.md) · [Demo UI plan](docs/DEMO_UI_PLAN.md) · [Legal posture](docs/LEGAL_POSTURE.md) · [Original mega plan](docs/MEGA_PLAN.md)
+
+---
+
+<p align="center"><sub>Made at HackNC 2026 · <a href="LICENSE">MIT</a> · <a href="https://github.com/avidnerd/hack-nc-2026">avidnerd/hack-nc-2026</a></sub></p>

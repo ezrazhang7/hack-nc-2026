@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" role="img" aria-labelledby="t d">
+  <title id="t">How a Prospecto round works</title>
+  <desc id="d">Five stages: evidence researched by Gemini and verified in code; a deterministic model value stored in Tiger Postgres; a fixed-price round; pro-rata settlement in mock USDC on Solana Devnet; non-transferable participation receipts.</desc>
+  <rect width="1200" height="400" rx="18" fill="#0A0A09"/>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace" font-size="16" letter-spacing="2" fill="#ECE5D3" opacity=".65">
+    <text x="60" y="56">THE REAL LAYER · EVERY NUMBER TRACES TO A SOURCE</text>
+  </g>
+  <rect x="60" y="72" width="1080" height="1" fill="#ECE5D3" opacity=".4"/>
+
+  <g font-family="Georgia, 'Times New Roman', Times, serif" fill="#ECE5D3">
+    <!-- cards: x = 60 + i*220, width 200 -->
+    <g>
+      <rect x="60" y="104" width="200" height="236" rx="8" fill="none" stroke="#ECE5D3" stroke-opacity=".3"/>
+      <text x="80" y="146" font-family="ui-monospace, Menlo, monospace" font-size="18" fill="#5BD06A">01</text>
+      <text x="80" y="190" font-size="30" font-weight="700">Evidence</text>
+      <text x="80" y="232" font-size="20" font-style="italic" opacity=".85">Gemini finds</text>
+      <text x="80" y="258" font-size="20" font-style="italic" opacity=".85">and quotes;</text>
+      <text x="80" y="284" font-size="20" font-style="italic" opacity=".85">code verifies</text>
+      <text x="80" y="318" font-family="ui-monospace, Menlo, monospace" font-size="15" opacity=".6">GEMINI</text>
+    </g>
+    <g>
+      <rect x="280" y="104" width="200" height="236" rx="8" fill="none" stroke="#ECE5D3" stroke-opacity=".3"/>
+      <text x="300" y="146" font-family="ui-monospace, Menlo, monospace" font-size="18" fill="#5BD06A">02</text>
+      <text x="300" y="190" font-size="30" font-weight="700">Valuation</text>
+      <text x="300" y="232" font-size="20" font-style="italic" opacity=".85">Versioned,</text>
+      <text x="300" y="258" font-size="20" font-style="italic" opacity=".85">deterministic</text>
+      <text x="300" y="284" font-size="20" font-style="italic" opacity=".85">model value</text>
+      <text x="300" y="318" font-family="ui-monospace, Menlo, monospace" font-size="15" opacity=".6">TIGER POSTGRES</text>
+    </g>
+    <g>
+      <rect x="500" y="104" width="200" height="236" rx="8" fill="none" stroke="#ECE5D3" stroke-opacity=".3"/>
+      <text x="520" y="146" font-family="ui-monospace, Menlo, monospace" font-size="18" fill="#5BD06A">03</text>
+      <text x="520" y="190" font-size="30" font-weight="700">Round</text>
+      <text x="520" y="232" font-size="20" font-style="italic" opacity=".85">Fixed unit</text>
+      <text x="520" y="258" font-size="20" font-style="italic" opacity=".85">price, timed,</text>
+      <text x="520" y="284" font-size="20" font-style="italic" opacity=".85">capped target</text>
+      <text x="520" y="318" font-family="ui-monospace, Menlo, monospace" font-size="15" opacity=".6">HONO API</text>
+    </g>
+    <g>
+      <rect x="720" y="104" width="200" height="236" rx="8" fill="none" stroke="#ECE5D3" stroke-opacity=".3"/>
+      <text x="740" y="146" font-family="ui-monospace, Menlo, monospace" font-size="18" fill="#5BD06A">04</text>
+      <text x="740" y="190" font-size="30" font-weight="700">Settlement</text>
+      <text x="740" y="232" font-size="20" font-style="italic" opacity=".85">Pro-rata,</text>
+      <text x="740" y="258" font-size="20" font-style="italic" opacity=".85">1% fee, exact</text>
+      <text x="740" y="284" font-size="20" font-style="italic" opacity=".85">refunds</text>
+      <text x="740" y="318" font-family="ui-monospace, Menlo, monospace" font-size="15" opacity=".6">MOCK USDC · NESSIE</text>
+    </g>
+    <g>
+      <rect x="940" y="104" width="200" height="236" rx="8" fill="#ECE5D3" fill-opacity=".05" stroke="#5BD06A" stroke-opacity=".7"/>
+      <text x="960" y="146" font-family="ui-monospace, Menlo, monospace" font-size="18" fill="#5BD06A">05</text>
+      <text x="960" y="190" font-size="30" font-weight="700">Receipts</text>
+      <text x="960" y="232" font-size="20" font-style="italic" opacity=".85">Non-transferable</text>
+      <text x="960" y="258" font-size="20" font-style="italic" opacity=".85">participation</text>
+      <text x="960" y="284" font-size="20" font-style="italic" opacity=".85">units</text>
+      <text x="960" y="318" font-family="ui-monospace, Menlo, monospace" font-size="15" opacity=".6">SOLANA DEVNET</text>
+    </g>
+  </g>
+  <g fill="#5BD06A">
+    <path d="M262 222 l14 0 l-5 -5 M276 222 l-5 5" stroke="#5BD06A" stroke-width="2" fill="none"/>
+    <path d="M482 222 l14 0 l-5 -5 M496 222 l-5 5" stroke="#5BD06A" stroke-width="2" fill="none"/>
+    <path d="M702 222 l14 0 l-5 -5 M716 222 l-5 5" stroke="#5BD06A" stroke-width="2" fill="none"/>
+    <path d="M922 222 l14 0 l-5 -5 M936 222 l-5 5" stroke="#5BD06A" stroke-width="2" fill="none"/>
+  </g>
+  <text x="60" y="376" font-family="Georgia, serif" font-style="italic" font-size="19" fill="#ECE5D3" opacity=".7">Simulated funds only. Receipts carry no ownership, cash value, redemption or dividends.</text>
+</svg>
